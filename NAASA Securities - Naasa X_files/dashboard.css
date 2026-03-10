@@ -1,0 +1,555 @@
+﻿/*Typography*/
+.text-xs {
+    font-size: 1.3rem;
+    font-size: 1.3rem;
+    line-height: 16px;
+}
+
+.text-sm {
+    font-size: 1.4rem;
+}
+
+.text-base {
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.text-lg {
+    font-size: 18px;
+    line-height: 28px;
+}
+
+.text-xl {
+    font-size: 20px;
+    line-height: 28px;
+}
+
+.text-2xl {
+    font-size: 24px;
+    line-height: 32px;
+}
+
+.items-center {
+    display: flex;
+    align-items: center;
+}
+
+/* Main container spacing */
+.main_cnt {
+    padding: 10px;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+}
+
+p {
+    margin: 3px 0px;
+}
+
+/* card-title */
+.blaze-card-title {
+    font-size: 1.3rem !important;
+    font-weight: 400 !important;
+    color: #495057 !important;
+    text-transform: capitalize !important;
+}
+
+/* Top container layout */
+.container_top {
+    padding: 6px 10px;
+    gap: 24px;
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.cards_title {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.ts_data {
+    margin-top: 8px;
+}
+
+.dp_data {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.collateral_margin {
+    margin-top: 8px;
+}
+
+.font-bold {
+    font-weight: 500;
+}
+
+.font-bold-lg {
+    font-weight: 600;
+}
+
+#tv_chart_container {
+    position: relative;
+    width: 100%;
+    /* Full width of parent */
+    /* padding-top: 56.25%; */
+    /* 9/16 * 100 = 56.25% for 16:9 aspect ratio */
+}
+
+#tv_chart_container iframe {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 5px;
+}
+
+/* Watchlist section */
+.con_watchlist {
+    /* width: 70%; */
+    background-color: white;
+    border-radius: 5px;
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); */
+    padding: 20px;
+
+}
+
+/* Right section container */
+.con_right {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Individual cards in right section */
+.con_right>div {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 20px 24px;
+    display: flex;
+    font-size: 1.3rem;
+    font-size: 1.3rem;
+    color: #495057;
+}
+
+#trade_summary {
+    display: flex;
+    flex-direction: column;
+    height: 50% !important;
+    position: relative;
+}
+
+/* .graph_con {
+    margin-top: 12px;
+} */
+
+.price-container {
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 8px;
+}
+
+.price-box {
+    /*    position: relative;*/
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: #fff;
+    text-align: center;
+    width: 100%;
+    width: 100%;
+    transition: width 0.3s ease-in-out;
+}
+
+.price-box.orange {
+    background-color: #f57c00;
+}
+
+.price-box.blue {
+    background-color: #47AEC6;
+    min-width: 50px;
+}
+
+/* Tooltip styles */
+.price-box[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 1.3rem;
+    font-size: 1.3rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.price-box[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.8);
+}
+
+.turnover_con {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    margin: 12px 0;
+}
+
+
+.buy_color {
+    color: #47AEC6;
+}
+
+.sell_color {
+    color: #F06D26;
+}
+
+.utilized_color {
+    color: #1B81BB;
+}
+
+.available_color {
+    color: #19AD91;
+}
+
+#collateral_summary {
+    display: flex;
+    flex-direction: column;
+    height: 50%;
+}
+
+.margin-fix {
+    margin-top: 25px;
+}
+
+.margin-fix {
+    margin-top: 25px;
+}
+
+.ts_data {
+    height: 100%;
+}
+
+.available-detaile {
+    height: 30%;
+}
+
+.donut_chart {
+    position: relative;
+    width: 260px !important;
+    height: 70% !important;
+    width: 260px !important;
+    height: 70% !important;
+}
+
+.fund-update-btn {
+    background: #0074cc;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 1.3rem;
+    font-size: 1.3rem;
+    padding: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.fund-update-btn:hover {
+    background: #005fa3;
+}
+
+.con_middle {
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 10px;
+    padding-bottom: 0;
+    border-radius: 5px;
+
+}
+
+/* #dp_holdings {
+    height: 40% !important;
+    display: flex;
+    flex-direction: column;
+}
+
+#market_summary {
+    height: 60%;
+    display: flex;
+    flex-direction: column;
+} */
+
+.total_turnover {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.line_break {
+    width: 100%;
+    height: 2px;
+    margin: 0;
+    padding: 0;
+}
+
+.trunover_font {
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
+.show-table {
+    display: none;
+}
+
+.image_icon {
+    width: 22px;
+    height: 22px;
+    opacity: 80%;
+}
+
+.con_bottom {
+    width: 100%;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+}
+
+#news {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    padding: 10px;
+    height: 56rem;
+    border-radius: 5px;
+}
+
+/*tabs*/
+
+.tabs-con {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.watchlist-tabs {
+    display: flex !important;
+    padding: 0;
+    margin: 0;
+    background: #f4f4f5;
+    padding: 3px 3px;
+    width: 100%;
+    gap: 40px;
+    border-radius: 4px;
+}
+
+.watchlist-tabs li a {
+    text-decoration: none;
+    color: #666;
+    font-size: 1.3rem;
+    font-weight: 500;
+    height: 36px;
+    display: inline-block;
+    padding: 10px 24px;
+}
+
+.watchlist-tabs li.active a {
+    color: #0074cc;
+    font-weight: 500;
+    background: white;
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.watchlist-tabs li a:hover {
+    color: #0074cc;
+}
+
+/* Ensure the dropdown-item <li> is hidden by default */
+.dropdown-item {
+    display: none;
+}
+
+.table-dpwatchlist {
+    min-height: .01%;
+    overflow-x: auto;
+    height: 470px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1024px) {
+    .container_top {
+        padding: 15px;
+        gap: 20px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .main_cnt {
+        padding: 15px;
+    }
+
+    .container_top {
+        flex-direction: column;
+        padding: 10px;
+        gap: 16px;
+    }
+
+    .con_watchlist,
+    .con_right {
+        width: 100%;
+        height: auto;
+    }
+
+    .con_watchlist {
+        height: 50vh;
+    }
+
+    .con_right>div {
+        height: 300px;
+    }
+
+    .wft-footer-text {
+        font-size: 1.3rem;
+        font-size: 1.3rem;
+    }
+}
+
+.topGainerHeading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 30px;
+    width: fit-content;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    margin: 0px auto;
+    background: white;
+    color: #19AD91;
+}
+
+.topLosersHeading {
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 30px;
+    width: fit-content;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    margin: 0px auto;
+    background: white;
+    color: red;
+}
+
+.card-refresh {
+    position: absolute;
+    left: 20rem;
+    /* border: 1px solid #ddd; */
+    /* background: white; */
+    color: #0074cc;
+    width: fit-content;
+    padding: 5px 10px;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 5px;
+    /* box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); */
+}
+
+.card-refresh a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+}
+
+.blaze-row {
+    display: flex;
+    gap: 3rem;
+
+}
+
+.blaze-row .card-body {
+    margin-top: 2rem;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+/* new layoutes 2025/05/26 */
+.naasaX-display {
+    display: flex;
+}
+
+.naasaX-col {
+    padding: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+.naasaX-colOne {
+    padding: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+.naasaX-colCollateral {
+    padding: 10px;
+    margin-top: 12px;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    height: 25.3rem !important;
+    border-radius: 5px;
+}
+
+.naasX-tvChart {
+    padding: 5px;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    height: 41.1rem !important;
+    height: 41.1rem !important;
+    max-height: 50rem;
+    border-radius: 5px;
+}
+
+#TodaysGain h5 {
+    margin: 0;
+}
+
+.topSection {
+    height: 42rem;
+}
+
+.topSection {
+    height: 42rem;
+}

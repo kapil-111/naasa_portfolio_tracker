@@ -1,0 +1,847 @@
+﻿.mrktpp-cont .form-group {
+    margin-bottom: 0px;
+}
+
+.modTradePassword, .modChangePassword, .modForgotPassword {
+    max-width: 380px;
+    background: #fff;
+    margin: 40px auto;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 1);
+}
+
+    .modTradePassword .mfp-close, .modChangePassword .mfp-close, .modForgotPassword .mfp-close {
+        right: 0;
+        top: -30px !important;
+        color: #FFFFFF !important;
+        font-size: 36px;
+        font-weight: normal;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+    }
+
+.myalert {
+    position: relative;
+    max-width: 389px;
+    height: 89px;
+    padding: 10px;
+    background-color: #0094da;
+}
+
+    .myalert:after {
+        content: "";
+        position: absolute;
+        top: 0px;
+        right: -38px;
+        background: url(dist/images/logo-arw.png) no-repeat;
+        width: 38px;
+        height: 89px;
+    }
+
+div#keyboard {
+    text-align: center;
+}
+
+    div#keyboard input[type='button'] {
+        background-color: #163681;
+        margin: 1px;
+        border: 1px solid #000510;
+        color: #fff;
+        font-weight: bold;
+    }
+
+        div#keyboard input[type='button']:hover {
+            background-color: #2656c7;
+            margin: 1px;
+            border: 1px solid transparent;
+            color: #fff;
+            font-weight: bold;
+        }
+
+.MEQ-color {
+    color: #000;
+    position: relative;
+}
+
+    .MEQ-color:before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        content: "=";
+        font-family: 'FontAwesome';
+        font-weight: bold;
+    }
+
+table#gridMarketWatch_ td {
+    white-space: nowrap;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 110px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    left: -75px;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+}
+
+ul.dropdown-menu li span {
+    padding: 0px 5px 0px 5px;
+}
+
+table.gridView {
+    border: 1px solid #000;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+    table.gridView td {
+        border: none;
+    }
+
+        table.gridView td:nth-child(0) {
+            width: 50%;
+        }
+
+        table.gridView td:nth-child(1) {
+            width: 25%;
+        }
+
+        table.gridView td:nth-child(2) {
+            width: 25%;
+        }
+
+    table.gridView tr {
+        height: 31px;
+    }
+
+table.gridHeatMap {
+    border: 1px solid #000;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+    table.gridHeatMap td {
+        border: none;
+    }
+
+        table.gridHeatMap td:nth-child(1) {
+            width: 40%;
+        }
+
+        table.gridHeatMap td:nth-child(2) {
+            width: 20%;
+        }
+
+        table.gridHeatMap td:nth-child(3) {
+            width: 40%;
+        }
+
+    table.gridHeatMap tr {
+        height: 31px;
+    }
+
+
+.gridViewScripHeading {
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.gridViewLTP, .gridViewLTPArrow, .gridViewLTPArrow > span {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.gridHeatMapLTP, .gridHeatMapLTPArrow, .gridHeatMapLTPArrow > span {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.gridChart {
+    margin-bottom: 15px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.mw-option2 .mw-table tbody tr td {
+    color: white !important;
+}
+
+.regular-checkbox {
+    display: none;
+}
+
+    .regular-checkbox + label {
+        background-color: #10713B;
+        border: 1px solid #192D19;
+        vertical-align: middle;
+        padding: 8px;
+        border-radius: 8px;
+        display: inline-block;
+        position: relative;
+        width: 28px;
+        margin-top: 0px;
+    }
+
+        .regular-checkbox + label:active, .regular-checkbox:checked + label:active {
+        }
+
+    .regular-checkbox:checked + label {
+        background-color: #8A3646;
+        border: 1px solid #623838;
+        text-align: center;
+        color: #393939;
+    }
+
+        .regular-checkbox:checked + label:after {
+            content: 'OFF';
+            font-size: 12px;
+            position: absolute;
+            top: -1px;
+            left: 3px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+    .regular-checkbox + label:after {
+        content: 'ON';
+        font-size: 12px;
+        position: absolute;
+        top: -1px;
+        color: #fff;
+        font-weight: bold;
+        right: 9px;
+    }
+
+.ON {
+    font-weight: bold;
+    color: #393939;
+    vertical-align: middle;
+    padding: 4px;
+}
+
+.OFF {
+    font-weight: bold;
+    color: #393939;
+    vertical-align: middle;
+    padding: 4px;
+}
+
+ul.ColumnsList {
+    border: 1px solid #C7C6C6;
+    padding: 0;
+    min-height: auto;
+    min-width: 120px;
+}
+
+    ul.ColumnsList li {
+        list-style: none;
+        cursor: pointer;
+        padding: 3px;
+    }
+
+        ul.ColumnsList li:hover {
+            background-color: #E4E3E3;
+        }
+
+        ul.ColumnsList li.selected {
+            background-color: #ffc90a !important;
+            color: #000;
+        }
+
+table#gridMarketWatch_ th {
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+select#OrderddlTradeType_, select#OrderddlOrderTerm_ {
+    width: 100%;
+}
+
+.nav-tabs > li > a {
+    background: #fff;
+}
+
+.MrktPopReport {
+    background: #fff;
+    margin: 40px auto;
+    padding: 0;
+    position:static !important;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 1);
+}
+
+.list-group-item {
+    position: relative;
+    display: block;
+    padding: 1px 15px;
+    margin-bottom: -1px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    font-size: 12px;
+}
+
+.greenMessage {
+    color: Green;
+}
+
+.redMessage {
+    color: Red;
+}
+
+table#OrderFormProductConversionTable_ td, table#OrderFormProductConversionTable_ th {
+    border-color: transparent;
+}
+
+    table#OrderFormProductConversionTable_ td input, table#OrderFormProductConversionTable_ th input, table#OrderFormProductConversionTable_ td select, table#OrderFormProductConversionTable_ th select {
+        width: 100%;
+    }
+
+.PCPop {
+    max-width: 350px;
+    background: #fff;
+    margin: 40px auto;
+    padding: 0;
+    position: relative;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 1);
+}
+
+.refresh:before {
+    content: "\e677";
+}
+
+.mfp-iframe-scaler iframe {
+    background: #fff;
+}
+
+.tm-table td {
+    white-space: nowrap;
+    vertical-align: middle !important;
+}
+
+.new-news > .new-news-d > .news-detail .news-time {
+    display: inline-block;
+    padding: 0px 10px 0px 0px;
+    border-right: 1px solid transparent;
+}
+
+.mw-select {
+    min-width: 100%;
+}
+
+/*Start Header setting*/
+th[colname='BuySell'] {
+    text-align: left;
+}
+
+th[colname='exchange'] {
+    text-transform: capitalize;
+    text-align: left;
+}
+
+th[colname='ticker'] {
+    text-transform: capitalize;
+    text-align: left;
+}
+
+th[colname='Ind'] {
+    text-align: left;
+}
+
+th[colname='LTP'] {
+    text-align: left;
+}
+
+th[colname='BidQty'] {
+    text-align: center;
+}
+
+th[colname='BidPrice'] {
+    text-align: left;
+}
+
+th[colname='OfferQty'] {
+    text-align: left;
+}
+
+th[colname='OfferPrice'] {
+    text-align: left;
+}
+
+th[colname='%Change'] {
+    text-align: left;
+}
+
+th[colname='LastTradeTime'] {
+    text-align: left;
+}
+
+th[colname='Open'] {
+    text-align: left;
+}
+
+th[colname='High'] {
+    text-align: left;
+}
+
+th[colname='Low'] {
+    text-align: left;
+}
+
+th[colname='Close'] {
+    text-align: left;
+}
+
+th[colname='LTQ'] {
+    text-align: left;
+}
+
+th[colname='LTV'] {
+    text-align: left;
+}
+
+th[colname='TTQ'] {
+    text-align: left;
+}
+
+th[colname='TTV'] {
+    text-align: left;
+}
+
+th[colname='Change'] {
+    text-align: left;
+}
+
+th[colname='TotalBuyQty'] {
+    text-align: left;
+}
+
+th[colname='TotalSellQty'] {
+    text-align: left;
+}
+
+th[colname='Time'] {
+    text-align: left;
+}
+
+th[colname='Action'] {
+    text-align: left;
+}
+/*End Header Setting*/
+/*Start Header setting*/
+td[colname='BuySell'] {
+    text-align: left;
+}
+
+td[colname='exchange'] {
+}
+
+td[colname='ticker'] {
+}
+
+td[colname='Ind'] {
+    text-align: left;
+}
+
+td[colname='LTP'] {
+    text-align: left;
+}
+
+td[colname='BidQty'] {
+    text-align: left;
+}
+
+td[colname='BidPrice'] {
+    text-align: left;
+}
+
+td[colname='OfferQty'] {
+    text-align: left;
+}
+
+td[colname='OfferPrice'] {
+    text-align: left;
+}
+
+td[colname='%Change'] {
+    text-align: left;
+}
+
+td[colname='LastTradeTime'] {
+    text-align: left;
+}
+
+td[colname='Open'] {
+    text-align: left;
+}
+
+td[colname='High'] {
+    text-align: left;
+}
+
+td[colname='Low'] {
+    text-align: left;
+}
+
+td[colname='Close'] {
+    text-align: left;
+}
+
+td[colname='LTQ'] {
+    text-align: left;
+}
+
+td[colname='LTV'] {
+    text-align: left;
+}
+
+td[colname='TTQ'] {
+    text-align: left;
+}
+
+td[colname='TTV'] {
+    text-align: left;
+}
+
+td[colname='Change'] {
+    text-align: left;
+}
+
+td[colname='TotalBuyQty'] {
+    text-align: left;
+}
+
+td[colname='TotalSellQty'] {
+    text-align: left;
+}
+
+td[colname='Time'] {
+    text-align: left;
+}
+
+td[colname='Action'] {
+    text-align: left;
+}
+
+td[colname='UpperCKTLimit'] {
+    text-align: left;
+}
+
+td[colname='LowerCKTLimit'] {
+    text-align: left;
+}
+/*End Header Setting*/
+
+
+.mw-option2 .checkbox label {
+    color: white;
+}
+
+.mw-option2 th[colname="exchange"] a {
+    color: #000000 !important;
+}
+
+.mw-option2 th[colname="ticker"] a {
+    color: #000000 !important;
+}
+/*.mw-option2 .tab-stripe {border-bottom: 1px solid #fff;}*/
+.mw-option2 .ON {
+    color: #fff;
+}
+
+.mw-option2 .OFF {
+    color: #fff;
+}
+
+.mw-option2 table.gridView {
+    border: 1px solid #fff;
+    background-color: #1a67a7;
+}
+
+.mw-option2 .gridViewScripHeading {
+    color: #fff;
+}
+
+.mw-option2 .gridViewLTT {
+    color: #fff;
+}
+
+.mw-option2 .gridViewLTP {
+    color: #fff;
+}
+
+.mw-option2 #ChartDiv_ text {
+    fill: white;
+}
+
+.mw-option2 ul.dropdown-menu {
+    background: #052060;
+}
+
+    .mw-option2 ul.dropdown-menu li i {
+        color: #fff;
+    }
+
+.open > .dropdown-menu1 {
+    display: block;
+}
+
+.dropdown-menu1 {
+    position: absolute;
+    top: 100%; /* left: 0; */
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 500px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+}
+
+.greentxt, .redtxt {
+    cursor: pointer;
+}
+
+.mvsearch-scrip {
+    position: absolute;
+    right: 25px;
+    color: #fff !important;
+    font-size: 25px;
+    top: 8px;
+    text-align: center;
+    width: 40px;
+    height: 40px;
+    background: transparent !important;
+}
+
+.pagination-sm > li > a,
+.pagination-sm > li > span {
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    cursor: pointer !important;
+}
+
+button.swal2-confirm {
+    margin: 10px;
+}
+
+.mvscripblock input[type="text"]:focus,
+.mvscripblock input[type="checkbox"]:focus,
+.mvscripblock select:focus {
+    border: 1px solid #1DA5EF;
+}
+
+.Mrktpop-body input.btnReset:focus {
+    background: #25549E;
+}
+
+.Mrktpop-body input.btnSubmit:focus {
+    background: #dbac06;
+}
+
+.e-scrollbar .e-h-line:before,
+.e-scrollbar .e-v-line:before {
+    content: "";
+    background: #2e6da3;
+}
+
+.MyButton {
+    background: #ffc90a;
+    font-size: 15px;
+    color: #000;
+    text-align: center;
+    padding: 10px 30px;
+    height: 44px;
+    border: none;
+}
+
+    .MyButton:hover, .MyButton:active, .MyButton:focus {
+        background: #0094da;
+        color: #fff;
+    }
+
+.NewsDetailPop {
+    max-width: 680px;
+    background: #fff;
+    margin: 40px auto;
+    padding: 0;
+    position: relative;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 1);
+}
+
+.MrktPop {
+    max-width: 860px;
+    background: #fff;
+    position: relative;
+    margin: 0 auto;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 1);
+}
+
+.MrktPop2 {
+    max-width: 640px;
+    background: #fff;
+    margin: 40px auto;
+    padding: 0;
+    position: relative;
+    overflow:auto;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 1);
+}
+
+/*.mfp-bg {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1042;
+    overflow: hidden;
+    position: fixed;
+    background: transparent !important;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+}*/
+
+.clr_userset {
+    float: left;
+    border: 1px solid transparent;
+    background: transparent;
+    border-bottom: 0px;
+    line-height: 40px;
+    height: 40px;
+    padding: 0 3px;
+}
+
+.mwicon {
+    cursor: pointer;
+}
+
+span[data-toggle="tooltip"] {
+    cursor: pointer;
+}
+
+.swal2-modal .swal2-spacer {
+    height: 0px !important;
+    color: transparent;
+    border: 0;
+}
+
+.swal2-content > div p {
+/*    margin-top: 30px;
+*/    margin-bottom: 0px !important;
+      padding:16px 16px;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: initial;
+}
+
+.swal2-content > div {
+    margin: 0px !important;
+}
+
+.swal2-modal.show-swal2 {
+    min-height: auto !important;
+}
+
+.swal2-modal .styled {
+    border: 0;
+    border-radius: 3px;
+    box-shadow: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 500;
+    margin: 10px !important;
+    padding: 5px 15px;
+}
+
+input#OrdertxtPrice_, input#OrdertxtProfitMaking_, input#OrdertxtDisQty_, input#OrdertxtTriggerPrice_ {
+    text-align: right;
+}
+
+nav > ul > li > a {
+    font-size: 13px;
+}
+
+/*.mfp-close-btn-in .mfp-close {
+    color: #333 !important;
+}*/
+
+.download {
+    margin-bottom: 5px;
+    display: block;
+}
+
+.download a {
+    font-size: 18px;
+    font-weight: normal;
+    color: black;
+    position: relative;
+    padding-left: 25px;
+}
+
+    .download a:before {
+        position: absolute;
+        left: 0;
+        top: 0;
+        content: "\f019";
+        color: #444;
+        font-family: 'FontAwesome';
+    }
+.newuserPop {
+    max-width: 650px;
+    background: #fff;
+    margin: 40px auto;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 1);
+}
+div#modTradePassword.MrktPop2 {
+    max-width: 480px;
+    background: #fff;
+    margin: 40px auto;
+    padding: 0;
+    position: relative;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 1);
+}
+.gridMarketWatchList_ {
+/*    border-collapse: separate;
+*/    border-spacing: 0px 6px;
+}
+
+
+    .gridMarketWatchList_ tr td {
+        font-weight: 500 !important;
+        font-size: 1.4rem;
+        line-height: 2 !important
+    }
+    .LiveMarketWatchList_ {
+        border-collapse: separate;
+        border-spacing: 0px 6px;
+    }
