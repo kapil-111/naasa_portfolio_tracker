@@ -1,0 +1,21 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# IDEs and OS files
+.DS_Store
+.vscode/
+
+# Ignore large or sensitive data files
+*.csv
+!all_symbols.csv
+!portfolio_summary.json
