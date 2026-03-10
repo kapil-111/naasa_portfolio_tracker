@@ -1,0 +1,905 @@
+<!DOCTYPE html><html lang="en" class=" -webkit-"><head>
+	<meta charset="utf-8">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<title>NAASA Securities - Naasa X</title>
+
+	<link rel="icon" type="image/png" href="/dist/favicon/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/svg+xml" href="/dist/favicon/favicon.ico">
+<link rel="shortcut icon" href="/dist/favicon/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/dist/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/dist/favicon/site.webmanifest">
+	<link rel="stylesheet" type="text/css" href="/dist/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="/dist/css/font-awesome.css">
+	<link rel="stylesheet" type="text/css" href="/styles/style.css?v=BOTPB0kHhMV657hFKQgiTyhbU3SLhDTobs_-hv4iPT4">
+	<link rel="stylesheet" type="text/css" href="/dist/css/magnific-popup.css">
+	<link rel="stylesheet" type="text/css" href="/dist/css/hurkanswitch.css">
+	<link rel="stylesheet" type="text/css" href="/framework/gritter/jquery.gritter.css">
+	<link rel="stylesheet" type="text/css" href="/framework/css/framework.css?v=dWUCcSi2ChODsCsJm_7QBSAHrT5qOzoIRgkBrGYckkg">
+
+	<link rel="stylesheet" type="text/css" href="/customalert/sweetalert2.css">
+	<link rel="stylesheet" type="text/css" href="/dist/css/footable.bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/syncfusionchart/jquery-ui.css">
+	<link rel="stylesheet" type="text/css" href="/syncfusionchart/content/ejthemes/bootstrap-theme/ej.web.all.min.css">
+	<link rel="stylesheet" type="text/css" href="/syncfusionchart/content/ejthemes/responsive-css/ej.responsive.css">
+	<link rel="stylesheet" type="text/css" href="/syncfusionchart/content/ejthemes/responsive-css/ejgrid.responsive.css">
+	<link rel="stylesheet" type="text/css" href="/framework/css/syncgrid.css">
+	<link rel="stylesheet" type="text/css" href="/nepse_css/style.css?v=XVYILpTu43Jh32ddnvQlFV1x3mIP5ZNDMq7LSr73rsY">
+	<link rel="stylesheet" type="text/css" href="/dist/css/responsive.css">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap" rel="stylesheet">
+
+		<!-- Google tag (gtag.js) -->
+	<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-WLYKB25EPP"></script>
+	
+	<script src="/framework/appInsights.js?v=TsvWer4fNMKaoyTF0jYhNfy0lU8o-ySlAhovwvPzQ2A" defer=""></script>
+
+
+<script src="https://js.monitor.azure.com/scripts/b/ai.3.gbl.min.js" data-ai-name="appInsights" crossorigin="anonymous"></script></head>
+
+<body>
+	<div b-n6hir2wm7w="" class="blaze-navbar blaze-navbar-sticky">
+		<div b-n6hir2wm7w="" class="blaze-logo">
+			<a href="/Home/dashboard"><img src="/dist/images/png_NaasaXLogo.png"></a>
+			<div b-n6hir2wm7w="" class="side_ang"></div>
+		</div>
+		<div b-n6hir2wm7w="" class="blaze-menu">
+			<a b-n6hir2wm7w="" href="javascript:void(0)" id="mobnav"></a>
+			<ul b-n6hir2wm7w="" class="blaze-menu-list">
+				<li b-n6hir2wm7w=""><a class="" href="/Home/dashboard">Home</a></li>
+				<li b-n6hir2wm7w=""><a class="active" href="/MarketOrder/Order">Order</a></li>
+				<li b-n6hir2wm7w=""><a b-n6hir2wm7w="" href="https://wallet.naasasecurities.com.np/login" target="_blank">Fund</a></li>
+				<li b-n6hir2wm7w=""><a class="" href="/MarketWatch">Market</a> </li>
+				<li b-n6hir2wm7w="">
+					<a class="" href="/HeatMap">HeatMap</a>
+				</li>
+
+				<li b-n6hir2wm7w="" class="badge-position"><a b-n6hir2wm7w="" href="https://charts.naasasecurities.com.np/login" target="_blank">Charts</a> <sup b-n6hir2wm7w="" class="new-badge">New</sup>  </li>
+				<li b-n6hir2wm7w="" class="hs_sb">
+					<a b-n6hir2wm7w="" href="javascript:void(0)" class="">Reports</a>
+					<ul b-n6hir2wm7w="" class="sb_mn">
+						<li b-n6hir2wm7w="">
+							<a href="/TradeBook?Report=TRADEBOOK">Trade Book</a>
+						</li>
+						<li b-n6hir2wm7w="">
+							<a href="/TradeBook?Report=ORDERBOOK">Order Book</a>
+						</li>
+						<li b-n6hir2wm7w="">
+							<a href="/TradeBook?Report=HOLDINGDATA">
+								Holding
+								Report
+							</a>
+						</li>
+						<li b-n6hir2wm7w="">
+							<a href="/TradeBook?Report=NETPOSITION">
+								Net
+								Position
+							</a>
+						</li>
+					</ul>
+				</li>
+				<li b-n6hir2wm7w="" class="hs_sb">
+					<a b-n6hir2wm7w="" href="javascript:void(0)">Resources</a>
+					<ul b-n6hir2wm7w="" class="sb_mn">
+						<li b-n6hir2wm7w="">
+							<a target="_blank" href="/dist/pdf/x_manual.pdf">Naasa X Manual</a>
+						</li>
+						<li b-n6hir2wm7w="">
+							<a target="_blank" href="/release.html">Release Note</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div b-n6hir2wm7w="" class="blaze-client-details">
+			<ul b-n6hir2wm7w="" class="blaze-dropdown">
+				<li b-n6hir2wm7w="" class="dropdown">
+					<a b-n6hir2wm7w="" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" onclick="ReadRMSCalls();">
+						<div b-n6hir2wm7w="">
+							<span b-n6hir2wm7w="" class="blaze-notofication-bell">
+								<i b-n6hir2wm7w="" class="wft-icon fa fa-bell" aria-hidden="true"></i>
+							</span>
+							<span b-n6hir2wm7w="" class="blaze-notification-badge" id="RMSCallsCount"></span>
+						</div>
+					</a>
+					<ul b-n6hir2wm7w="" id="RMSCalls" class="dropdown-menu1 user-icon alertlist ">
+						<div b-n6hir2wm7w="" class="clearfix" style="text-align: center; width: 100%; padding: 10px; color:grey">
+							No data available
+						</div>
+					</ul>
+				</li>
+				<li b-n6hir2wm7w="" class="dropdown blaze-user-notification">
+					<a b-n6hir2wm7w="" href="#" class="dropdown-toggle blaze-user-avtar" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						<i b-n6hir2wm7w="" class="wft-icon fa fa-user" aria-hidden="true"></i>
+						<span b-n6hir2wm7w="" class="blaze-text-white" style="line-height:16.5px;" id="HeaderClientName1" title="kapil bhattarai">
+							<small b-n6hir2wm7w="">Welcome</small>
+							<p b-n6hir2wm7w="" class="blaze-mb-0">
+								<small b-n6hir2wm7w="">
+									kapil
+								</small>
+							</p>
+						</span>
+
+					</a>
+					<ul b-n6hir2wm7w="" class="dropdown-menu user-icon userd">
+						<h2 b-n6hir2wm7w="" id="HeaderClientName2" title="kapil bhattarai">
+							kapil bhattarai (20220146089)
+						</h2>
+						<li b-n6hir2wm7w=""><a b-n6hir2wm7w="" href="https://www.naasasecurities.com.np/login" target="_blank"><i b-n6hir2wm7w="" class="fa fa-user"></i> Profile</a></li>
+
+						<li b-n6hir2wm7w="">
+							<a b-n6hir2wm7w="" href="#" onclick="$CLASSLOGIN.CallLogout();"><i b-n6hir2wm7w="" class="fa fa-sign-out"></i>Logout</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div b-n6hir2wm7w="" class="bgfade">
+	</div>
+	<div b-n6hir2wm7w="" role="tabpanel">
+		<div b-n6hir2wm7w="" class="ott_dv">
+			<main b-n6hir2wm7w="" role="main" id="mainHeight" class="pb-3">
+				<div class="ott blaze-indices-sticky">
+    <div class="container-fluid">
+        <div class="row tabView">
+            <!-- Left column: Adjusted for mobile view -->
+            <div class="col-xs-12 col-md-6" style="display: flex; gap:15px; align-items:center;">
+                <div class="marketWatchFullLogo" style="width: 25%;">
+                    <img style="width:100%;" src="/dist/images/png_NaasaXLogo.png" alt="">
+                </div>
+                <div class="lft_dta">
+                    <ul>
+                        <li id="smallindices1">
+                            <div class="hgh_lw" id="IndImg1"><i class="fa fa-caret-up wft-fs-2 wft-text-gainer" aria-hidden="true"></i></div>
+                            <div class="hw_dta text-sm" id="IndTicker1"><p style="margin:3px 0px!important">NEPSE<span>2708.70</span></p><p class="grn_txt">27.20<span>1.01 %</span></p></div>
+                        </li>
+                        <li id="smallindices2">
+                            <div class="hgh_lw" id="IndImg2"><i class="fa fa-caret-up wft-fs-2 wft-text-gainer" aria-hidden="true"></i></div>
+                            <div class="hw_dta text-sm" id="IndTicker2"><p style="margin:3px 0px!important">SENSIND<span>460.48</span></p><p class="grn_txt">4.48<span>0.98 %</span></p></div>
+                        </li>
+                        <li style="margin: 3px 0px!important;">
+                            <div class="tll Turnover text-sm">
+                                <p>Turnover : <span class="NEPSE_Turnover">0</span></p>
+                            </div>
+                            <div class="tll Volume text-sm">
+                                <p>Volume : <span class="NEPSE_Volume">0</span></p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Right column: Adjusted for mobile view -->
+            <div class="col-xs-12 col-md-6">
+                <div class="rgt_dta tikerHide">
+                    <div class="row row_global" style="text-align: end;">
+                        <!-- Ticker display section -->
+                        <div class="col-xs-12 col-md-9 ">
+                            <div class="rgt_in text-sm">
+                                <marquee onmouseover="this.stop()" onmouseout="this.start()" id="TickerIndices"></marquee>
+                            </div>
+                            <a href="javascript:void(0)" class="ad_tck" onclick="CreateTkr()">+</a>
+                        </div>
+                        <!-- Date & Info section -->
+                        <div class="col-xs-12 col-md-3" style="text-align:end;">
+                            <div class="inf d-inline text-sm">
+                                Fri, 06 Feb 2026
+                                <br>
+                                <span class="up_color"></span><span id="lblMarketTime">6:46:44 AM</span>
+                                <br>
+                                <span class="global_lv_data"><span style="width: 10px; height: 10px; background-color: rgb(255, 0, 0); border-radius: 50%;"></span><span style="color: rgb(255, 0, 0);">MARKET CLOSE</span></span>
+                            </div>
+
+                            <div class="imprt d-inline">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-sm show-table" style="text-align: end;">
+                    Fri, 06 Feb 2026
+                    <span class="up_color"></span><span id="lblMarketTime"></span>
+                    <br>
+                    <span class="global_lv_data"><span style="width: 10px; height: 10px; background-color: rgb(255, 0, 0); border-radius: 50%;"></span><span style="color: rgb(255, 0, 0);">MARKET CLOSE</span></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="main_cnt">
+    <div class="container-fluid">
+        <div class="row mb-20" style="margin-top: 10px;">
+            <div class="col-md-12 col-lg-5 col-xl-5">
+                <div class="lft_mrkt mt-20">
+                    <div class="bx1 shdaw pb-0" style="min-height:79rem;">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <span class="blaze-card-title">Market Watch</span>
+                            </div>
+                            <div class="col-md-8">
+                                <div>
+                                    <!-- Grouping the select and icons -->
+                                    <div class="d-flex align-items-center w-100">
+                                        <!-- Select Dropdown -->
+                                        <div class="fld1 blaze-margin-bottom custom_fld1 me-2">
+                                            <select id="ddlUserSet" class="w-100" onchange="UserSetAfterChange()" style="display: none;"><option "selected"="" userdefault="0" default="0" ischange="0" value="Default">Default</option><option ""="" userdefault="0" default="1" ischange="0" value="MyHoldings">MyHoldings</option><option ""="" userdefault="0" default="1" ischange="0" value="IndexWatch">IndexWatch</option></select><div class="nice-select w-100" tabindex="0"><span class="current">Default</span><ul class="list"><li data-value="Default" class="option selected">Default</li><li data-value="MyHoldings" class="option">MyHoldings</li><li data-value="IndexWatch" class="option">IndexWatch</li></ul></div>
+                                        </div>
+                                        <!-- Icons -->
+                                        <ul class="d-flex list-unstyled mb-0">
+                                            <li class="dlt_cst libtn me-2">
+                                                <i class="fa fa-plus wft-bg-light-holding" aria-hidden="true" onclick="OpenNewWatch()" title="Create Market Watch"></i>
+                                            </li>
+                                            <li class="dlt_cst libtn">
+                                                <i class="fa fa-trash wft-bg-light-loser" aria-hidden="true" onclick="DeleteMarketWatch()" title="Delete Market Watch"></i>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="lft_ordr" style="margin-bottom:8px;">
+                                    <div class="srch_ord">
+                                        <input type="text" name="fakeUsername" style="display: none;">
+                                        <input type="password" name="fakePassword" style="display: none;">
+                                        <input tabindex="1" type="text" id="txtAddScrip" placeholder="Search" class="ui-autocomplete-input" autocomplete="off">
+                                        <img src="/dist/images/srch.png">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-content clearfix" style="max-height: 49vh">
+                            <div class="tab-pane active" id="dp_wtchlst1">
+                                <div class="mrkt_in">
+                                    <div class="dta1 OrderWatchList_ wft-flex-column"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 col-lg-7 col-xl-7">
+                <div class="rght_order">
+                    <div class="clearfix"></div>
+                    <div class="ordr_form">
+                        <div class="order_inner">
+                            <div class="symbl pop-d-flex green headerSymbl" style="visibility: hidden;">
+                                <div>
+                                    <div class="companyNameLtp">
+                                        <p class="lblCompanyName"></p>
+                                        <span class="lblStockLtp" id="stockLtp">0.00</span>
+                                    </div>
+                                    <h5 class="lblScrip"> <span></span></h5>
+                                </div>
+                                <div class="pop-content">
+                                    <h5>Continuous</h5>
+                                    <h5>Product Type : <b>CNC</b></h5>
+                                </div>
+                            </div>
+                            <div class="sl_by">
+                                <a href="javascript::void()" title="Ctrl + S" class="by_frm_ordr sl_frm_ordr">SELL</a>
+                                <a href="javascript::void()" title="Ctrl + B" class="by_frm_ordr active buy_frm_order buyColor">BUY</a>
+                            </div>
+                            <div class="row">
+                                <div class="buySellBoxFlex">
+                                    <div class="scnd_rw blazeBox1">
+                                        <span>Scrip</span>
+                                        <input type="text" name="fakeUsername" style="display: none;">
+                                        <input type="password" name="fakePassword" style="display: none;">
+                                        <input type="text" id="searchStock" tabindex="2" placeholder="Type Scrip &amp; Enter">
+                                    </div>
+                                    <div class="scnd_rw blazeBox2">
+                                        <span>Quantity</span>
+                                        <input type="text" name="fakeUsername" style="display: none;">
+                                        <input type="password" name="fakePassword" style="display: none;">
+                                        <input type="number" id="OrdertxtQty" tabindex="3" onkeypress="return isNumber(event);" onkeydown="return TicQty(event,this);">
+                                    </div>
+                                    <div class="scnd_rw blazeBox3">
+                                        <div class="lowHighBox">
+                                            <span id="lowToHighPrice">Low-High: <i style="color: black!important;">0-0</i></span>
+                                            <input type="text" name="fakeUsername" style="display: none;">
+                                            <input type="password" name="fakePassword" style="display: none;">
+                                            <input type="number" placeholder="Price" tabindex="4" id="OrdertxtPrice" maxlength="11" onkeydown="Tic(event, this); return handlePriceKeydown(event, this);" onchange="ValidatePrice()">
+                                        </div>
+                                    </div>
+                                    <div class="scnd_rw blazeBox4">
+                                        <span>Validity</span>
+                                        <select id="OrderddlOrderTerm" onchange="OnChangeOrderTerm()" style="display: none;">
+                                            <option value="DAY">DAY</option>
+                                            <option value="GTD">GTD</option>
+                                            <option value="GTC">GTC</option>
+                                            <option value="IOC">IOC</option>
+                                            <option value="FOK">FOK</option>
+                                        </select><div class="nice-select" tabindex="0"><span class="current">DAY</span><ul class="list"><li data-value="DAY" class="option selected">DAY</li><li data-value="GTD" class="option">GTD</li><li data-value="GTC" class="option">GTC</li><li data-value="IOC" class="option">IOC</li><li data-value="FOK" class="option">FOK</li></ul></div>
+                                    </div>
+                                    <div class="scnd_rw blazeBox5">
+                                        <span>Valid Till</span>
+                                        <input type="text" id="OrdertxtTermValidity" onblur="ValidityDatecheck()" disabled="" class="hasDatepicker">
+                                    </div>
+                                </div>
+
+                                <div class="blaze-buy-sell-radio-box cstm_radio">
+                                    <div class="buySellBoxFlexAvailable">
+                                        <span>
+                                            <input type="radio" id="chkOrderTypeLMT" name="radio-group" onclick="ClickOrderType()">
+                                            <label class="margin-bottom-0" for="chkOrderTypeLMT">LMT</label>
+                                        </span>
+                                        <span>
+                                            <input type="radio" id="chkOrderTypeMKT" name="radio-group" onclick="ClickOrderType()">
+                                            <label class="margin-bottom-0" for="chkOrderTypeMKT">MKT</label>
+                                        </span>
+                                        <div class="blaze-avaBox">
+                                            <h5 class="buySell-h5 margin-bottom-0">Estimated Total</h5>
+                                            <span id="lblEstimated">0.00</span>
+                                        </div>
+                                        <div class="blaze-avaBox">
+                                            <h5 class="buySell-h5 margin-bottom-0">Available Collateral</h5>
+                                            <span id="lblMyCollateral">2.62</span>
+                                        </div>
+                                        <div class="blaze-avaBox">
+                                            <h5 class="buySell-h5 margin-bottom-0">Available Quantity</h5>
+                                            <span id="lblOrderQuantity">0.00</span>
+                                        </div>
+                                    </div>
+                                    <div class=" btn_by">
+                                        <a href="javascript:void(0)" class="buyColor" id="btnBuy" onclick="PlaceOrder()">Buy</a>
+                                        <a href="javascript:void(0)" class="rst" id="btnReset" onclick="ResetOrderForm()">Reset</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="top5by blaze-list-card">
+                                                <h4 class="buySell-h4">TOP 5 BUY </h4>
+                                                <table class="table tblMarketDepthBuyStock" id="top5StockBuy"><tbody><tr><th class="blaze-TopbuySellHeader">Order</th><th class="blaze-TopbuySellHeader">Qty</th><th class="blaze-TopbuySellHeader">Price</th></tr><tr><td class="blaze-top5buy-data">0</td><td class="blaze-top5buy-data">0</td><td class="blaze-top5buy-data">0</td></tr><tr><td class="blaze-top5buy-data">0</td><td class="blaze-top5buy-data">0</td><td class="blaze-top5buy-data">0</td></tr><tr><td class="blaze-top5buy-data">0</td><td class="blaze-top5buy-data">0</td><td class="blaze-top5buy-data">0</td></tr><tr><td class="blaze-top5buy-data">0</td><td class="blaze-top5buy-data">0</td><td class="blaze-top5buy-data">0</td></tr><tr><td class="blaze-top5buy-data">0</td><td class="blaze-top5buy-data">0</td><td class="blaze-top5buy-data">0</td></tr><tr class="buy-total-qty"><td>Total Qty</td><td id="totalBuyQty">-</td><td>-</td></tr></tbody></table>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="top5by sell_color blaze-list-card">
+                                                <h4 class="buySell-h4">TOP 5 SELL </h4>
+                                                <table class="table tblMarketDepthSellStock" id="top5StockSell"><tbody><tr><th class="blaze-TopbuySellHeader">Price</th><th class="blaze-TopbuySellHeader">Qty</th><th class="blaze-TopbuySellHeader">Order</th></tr><tr><td class="blaze-top5sell-data">0</td><td class="blaze-top5sell-data">0</td><td class="blaze-top5sell-data">0</td></tr><tr><td class="blaze-top5sell-data">0</td><td class="blaze-top5sell-data">0</td><td class="blaze-top5sell-data">0</td></tr><tr><td class="blaze-top5sell-data">0</td><td class="blaze-top5sell-data">0</td><td class="blaze-top5sell-data">0</td></tr><tr><td class="blaze-top5sell-data">0</td><td class="blaze-top5sell-data">0</td><td class="blaze-top5sell-data">0</td></tr><tr><td class="blaze-top5sell-data">0</td><td class="blaze-top5sell-data">0</td><td class="blaze-top5sell-data">0</td></tr><tr class="sell-total-qty"><td>Total Qty</td><td id="totalSellQty">-</td><td>-</td></tr></tbody></table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="blaze-list-card">
+                                        <div class="blaze-list-card-header top5by">
+                                            <h4 class="buySell-h4">Stock Information</h4>
+                                        </div>
+                                        <div class="blaze-list">
+                                            <span class="blaze-data-list">
+                                                <span>Avg Price</span>
+                                                <span class="lblStockAvgPrice" id="stockAvgPrice">0</span>
+                                            </span>
+                                            <span class="blaze-data-list">
+                                                <span>D.High</span>
+                                                <span class="lblStockHigh" id="stockHigh">0</span>
+                                            </span>
+                                            <span class="blaze-data-list">
+                                                <span>D.Low</span>
+                                                <span class="lblStockLow" id="stockLow">0</span>
+                                            </span>
+                                            <span class="blaze-data-list">
+                                                <span>P.Close</span>
+                                                <span class="lblStockClose" id="stockClose">0</span>
+                                            </span>
+                                            <span class="blaze-data-list">
+                                                <span>Volume</span>
+                                                <span class="lblStockVolume" id="stockVolume">0</span>
+                                            </span>
+                                            
+                                            <span class="blaze-data-list">
+                                                <span>Turnover</span>
+                                                <span class="lblStockTurnover" id="stockTurnover">0</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="ord_book mt-20">
+                        <div>
+                            <div class="order-page-header d-flex flex-wrap align-items-center justify-content-between">
+                                <div class="order-page-actions d-flex align-items-center">
+
+                                    <p class="blaze-card-title">order book</p>
+                                    <a title="Refresh" class="order-page-refresh" onclick="rotateIcon(this); GetOrderBook()">
+                                        <i style="font-size: 16px;" class="fa fa-refresh" aria-hidden="true"></i>
+                                    </a>
+                                    <a href="javascript::void(0)" onclick="DeleteOrders()" class="redtxt">
+                                        <i style="font-size: 16px;" class="fa fa-trash" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                                <div class="order-page-actions d-flex align-items-center">
+                                    <div class="order-page-search">
+                                        <input type="text" name="fakeUsername" style="display: none;">
+                                        <input type="password" name="fakePassword" style="display: none;">
+                                        <input type="text" readonly="" onfocus="this.removeAttribute('readonly');" placeholder="Search" id="searchInput" onkeyup="FilterReports()" autocomplete="off">
+                                        <img src="/dist/images/srch.png" alt="Search">
+                                    </div>
+                                    <div class="btn_by">
+                                        <a title="View More" href="/TradeBook?Report=ORDERBOOK" class="buyColor">
+                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="in+ord_tbl">
+                                <div>
+                                    <div id="GridDiv" class="e-grid e-js e-responsive e-waitingpopup" tabindex="0" style="width: 707px;" accesskey="e"> <div class="e-gridtoolbar e-toolbar e-js e-widget e-box e-toolbarspan e-tooltip" id="GridDiv_toolbarItems" tabindex="0" role="toolbar" aria-disabled="false" style="visibility: visible; display: block;"><ul class="e-ul e-horizontal"><li id="GridDiv_responsiveFilter" class="e-gridresponsiveicons e-tooltxt" style="display: none;" data-content="Filter" aria-disabled="false"><a class="e-toolbaricons e-filterset e-icon"></a></li><li id="GridDiv_responsiveSorting" class="e-gridresponsiveicons e-tooltxt" style="display: none;" data-content="Sort" aria-disabled="false"><a class="e-toolbaricons e-respponsiveSorting e-icon"></a></li></ul><ul class="e-ul e-horizontal"></ul></div><div class="e-gridheader e-textover"><div class="e-headercontent e-hscrollcss"><table class="e-table" cellspacing="0.25px" role="grid" style="width: 800px;"><colgroup><col style="width: 40px;"><col style="width: 80px;"><col style="width: 85px;"><col style="width: 64px;"><col style="width: 69px;"><col style="width: 61px;"><col style="width: 73px;"><col style="width: 93px;"><col style="width: 77px;"></colgroup><thead><tr class="e-columnheader"><th class="e-headercell e-default e-resizer e-draggable e-js e-droppable" role="columnheader" title="" tabindex=""><div class="e-headercelldiv" style="text-align: left;"><input type="checkbox" id="selectAllRows" onclick="onSelectAllRowsClick(this)"></div></th><th class="e-headercell e-default e-resizer e-draggable e-js e-droppable" role="columnheader" title="ACTION" tabindex=""><div class="e-headercelldiv" style="text-align: left;">ACTION</div></th><th class="e-headercell e-default e-resizer e-headercellfilter e-draggable e-js e-droppable" role="columnheader" title="STATUS" tabindex=""><div class="e-headercelldiv" ej-mappingname="StatusText" style="text-align: left;">STATUS</div><div class="e-filtericon e-icon e-filterset"></div></th><th class="e-headercell e-default e-resizer e-headercellfilter e-draggable e-js e-droppable" role="columnheader" title="SYM" tabindex=""><div class="e-headercelldiv" ej-mappingname="Scrip" style="text-align: left;">SYM</div><div class="e-filtericon e-icon e-filterset"></div></th><th class="e-headercell e-default e-resizer e-headercellfilter e-draggable e-js e-droppable" role="columnheader" title="TYPE" tabindex=""><div class="e-headercelldiv" ej-mappingname="BuySellText" style="text-align: left;">TYPE</div><div class="e-filtericon e-icon e-filterset"></div></th><th class="e-headercell e-default e-resizer e-headercellfilter e-draggable e-js e-droppable" role="columnheader" title="QTY" tabindex=""><div class="e-headercelldiv" ej-mappingname="Quantity" style="text-align: right;">QTY</div><div class="e-filtericon e-icon e-filterset"></div></th><th class="e-headercell e-default e-resizer e-headercellfilter e-draggable e-js e-droppable" role="columnheader" title="PRICE" tabindex=""><div class="e-headercelldiv" ej-mappingname="Price" style="text-align: right;">PRICE</div><div class="e-filtericon e-icon e-filterset"></div></th><th class="e-headercell e-default e-resizer e-headercellfilter e-draggable e-js e-droppable" role="columnheader" title="REM QTY" tabindex=""><div class="e-headercelldiv" ej-mappingname="RemainingQty" style="text-align: right;">REM QTY</div><div class="e-filtericon e-icon e-filterset"></div></th><th class="e-headercell e-default e-resizer e-headercellfilter e-draggable e-js e-droppable" role="columnheader" title="VALUE" tabindex=""><div class="e-headercelldiv" ej-mappingname="Value" style="text-align: right;">VALUE</div><div class="e-filtericon e-icon e-filterset"></div></th></tr></thead><tbody class="e-hide"><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table></div></div><div class="e-gridcontent e-scroller e-js e-widget" tabindex="0" style="height: 258px; width: 667px;"><div class="e-content" style="height: 2px; width: 667px;"><table class="e-table" cellspacing="0.25px" role="grid" style="width: 800px; min-width: 800px;"><colgroup><col style="width: 40px;"><col style="width: 80px;"><col style="width: 85px;"><col style="width: 64px;"><col style="width: 69px;"><col style="width: 61px;"><col style="width: 73px;"><col style="width: 93px;"><col style="width: 77px;"></colgroup><tbody><tr><td class="emptyrecord e-lastrowcell" colspan="9">No records to display</td></tr></tbody></table></div><div class="e-scrollbar e-js e-widget e-hscrollbar" tabindex="" style="height: 18px; width: 667px; display: block;"><div class="e-hscroll e-box" style="width: 667px;"><div class="e-hup e-chevron-up_01 e-icon e-box e-button" style="width:18px"></div><div class="e-hhandlespace" style="width:631px"><div class="e-hhandle e-box e-pinch e-h-line e-icon" style="width: 526.096px; transition: none;"></div></div><div class="e-hdown e-chevron-down_01 e-icon e-box e-button" style="width:18px"></div></div></div></div></div><div id="responsiveFilter" class="resFilterDiv" style="width: 100%; padding: 0px; display: none;"><div class="e-resFilterDialogHeaderDiv" style="height: 57.68px;"><div class="e-resFilterleftIcon" style="margin-top: 3%;"><span class="e-icon e-responsiveFilterClear e-resIcon" style="font-size: 23px;"></span></div><div class="labelRes"><span>Filter</span></div><div class="e-resFIlterRigthIcon" closedialogue="responsiveFilter" gridele="true" style="float: right; margin-top: 3%;"><span class="e-icon e-responisveClose e-resIcon" closedialogue="responsiveFilter" gridele="true" style="font-size: 23px;"></span></div></div><div class="columnDiv" style="width: 100%;"><div class="e-responsivefilterColDiv" style="width: 100%;"><span style="margin-left: 4%;"><input type="checkbox" id="selectAllRows" onclick="onSelectAllRowsClick(this)"></span></div><div class="e-responsivefilterColDiv" style="width: 100%;"><span style="margin-left: 4%;">ACTION</span></div><div class="e-responsivefilterColDiv" ej-mappingname="StatusText" style="width: 100%;"><span style="margin-left: 4%;">STATUS</span></div><div class="e-responsivefilterColDiv" ej-mappingname="Scrip" style="width: 100%;"><span style="margin-left: 4%;">SYM</span></div><div class="e-responsivefilterColDiv" ej-mappingname="BuySellText" style="width: 100%;"><span style="margin-left: 4%;">TYPE</span></div><div class="e-responsivefilterColDiv" ej-mappingname="Quantity" style="width: 100%;"><span style="margin-left: 4%;">QTY</span></div><div class="e-responsivefilterColDiv" ej-mappingname="Price" style="width: 100%;"><span style="margin-left: 4%;">PRICE</span></div><div class="e-responsivefilterColDiv" ej-mappingname="RemainingQty" style="width: 100%;"><span style="margin-left: 4%;">REM QTY</span></div><div class="e-responsivefilterColDiv" ej-mappingname="Value" style="width: 100%;"><span style="margin-left: 4%;">VALUE</span></div></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</main></div>
+</div>
+
+
+<div class="modal fade" id="ModNewWatch" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="z-index: 99999999 !important;">
+    <style>
+    .mt-cstm {
+        margin-top: 20px;
+    }
+
+    .btn_ok {
+        min-width: 100px;
+        background: green !important;
+    }
+
+    .btn_cancel {
+        min-width: 100px;
+    }
+
+    .cst_chckbx{
+        margin-top:25px;
+    }
+</style>
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-body">
+          
+            <div class="row">
+                <div class="col-md-8">
+                    <span>Market Watch Name:</span>
+                    <input type="text" id="txtAddMarketWatchName" class="form-control" maxlength="15">
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check cst_chckbx">
+                        <input class="form-check-input" type="checkbox" id="chkAddMarketWatchDefault">
+                        <label class="form-check-label">
+                            Is Default
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col text-left mt-cstm">
+                <input type="button" value="Ok" class="btn btn-primary btn_ok" onclick="AddNewMarketWatch()">
+                <input type="button" value="Cancel" class="btn btn-danger btn_cancel" data-dismiss="modal" aria-label="Close">
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script type="text/javascript">
+
+    $FEEDSERVERIP = 'x.naasasecurities.com.np:8006';
+
+    function rotateIcon(element) {
+        const icon = element.querySelector("i");
+        icon.classList.add("rotate");
+        setTimeout(() => {
+            icon.classList.remove("rotate");
+        }, 1000);
+    }
+</script>
+
+			
+		
+	
+
+	<input b-n6hir2wm7w="" type="hidden" name="hdnSession" id="hdnSession" value="20220146089    6045158157">
+	<input b-n6hir2wm7w="" type="hidden" name="hdnLogin" id="hdnLogin" value="20220146089">
+
+	<input b-n6hir2wm7w="" type="hidden" id="Market_Header_Columns" value="True">
+
+	<div b-n6hir2wm7w="" class="modal fade" id="modSessionTimeOut" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="z-index: 99999999 !important;">
+		    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="col text-center">
+                    <p style="font-size: 12px !important; text-align: center; font-weight: 700;">
+                    Session Timed Out, Please login to continue
+                        <label id="lblSessionTime" style="color: red;display:none;">60</label>
+                    </p>
+                </div>
+                <div class="col text-center">
+                <input id="AReactiveSession" class="btn-session mb-1" style="cursor: pointer; text-align: center;" onclick="ReActivateLoginSession()" value="Yes, To Continue" hidden="hidden">
+                <input id="Text2" class="btn-session" onclick="SetLogOut()" style="cursor: pointer; text-align: center;" value="OK">
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+	</div>
+
+	<div b-n6hir2wm7w="" id="modRMSCalls" class="zoom-anim-dialog mfp-hide MrktPopReport">
+		<div b-n6hir2wm7w="" class="mrktpopup">
+			<div b-n6hir2wm7w="" class="mrktpp-head_ms">
+				<h3 b-n6hir2wm7w="">Broadcast Messages</h3>
+			</div>
+			<div b-n6hir2wm7w="" class="mrktpp-cont">
+				<div b-n6hir2wm7w="" class="container-fluid">
+					<div b-n6hir2wm7w="" class="Recommendations" style="height: 300px; overflow: auto;">
+						<ul b-n6hir2wm7w="" id="AllBroadcastMessages">
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div b-n6hir2wm7w="" class="modal fade" id="ModCreateIndices" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="z-index: 99999999 !important;">
+		<style>
+    .cst_srch_ord {
+        border: 1px solid #ccc;
+        margin: 10px 0;
+    }
+
+    .ui-widget-content{
+        max-width:580px !important;
+    }
+</style>
+
+<div class="modal-dialog" style="max-width:450px;">
+    <div class="modal-content">
+        <div class="modal-body">
+            <div class="col-md-12 text-center border">
+                <h4>Manage Ticker</h4>
+            </div>
+            <div class="form-group">
+                <div class="col-md-12">
+                 <div class="srch_ord cst_srch_ord">
+                    <input type="text" id="txtAddTicker" placeholder="Search" class="ui-autocomplete-input" autocomplete="off">
+                    <img src="/dist/images/srch.png">
+                </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="ticker-table-responsive">
+                        <table class="script_tbl table table-bordered table-fixed" id="tblTkr">
+                            <thead>
+                                <tr>
+                                    <th class="col-xs-9">Ticker</th>
+                                    <th class="col-xs-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col text-center form-group">
+                <input type="button" id="btnSave" class="btn btn-primary" value="UPDATE" onclick="SaveTkr()">
+                <input type="button" id="btnCancel" class="btn btn-danger" value="CANCEL" data-dismiss="modal" aria-hidden="true">
+            </div>
+        </div>
+    </div>
+</div>
+
+	</div>
+
+	<div b-n6hir2wm7w="" class="modal fade" id="ModExchMsg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="z-index: 99999999 !important;">
+		<div b-n6hir2wm7w="" class="modal-dialog" style="max-width:500px;">
+			<div b-n6hir2wm7w="" class="modal-content">
+				<div b-n6hir2wm7w="" class="modal-body">
+					<div b-n6hir2wm7w="" class="col-md-12 text-center border">
+						<h4 b-n6hir2wm7w="">Exchange Message</h4>
+					</div>
+					<div b-n6hir2wm7w="" class="form-group">
+						<div b-n6hir2wm7w="" class="col-md-12">
+							<div b-n6hir2wm7w="" class="force-overflow" id="ExchangeMessages"></div>
+						</div>
+					</div>
+					<div b-n6hir2wm7w="" class="col text-center form-group">
+						<input b-n6hir2wm7w="" type="button" id="btnCancel" class="btn btn-success" value="Ok" data-dismiss="modal" aria-hidden="true">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div b-n6hir2wm7w="" id="modChangePassword" class="zoom-anim-dialog mfp-hide MrktPop2  clearfix">
+		<div class="mrktpopup" id="">
+    <div class="mrktpp-head">
+        <h3>Change Password</h3>
+    </div>
+    <div class="mrktpp-cont">
+        <div role="form">
+            <div class="form-group">
+                <label for="txtUserID">
+                    Login Id :
+                </label>
+                <input id="txtLoginIdCh" type="text" class="form-control" placeholder="Login Id" maxlength="15">
+            </div>
+            <div class="form-group">
+                <label for="txtUserID">
+                    Old Password :
+                </label>
+                <input id="txtOldPassword" type="password" class="form-control" tabindex="8" required="required" autofocus="" placeholder="Old Password" maxlength="12">
+            </div>
+            <div class="form-group">
+                <label for="txtUserID">
+                    New Password :
+                </label>
+                <input id="txtNewPassword" type="password" class="form-control" required="required" placeholder="New Password" tabindex="9" maxlength="12">
+            </div>
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label for="txtUserID">
+                    Confirm New Password :
+                </label>
+                <input id="txtConfirmNewPassword" type="password" class="form-control" required="required" placeholder="Confirm New Password" tabindex="10" maxlength="12">
+            </div>
+            <input type="button" value="Submit" class="btn btn-md btn-primary" style="cursor: pointer;" tabindex="11" name="submit" onclick="$CLASSLOGIN.ChangePassword();">
+            &nbsp;<input type="button" value="Reset" class="btn btn-md btn-secondary" style="cursor: pointer;" tabindex="12" name="Reset" onclick="$CLASSLOGIN.ResetChangePasswordWindow();">
+        </div>
+    </div>
+<button title="Close (Esc)" type="button" class="mfp-close change-pass">
+    ×
+</button>
+</div>
+
+	</div>
+
+
+	<div b-n6hir2wm7w="" class="modal fade" id="ModChart" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="z-index: 9999999;">
+		<div b-n6hir2wm7w="" class="modal-dialog" style="width:80%">
+			<div b-n6hir2wm7w="" class="modal-content">
+				<div b-n6hir2wm7w="" class="modal-header">
+					<button b-n6hir2wm7w="" type="button" class="close" onclick="AfterCloseChartWindow()">
+						<span b-n6hir2wm7w="" aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div b-n6hir2wm7w="" class="modal-body">
+					<div b-n6hir2wm7w="" class="form-horizontal">
+						<div b-n6hir2wm7w="" class="form-group">
+							<div b-n6hir2wm7w="" id="chartDiv" style="height:500px;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<!-- Custom Modal -->
+	<div b-n6hir2wm7w="" id="orderDetailModal" class="custom-modal">
+		<div b-n6hir2wm7w="" class="custom-modal-content">
+			<span b-n6hir2wm7w="" class="custom-modal-close" onclick="closeCustomModal()">×</span>
+			<h5 b-n6hir2wm7w="">Order History</h5>
+			<div b-n6hir2wm7w="" id="orderDetailContent"></div>
+		</div>
+	</div>
+
+
+
+	<footer b-n6hir2wm7w="" class="wft-footer">
+		<a b-n6hir2wm7w="" href="https://naasasecurities.com.np/" target="_blank" class="wft-footer-text">©
+			2026 NAASA Securities Company Limited. All rights reserved.</a>
+	</footer>
+
+
+
+
+
+
+
+	<script src="/framework/bluebird/bluebird/bluebird.min.js"></script>
+	<script src="/dist/js/jquery.min.js"></script>
+	<script src="/dist/js/prefixfree.min.js"></script>
+	<script src="/dist/js/jquery.magnific-popup.js"></script>
+	<script src="/dist/js/jquery.svgdoughnutchart.js"></script>
+	<script src="/dist/js/jquery.nice-select.min.js"></script>
+	<script src="/dist/js/index.js"></script>
+	<script src="/dist/js/bootstrap.min.js"></script>
+	<script src="/dist/js/jquery-ui.min.js"></script>
+	<script src="/dist/js/lodash.min.js"></script>
+	<script src="/dist/js/highlight.min.js"></script>
+	<script src="/dist/js/hurkanswitch.js"></script>
+	<script src="/dist/js/numberpicker.js"></script>
+	<script src="/dist/js/tinynav.min.js"></script>
+	<script src="/dist/js/footable.min.js"></script>
+	<script src="/framework/jquery.maskedinput.js"></script>
+	<script src="/framework/gritter/jquery.gritter.min.js"></script>
+	<script src="/customalert/sweetalert2.js"></script>
+
+	<script src="/syncfusionchart/scripts/jsrender.min.js"></script>
+	<script src="/syncfusionchart/scripts/ej.web.all.min.js"></script>
+	<script src="/syncfusionchart/scripts/properties.js"></script>
+	<script src="/dist/js/woco.accordion.min.js"></script>
+
+
+
+	<script src="/nepse_js/minf.min.js"></script>
+
+	<script src="/framework/feed.js?v=OYLUcQp65h7ibnn8egSXQZc-6_idnEqGm1GEAzSo3lw"></script>
+
+	<script type="text/javascript">
+		var SelectedRowBackgroundColor = '#0094DA';
+		$FEEDSERVERIP = 'x.naasasecurities.com.np:8006';
+		$USEHTTPFORFEED = '0';
+		const IPURL = 'https://x.naasasecurities.com.np/IP/IP.aspx';
+		_SessionTimeOutVal = '55';
+		GetIP();
+		$(".n_headng_n").click(function () {
+			$(this).next(".shw_dts").slideToggle();
+			$(this).toggleClass("active");
+			$(".n_headng_n").not(this).next(".shw_dts").slideUp();
+			$(".n_headng_n").not(this).removeClass("active");
+		});
+
+		$(document).on('mousemove keydown click', function () {
+			setNewSessionTimeout();
+		});
+
+		$(window).on('load', function () {
+			GetCacheTurnOver();
+			//GetOpenSessionInActivePopUp();
+			CheckClientSession();
+			listenForStorageUpdates();
+			InitAddTkr();
+			CallIndices();
+		});
+
+		$('input[type=number]').click(function () {
+			selectAllText($(this));
+		});
+
+		function selectAllText(textbox) {
+			textbox.focus();
+			textbox.select();
+		}
+
+		function GetIP() {
+			$.ajax({
+				type: "POST",
+				url: IPURL,
+				async: false,
+				success: function (response) {
+					myip = response;
+					if (response != "") {
+						myip = response;
+					}
+					else {
+						myip = "";
+					}
+				}
+			});
+		}
+	</script>
+	<script type="text/javascript">
+		try {
+			WS_connect();
+		} catch (e) {
+
+		}
+
+		$(".resp_table .table td").find(".fa-chevron-down").click(function () {
+			$(this).parent("td").parent("tr").toggleClass("active");
+			$(this).parent("td").parent("tr").next("tr.detel_viw").slideToggle();
+			$(".resp_table .table td").find(".fa-chevron-down").not(this).parent("td").parent("tr").next("tr.detel_viw").slideUp(300);
+			$(".resp_table .table td").find(".fa-chevron-down").not(this).parent("td").parent("tr").removeClass("active");
+		});
+		$(".resp_table .table td").find(".fa-chevron-up").click(function () {
+			$(this).parent("td").parent("tr").next("tr.detel_viw").slideUp(300);
+			$(this).parent("td").parent("tr").removeClass("active");
+		})
+		$("#mob_main_nav").click(function () {
+			$("#desk_nav").slideToggle();
+		});
+		if ($(window).width() < 993) {
+			$(".outr_row > td.frst").click(function () {
+				$(this).toggleClass("activearw");
+				$(".outr_row > td.frst").not(this).removeClass("activearw");
+				$(this).parents("tr").find("td").toggleClass("get_block");
+				$(".outr_row > td.frst").not(this).parents("tr").find("td").removeClass("get_block");
+				$("tr.detel_viw").removeClass("get_block");
+				$("tr.detel_viw").find("tr").removeClass("actv");
+				$(".detel_viw .frst_cel").removeClass("activearw");
+			})
+
+			$(".outr_row > td.more").click(function () {
+				$(this).toggleClass("clickd");
+				$(this).parents("tr").next("tr.detel_viw").toggleClass("get_block");
+			})
+
+			$(".detel_viw .frst_cel").click(function () {
+				$(this).toggleClass("activearw");
+				$(".detel_viw .frst_cel").not(this).removeClass("activearw");
+				$(this).parent("tr").toggleClass("actv");
+				$(".detel_viw .frst_cel").not(this).parent("tr").removeClass("actv");
+			})
+		}
+	</script>
+	<script type="text/javascript">
+		function OpenChart(ticker) {
+			var route = '/Chart?Scrip=' + ticker;
+			window.open(route, '_blank');
+
+			// document.getElementById("chartDiv").innerHTML = '<object type="text/html" data=' + route + ' style="height:500px; width:100%;"></object>';
+			// $("#ModChart").modal("show");
+		}
+		function AfterCloseChartWindow() {
+			$("#ModChart").modal("hide");
+			$('#chartDiv').empty();
+		}
+		document.body.onclick = function (e) {
+			switch (e.which) {
+				case 1:
+					clearTimeout(_isClearTimeOut);
+					clearTimeout(_reActivateSession);
+					//GetOpenSessionInActivePopUp();
+					CheckClientSession();
+					break;
+			}
+		}
+	</script>
+
+	<script type="text/javascript">
+		function noBack() {
+			window.history.forward();
+		}
+		noBack();
+		window.onload = noBack;
+		window.onpageshow = function (evt) {
+			if (evt.persisted) noBack()
+		}
+		window.onunload = function () {
+			void (0)
+		}
+
+	</script>
+
+	<style type="text/css">
+		.ui-tooltip {
+			font-size: 12px !important;
+			padding: 4px;
+		}
+	</style>
+
+	<script>
+			(function () {
+				const urlParams = new URLSearchParams(window.location.search);
+				const report = urlParams.get("Report");
+				const reportsWithHeight = ["ORDERBOOK", "TRADEBOOK", "HOLDINGDATA", "NETPOSITION"];
+
+				const mainEl = document.getElementById("mainHeight");
+				if (reportsWithHeight.includes(report)) {
+					mainEl.style.height = "87vh";
+				} else {
+					mainEl.style.height = "";
+				}
+			})();
+	</script>
+
+
+
+<ul id="ui-id-1" tabindex="0" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" style="display: none;"></ul><div role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></div><div id="ui-datepicker-div" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all"></div><ul id="ui-id-2" tabindex="0" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" style="display: none;"></ul><div role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></div><div class="e-tooltip-wrap e-widget e-toolbarTooltip" role="tooltip" aria-readonly="true" aria-hidden="true" aria-describedby="GridDiv_toolbarItems_content" id="GridDiv_toolbarItems_Main" style="height: auto; width: auto; top: auto; left: auto;"><div class="e-tipContainer"><div class="e-tipcontent e-def" id="GridDiv_toolbarItems_content"></div></div></div><div id="GridDiv_WaitingPopup" class="e-waitpopup-pane e-widget e-gridwaitingpopup" style="display: none;"><span class="e-image"></span></div><script id="GridDivinputtypecheckboxidselectAllRowsonclickonSelectAllRowsClickthis0_Template" type="text/x-template"><input type="checkbox" class="row-checkbox" /></script><script id="GridDivACTION1_Template" type="text/x-template"><a href="javascript:void(0)" class="iconSpace"><img src="/dist/images/edit.png" /></a><a href="javascript:void(0)"><img src="/dist/images/del_ord.png" /></a></script><div id="GridDiv_ColumnDropIndicator" class="e-columndropindicator e-dropAcceptor" style="display: none;"></div></body></html>

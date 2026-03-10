@@ -1,0 +1,7 @@
+playwright
+python-dotenv
+pytz
+nepse-api
+pandas
+requests
+tqdm

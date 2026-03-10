@@ -1,0 +1,791 @@
+<!DOCTYPE html><html lang="en" class=" -webkit-"><head>
+	<meta charset="utf-8">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<title>NAASA Securities - Naasa X</title>
+
+	<link rel="icon" type="image/png" href="/dist/favicon/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/svg+xml" href="/dist/favicon/favicon.ico">
+<link rel="shortcut icon" href="/dist/favicon/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/dist/favicon/apple-touch-icon.png">
+<link rel="manifest" href="/dist/favicon/site.webmanifest">
+	<link rel="stylesheet" type="text/css" href="/dist/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="/dist/css/font-awesome.css">
+	<link rel="stylesheet" type="text/css" href="/styles/style.css?v=BOTPB0kHhMV657hFKQgiTyhbU3SLhDTobs_-hv4iPT4">
+	<link rel="stylesheet" type="text/css" href="/dist/css/magnific-popup.css">
+	<link rel="stylesheet" type="text/css" href="/dist/css/hurkanswitch.css">
+	<link rel="stylesheet" type="text/css" href="/framework/gritter/jquery.gritter.css">
+	<link rel="stylesheet" type="text/css" href="/framework/css/framework.css?v=dWUCcSi2ChODsCsJm_7QBSAHrT5qOzoIRgkBrGYckkg">
+
+	<link rel="stylesheet" type="text/css" href="/customalert/sweetalert2.css">
+	<link rel="stylesheet" type="text/css" href="/dist/css/footable.bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/syncfusionchart/jquery-ui.css">
+	<link rel="stylesheet" type="text/css" href="/syncfusionchart/content/ejthemes/bootstrap-theme/ej.web.all.min.css">
+	<link rel="stylesheet" type="text/css" href="/syncfusionchart/content/ejthemes/responsive-css/ej.responsive.css">
+	<link rel="stylesheet" type="text/css" href="/syncfusionchart/content/ejthemes/responsive-css/ejgrid.responsive.css">
+	<link rel="stylesheet" type="text/css" href="/framework/css/syncgrid.css">
+	<link rel="stylesheet" type="text/css" href="/nepse_css/style.css?v=XVYILpTu43Jh32ddnvQlFV1x3mIP5ZNDMq7LSr73rsY">
+	<link rel="stylesheet" type="text/css" href="/dist/css/responsive.css">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap" rel="stylesheet">
+
+		<!-- Google tag (gtag.js) -->
+	<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-WLYKB25EPP"></script>
+	
+	<script src="/framework/appInsights.js?v=TsvWer4fNMKaoyTF0jYhNfy0lU8o-ySlAhovwvPzQ2A" defer=""></script>
+
+
+<script src="https://js.monitor.azure.com/scripts/b/ai.3.gbl.min.js" data-ai-name="appInsights" crossorigin="anonymous"></script></head>
+
+<body>
+	<div b-n6hir2wm7w="" class="blaze-navbar blaze-navbar-sticky">
+		<div b-n6hir2wm7w="" class="blaze-logo">
+			<a href="/Home/dashboard"><img src="/dist/images/png_NaasaXLogo.png"></a>
+			<div b-n6hir2wm7w="" class="side_ang"></div>
+		</div>
+		<div b-n6hir2wm7w="" class="blaze-menu">
+			<a b-n6hir2wm7w="" href="javascript:void(0)" id="mobnav"></a>
+			<ul b-n6hir2wm7w="" class="blaze-menu-list">
+				<li b-n6hir2wm7w=""><a class="" href="/Home/dashboard">Home</a></li>
+				<li b-n6hir2wm7w=""><a class="" href="/MarketOrder/Order">Order</a></li>
+				<li b-n6hir2wm7w=""><a b-n6hir2wm7w="" href="https://wallet.naasasecurities.com.np/login" target="_blank">Fund</a></li>
+				<li b-n6hir2wm7w=""><a class="" href="/MarketWatch">Market</a> </li>
+				<li b-n6hir2wm7w="">
+					<a class="" href="/HeatMap">HeatMap</a>
+				</li>
+
+				<li b-n6hir2wm7w="" class="badge-position"><a b-n6hir2wm7w="" href="https://charts.naasasecurities.com.np/login" target="_blank">Charts</a> <sup b-n6hir2wm7w="" class="new-badge">New</sup>  </li>
+				<li b-n6hir2wm7w="" class="hs_sb">
+					<a b-n6hir2wm7w="" href="javascript:void(0)" class="active">Reports</a>
+					<ul b-n6hir2wm7w="" class="sb_mn">
+						<li b-n6hir2wm7w="">
+							<a href="/TradeBook?Report=TRADEBOOK">Trade Book</a>
+						</li>
+						<li b-n6hir2wm7w="">
+							<a href="/TradeBook?Report=ORDERBOOK">Order Book</a>
+						</li>
+						<li b-n6hir2wm7w="">
+							<a href="/TradeBook?Report=HOLDINGDATA">
+								Holding
+								Report
+							</a>
+						</li>
+						<li b-n6hir2wm7w="">
+							<a href="/TradeBook?Report=NETPOSITION">
+								Net
+								Position
+							</a>
+						</li>
+					</ul>
+				</li>
+				<li b-n6hir2wm7w="" class="hs_sb">
+					<a b-n6hir2wm7w="" href="javascript:void(0)">Resources</a>
+					<ul b-n6hir2wm7w="" class="sb_mn">
+						<li b-n6hir2wm7w="">
+							<a target="_blank" href="/dist/pdf/x_manual.pdf">Naasa X Manual</a>
+						</li>
+						<li b-n6hir2wm7w="">
+							<a target="_blank" href="/release.html">Release Note</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div b-n6hir2wm7w="" class="blaze-client-details">
+			<ul b-n6hir2wm7w="" class="blaze-dropdown">
+				<li b-n6hir2wm7w="" class="dropdown">
+					<a b-n6hir2wm7w="" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" onclick="ReadRMSCalls();">
+						<div b-n6hir2wm7w="">
+							<span b-n6hir2wm7w="" class="blaze-notofication-bell">
+								<i b-n6hir2wm7w="" class="wft-icon fa fa-bell" aria-hidden="true"></i>
+							</span>
+							<span b-n6hir2wm7w="" class="blaze-notification-badge" id="RMSCallsCount"></span>
+						</div>
+					</a>
+					<ul b-n6hir2wm7w="" id="RMSCalls" class="dropdown-menu1 user-icon alertlist ">
+						<div b-n6hir2wm7w="" class="clearfix" style="text-align: center; width: 100%; padding: 10px; color:grey">
+							No data available
+						</div>
+					</ul>
+				</li>
+				<li b-n6hir2wm7w="" class="dropdown blaze-user-notification">
+					<a b-n6hir2wm7w="" href="#" class="dropdown-toggle blaze-user-avtar" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						<i b-n6hir2wm7w="" class="wft-icon fa fa-user" aria-hidden="true"></i>
+						<span b-n6hir2wm7w="" class="blaze-text-white" style="line-height:16.5px;" id="HeaderClientName1" title="kapil bhattarai">
+							<small b-n6hir2wm7w="">Welcome</small>
+							<p b-n6hir2wm7w="" class="blaze-mb-0">
+								<small b-n6hir2wm7w="">
+									kapil
+								</small>
+							</p>
+						</span>
+
+					</a>
+					<ul b-n6hir2wm7w="" class="dropdown-menu user-icon userd">
+						<h2 b-n6hir2wm7w="" id="HeaderClientName2" title="kapil bhattarai">
+							kapil bhattarai (20220146089)
+						</h2>
+						<li b-n6hir2wm7w=""><a b-n6hir2wm7w="" href="https://www.naasasecurities.com.np/login" target="_blank"><i b-n6hir2wm7w="" class="fa fa-user"></i> Profile</a></li>
+
+						<li b-n6hir2wm7w="">
+							<a b-n6hir2wm7w="" href="#" onclick="$CLASSLOGIN.CallLogout();"><i b-n6hir2wm7w="" class="fa fa-sign-out"></i>Logout</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div b-n6hir2wm7w="" class="bgfade">
+	</div>
+	<div b-n6hir2wm7w="" role="tabpanel">
+		<div b-n6hir2wm7w="" class="ott_dv">
+			<main b-n6hir2wm7w="" role="main" id="mainHeight" class="pb-3" style="height: 87vh;">
+				<div class="ott blaze-indices-sticky">
+    <div class="container-fluid">
+        <div class="row tabView">
+            <!-- Left column: Adjusted for mobile view -->
+            <div class="col-xs-12 col-md-6" style="display: flex; gap:15px; align-items:center;">
+                <div class="marketWatchFullLogo" style="width: 25%;">
+                    <img style="width:100%;" src="/dist/images/png_NaasaXLogo.png" alt="">
+                </div>
+                <div class="lft_dta">
+                    <ul>
+                        <li id="smallindices1">
+                            <div class="hgh_lw" id="IndImg1"><i class="fa fa-caret-up wft-fs-2 wft-text-gainer" aria-hidden="true"></i></div>
+                            <div class="hw_dta text-sm" id="IndTicker1"><p style="margin:3px 0px!important">NEPSE<span>2708.70</span></p><p class="grn_txt">27.20<span>1.01 %</span></p></div>
+                        </li>
+                        <li id="smallindices2">
+                            <div class="hgh_lw" id="IndImg2"><i class="fa fa-caret-up wft-fs-2 wft-text-gainer" aria-hidden="true"></i></div>
+                            <div class="hw_dta text-sm" id="IndTicker2"><p style="margin:3px 0px!important">SENSIND<span>460.48</span></p><p class="grn_txt">4.48<span>0.98 %</span></p></div>
+                        </li>
+                        <li style="margin: 3px 0px!important;">
+                            <div class="tll Turnover text-sm">
+                                <p>Turnover : <span class="NEPSE_Turnover">0</span></p>
+                            </div>
+                            <div class="tll Volume text-sm">
+                                <p>Volume : <span class="NEPSE_Volume">0</span></p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Right column: Adjusted for mobile view -->
+            <div class="col-xs-12 col-md-6">
+                <div class="rgt_dta tikerHide">
+                    <div class="row row_global" style="text-align: end;">
+                        <!-- Ticker display section -->
+                        <div class="col-xs-12 col-md-9 ">
+                            <div class="rgt_in text-sm">
+                                <marquee onmouseover="this.stop()" onmouseout="this.start()" id="TickerIndices"></marquee>
+                            </div>
+                            <a href="javascript:void(0)" class="ad_tck" onclick="CreateTkr()">+</a>
+                        </div>
+                        <!-- Date & Info section -->
+                        <div class="col-xs-12 col-md-3" style="text-align:end;">
+                            <div class="inf d-inline text-sm">
+                                Fri, 06 Feb 2026
+                                <br>
+                                <span class="up_color"></span><span id="lblMarketTime">3:44:58 PM</span>
+                                <br>
+                                <span class="global_lv_data"><span style="width: 10px; height: 10px; background-color: rgb(255, 0, 0); border-radius: 50%;"></span><span style="color: rgb(255, 0, 0);">MARKET CLOSE</span></span>
+                            </div>
+
+                            <div class="imprt d-inline">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-sm show-table" style="text-align: end;">
+                    Fri, 06 Feb 2026
+                    <span class="up_color"></span><span id="lblMarketTime"></span>
+                    <br>
+                    <span class="global_lv_data"><span style="width: 10px; height: 10px; background-color: rgb(255, 0, 0); border-radius: 50%;"></span><span style="color: rgb(255, 0, 0);">MARKET CLOSE</span></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="isShowNotification" style="display: block;">
+    <div class="notifyClass">
+  <p>
+    लगानीकर्ताहरुबाट सिडिएसीको ‘<strong>मेरो सेयर</strong>’ र ‘<strong>नासा X टिएमएस</strong>’मा सेयरको मौज्दात फरक
+    देखिएकोले
+    सेयर बिक्री गर्न नपाइएको भन्ने कुरा आएको सन्दर्भमा सिडिएसीको ‘<strong>मेरो सेयर</strong>’मा देखिएको मौज्दातलाई
+    आधार मानेर सेयर बिक्री गर्न हुन अनुरोध गरिन्छ । <strong>‘मेरो सेयर’ मा रहेको मौज्दातभन्दा बढी सेयर बिक्री भएमा
+      नियमानुसार जरिवाना (क्लोजआउट फाइन) तिर्नुपर्ने
+      व्यहोरा समेत सम्बन्धित सबैलाई जानकारी गराइन्छ ।</strong>
+  </p>
+  <p>
+    <i class="fa fa-info" title="In reference to concerns raised by investors regarding discrepancies between the share balance shown in CDSC’s&nbsp;Mero Share&nbsp;and&nbsp;NAASA X, which have resulted in issues during share sales, it is hereby requested that share sales be conducted based on the balance shown in CDSC’s&nbsp;Mero Share. Please note that if you attempt to sell more shares than what is shown in&nbsp;Mero Share, a closeout fine will be imposed as per the applicable rules." aria-hidden="true"></i>
+  </p>
+</div>
+
+</div>
+
+<div class="ord_book mt-20">
+    <div class="shdaw">
+        <div class="row" id="dynamicDiv">
+            <div class="col-md-5">
+                <div class="row">
+                    <div style="display: flex; align-items: center; justify-content:space-between;  gap: 10px;">
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <div style="display: flex; gap:10px; align-items: center;">
+                                <a style="font-size:22px; font-weight: 500; color:#495057" href="javascript::void(0)" id="Header">Holding Data</a>
+                                <div class="card-refresh">
+                                    <a onclick="rotateIcon(this); GetTopGainerLoser('REFRESH')">
+                                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <a style="font-size:14px; font-weight: 400; color:#808080" href="javascript::void(0)" id="subHeader">Comprehensive summary of your current investments,</a>
+                        </div>
+                        <div id="exportIcons" style="display: none; align-items: start; gap: 5px;">
+                            <i class="fa fa-file-excel-o" aria-hidden="true" style="font-size: 25px; color: red; cursor:pointer" onclick="ExportReport()"></i>
+                            <i class="fa fa-file-pdf-o" aria-hidden="true" style="font-size: 25px; color: #c33ea5; cursor:pointer" onclick="ExportToPdf()"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-7" id="datePicker" style="display:none;">
+
+                <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-end;">
+                    <div class="mt_tp" id="divFrmDate">
+                        <input type="text" name="fakeUsername" style="display: none;">
+                        <input type="password" name="fakePassword" style="display: none;">
+                        <input type="text" placeholder="From Date" id="frmDate" onchange="FromtoDate()" autocomplete="off" class="hasDatepicker">
+                    </div>
+                    <div class="mt_tp" id="divToDate">
+                        <input type="text" name="fakeUsername" style="display: none;">
+                        <input type="password" name="fakePassword" style="display: none;">
+                        <input type="text" placeholder="To Date" id="todate" onchange="FromtoDate()" autocomplete="off" class="hasDatepicker">
+                    </div>
+                    <div id="divSearch">
+                        <div class="srch_ord">
+                            <input type="text" name="fakeUsername" style="display: none;">
+                            <input type="password" name="fakePassword" style="display: none;">
+                            <input type="text" name="" readonly="" onfocus="this.removeAttribute('readonly');" placeholder="Search" id="searchInput" onkeyup="FilterReports()" autocomplete="off" disabled="">
+                            <img src="/dist/images/srch.png">
+                        </div>
+                    </div>
+                    <div>
+                        <i class="fa fa-file-excel-o" aria-hidden="true" style="font-size: 25px; color: red; cursor:pointer" onclick="ExportReport()"></i>
+                        <i class="fa fa-file-pdf-o" aria-hidden="true" style="font-size: 25px; color: #c33ea5; cursor:pointer" onclick="ExportToPdf()"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container col-md-7 head-section" id="dvHolding" style="">
+                <div style="display: flex; align-items:start; gap: 10px; justify-content: flex-end;">
+                    <div class="col-md-4">
+                        <div class="profit_loss">
+                            <p>Day Profit/Loss</p>
+                            <h5 class="up_color" id="lblCurrentProfitLoss"> 0 </h5>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="profit_loss">
+                            <p>Total Holding</p>
+                            <h5 id="lblTotalHolding">0</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="profit_loss">
+                            <p>Total No of stocks</p>
+                            <h5 id="lblTotalstocks">0</h5>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items:start; gap:5px;">
+                        <i class="fa fa-file-excel-o" aria-hidden="true" style="font-size: 25px; color: red; cursor:pointer" onclick="ExportReport()"></i>
+                        <i class="fa fa-file-pdf-o" aria-hidden="true" style="font-size: 25px; color: #c33ea5; cursor:pointer" onclick="ExportToPdf()"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="in+ord_tbl col-md-12">
+                <div class="">
+                    <div id="GridDiv"><div style="text-align:center; padding: 20px;">No data to display</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .row.w-60 {
+        width: 70%;
+        margin: 0 auto;
+    }
+
+    .profit_loss {
+        text-align: center;
+        padding: 10px;
+        border-radius: 12px;
+        background: #ffffff;
+        color: #495057;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        font-size: 18px;
+        font-weight: 500;
+        max-width: 400px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .profit_loss p {
+        font-size: 16px;
+        font-weight: 400;
+        margin-bottom: 0px;
+    }
+
+    .profit_loss h5 {
+        font-size: 20px;
+        font-weight: 500;
+    }
+
+    .isShowNotification {
+        display: none;
+    }
+
+    .card-refresh {
+        display: none;
+    }
+</style>
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const report = urlParams.get('Report');
+
+        if (window.location.pathname.includes('TradeBook') && report === 'HOLDINGDATA') {
+            const isShow = document.querySelector('.isShowNotification');
+            if (isShow) {
+                isShow.style.display = 'block';
+            }
+        }
+
+        if (window.location.pathname.includes('TradeBook') && report === 'ORDERBOOK') {
+            const isShow = document.querySelector('.card-refresh');
+            if (isShow) {
+                isShow.style.display = 'block';
+            }
+        }
+
+        if (window.location.pathname.includes('TradeBook') && report === 'NETPOSITION') {
+            const colDiv = document.querySelector('#dynamicDiv .col-md-5');
+            if (colDiv) {
+                colDiv.classList.replace('col-md-5', 'col-md-12');
+            }
+
+            const exportDiv = document.getElementById('exportIcons');
+            if (exportDiv) {
+                exportDiv.style.display = 'flex';
+            }
+        } else {
+            const exportDiv = document.getElementById('exportIcons');
+            if (exportDiv) {
+                exportDiv.style.display = 'none';
+            }
+        }
+    });
+
+    function rotateIcon(element) {
+        const icon = element.querySelector("i");
+        icon.classList.add("rotate");
+
+        setTimeout(() => {
+            icon.classList.remove("rotate");
+        }, 1000);
+    }
+</script>
+
+			</main>
+		</div>
+	</div>
+
+	<input b-n6hir2wm7w="" type="hidden" name="hdnSession" id="hdnSession" value="20220146089    6045158157">
+	<input b-n6hir2wm7w="" type="hidden" name="hdnLogin" id="hdnLogin" value="20220146089">
+
+	<input b-n6hir2wm7w="" type="hidden" id="Market_Header_Columns" value="True">
+
+	<div b-n6hir2wm7w="" class="modal fade" id="modSessionTimeOut" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="z-index: 99999999 !important;">
+		    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="col text-center">
+                    <p style="font-size: 12px !important; text-align: center; font-weight: 700;">
+                    Session Timed Out, Please login to continue
+                        <label id="lblSessionTime" style="color: red;display:none;">60</label>
+                    </p>
+                </div>
+                <div class="col text-center">
+                <input id="AReactiveSession" class="btn-session mb-1" style="cursor: pointer; text-align: center;" onclick="ReActivateLoginSession()" value="Yes, To Continue" hidden="hidden">
+                <input id="Text2" class="btn-session" onclick="SetLogOut()" style="cursor: pointer; text-align: center;" value="OK">
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+	</div>
+
+	<div b-n6hir2wm7w="" id="modRMSCalls" class="zoom-anim-dialog mfp-hide MrktPopReport">
+		<div b-n6hir2wm7w="" class="mrktpopup">
+			<div b-n6hir2wm7w="" class="mrktpp-head_ms">
+				<h3 b-n6hir2wm7w="">Broadcast Messages</h3>
+			</div>
+			<div b-n6hir2wm7w="" class="mrktpp-cont">
+				<div b-n6hir2wm7w="" class="container-fluid">
+					<div b-n6hir2wm7w="" class="Recommendations" style="height: 300px; overflow: auto;">
+						<ul b-n6hir2wm7w="" id="AllBroadcastMessages">
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div b-n6hir2wm7w="" class="modal fade" id="ModCreateIndices" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="z-index: 99999999 !important;">
+		<style>
+    .cst_srch_ord {
+        border: 1px solid #ccc;
+        margin: 10px 0;
+    }
+
+    .ui-widget-content{
+        max-width:580px !important;
+    }
+</style>
+
+<div class="modal-dialog" style="max-width:450px;">
+    <div class="modal-content">
+        <div class="modal-body">
+            <div class="col-md-12 text-center border">
+                <h4>Manage Ticker</h4>
+            </div>
+            <div class="form-group">
+                <div class="col-md-12">
+                 <div class="srch_ord cst_srch_ord">
+                    <input type="text" id="txtAddTicker" placeholder="Search" class="ui-autocomplete-input" autocomplete="off">
+                    <img src="/dist/images/srch.png">
+                </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="ticker-table-responsive">
+                        <table class="script_tbl table table-bordered table-fixed" id="tblTkr">
+                            <thead>
+                                <tr>
+                                    <th class="col-xs-9">Ticker</th>
+                                    <th class="col-xs-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col text-center form-group">
+                <input type="button" id="btnSave" class="btn btn-primary" value="UPDATE" onclick="SaveTkr()">
+                <input type="button" id="btnCancel" class="btn btn-danger" value="CANCEL" data-dismiss="modal" aria-hidden="true">
+            </div>
+        </div>
+    </div>
+</div>
+
+	</div>
+
+	<div b-n6hir2wm7w="" class="modal fade" id="ModExchMsg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="z-index: 99999999 !important;">
+		<div b-n6hir2wm7w="" class="modal-dialog" style="max-width:500px;">
+			<div b-n6hir2wm7w="" class="modal-content">
+				<div b-n6hir2wm7w="" class="modal-body">
+					<div b-n6hir2wm7w="" class="col-md-12 text-center border">
+						<h4 b-n6hir2wm7w="">Exchange Message</h4>
+					</div>
+					<div b-n6hir2wm7w="" class="form-group">
+						<div b-n6hir2wm7w="" class="col-md-12">
+							<div b-n6hir2wm7w="" class="force-overflow" id="ExchangeMessages"></div>
+						</div>
+					</div>
+					<div b-n6hir2wm7w="" class="col text-center form-group">
+						<input b-n6hir2wm7w="" type="button" id="btnCancel" class="btn btn-success" value="Ok" data-dismiss="modal" aria-hidden="true">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div b-n6hir2wm7w="" id="modChangePassword" class="zoom-anim-dialog mfp-hide MrktPop2  clearfix">
+		<div class="mrktpopup" id="">
+    <div class="mrktpp-head">
+        <h3>Change Password</h3>
+    </div>
+    <div class="mrktpp-cont">
+        <div role="form">
+            <div class="form-group">
+                <label for="txtUserID">
+                    Login Id :
+                </label>
+                <input id="txtLoginIdCh" type="text" class="form-control" placeholder="Login Id" maxlength="15">
+            </div>
+            <div class="form-group">
+                <label for="txtUserID">
+                    Old Password :
+                </label>
+                <input id="txtOldPassword" type="password" class="form-control" tabindex="8" required="required" autofocus="" placeholder="Old Password" maxlength="12">
+            </div>
+            <div class="form-group">
+                <label for="txtUserID">
+                    New Password :
+                </label>
+                <input id="txtNewPassword" type="password" class="form-control" required="required" placeholder="New Password" tabindex="9" maxlength="12">
+            </div>
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label for="txtUserID">
+                    Confirm New Password :
+                </label>
+                <input id="txtConfirmNewPassword" type="password" class="form-control" required="required" placeholder="Confirm New Password" tabindex="10" maxlength="12">
+            </div>
+            <input type="button" value="Submit" class="btn btn-md btn-primary" style="cursor: pointer;" tabindex="11" name="submit" onclick="$CLASSLOGIN.ChangePassword();">
+            &nbsp;<input type="button" value="Reset" class="btn btn-md btn-secondary" style="cursor: pointer;" tabindex="12" name="Reset" onclick="$CLASSLOGIN.ResetChangePasswordWindow();">
+        </div>
+    </div>
+<button title="Close (Esc)" type="button" class="mfp-close change-pass">
+    ×
+</button>
+</div>
+
+	</div>
+
+
+	<div b-n6hir2wm7w="" class="modal fade" id="ModChart" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="z-index: 9999999;">
+		<div b-n6hir2wm7w="" class="modal-dialog" style="width:80%">
+			<div b-n6hir2wm7w="" class="modal-content">
+				<div b-n6hir2wm7w="" class="modal-header">
+					<button b-n6hir2wm7w="" type="button" class="close" onclick="AfterCloseChartWindow()">
+						<span b-n6hir2wm7w="" aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div b-n6hir2wm7w="" class="modal-body">
+					<div b-n6hir2wm7w="" class="form-horizontal">
+						<div b-n6hir2wm7w="" class="form-group">
+							<div b-n6hir2wm7w="" id="chartDiv" style="height:500px;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<!-- Custom Modal -->
+	<div b-n6hir2wm7w="" id="orderDetailModal" class="custom-modal">
+		<div b-n6hir2wm7w="" class="custom-modal-content">
+			<span b-n6hir2wm7w="" class="custom-modal-close" onclick="closeCustomModal()">×</span>
+			<h5 b-n6hir2wm7w="">Order History</h5>
+			<div b-n6hir2wm7w="" id="orderDetailContent"></div>
+		</div>
+	</div>
+
+
+
+	<footer b-n6hir2wm7w="" class="wft-footer">
+		<a b-n6hir2wm7w="" href="https://naasasecurities.com.np/" target="_blank" class="wft-footer-text">©
+			2026 NAASA Securities Company Limited. All rights reserved.</a>
+	</footer>
+
+
+
+
+
+
+
+	<script src="/framework/bluebird/bluebird/bluebird.min.js"></script>
+	<script src="/dist/js/jquery.min.js"></script>
+	<script src="/dist/js/prefixfree.min.js"></script>
+	<script src="/dist/js/jquery.magnific-popup.js"></script>
+	<script src="/dist/js/jquery.svgdoughnutchart.js"></script>
+	<script src="/dist/js/jquery.nice-select.min.js"></script>
+	<script src="/dist/js/index.js"></script>
+	<script src="/dist/js/bootstrap.min.js"></script>
+	<script src="/dist/js/jquery-ui.min.js"></script>
+	<script src="/dist/js/lodash.min.js"></script>
+	<script src="/dist/js/highlight.min.js"></script>
+	<script src="/dist/js/hurkanswitch.js"></script>
+	<script src="/dist/js/numberpicker.js"></script>
+	<script src="/dist/js/tinynav.min.js"></script>
+	<script src="/dist/js/footable.min.js"></script>
+	<script src="/framework/jquery.maskedinput.js"></script>
+	<script src="/framework/gritter/jquery.gritter.min.js"></script>
+	<script src="/customalert/sweetalert2.js"></script>
+
+	<script src="/syncfusionchart/scripts/jsrender.min.js"></script>
+	<script src="/syncfusionchart/scripts/ej.web.all.min.js"></script>
+	<script src="/syncfusionchart/scripts/properties.js"></script>
+	<script src="/dist/js/woco.accordion.min.js"></script>
+
+
+
+	<script src="/nepse_js/minf.min.js"></script>
+
+	<script src="/framework/feed.js?v=OYLUcQp65h7ibnn8egSXQZc-6_idnEqGm1GEAzSo3lw"></script>
+
+	<script type="text/javascript">
+		var SelectedRowBackgroundColor = '#0094DA';
+		$FEEDSERVERIP = 'x.naasasecurities.com.np:8006';
+		$USEHTTPFORFEED = '0';
+		const IPURL = 'https://x.naasasecurities.com.np/IP/IP.aspx';
+		_SessionTimeOutVal = '55';
+		GetIP();
+		$(".n_headng_n").click(function () {
+			$(this).next(".shw_dts").slideToggle();
+			$(this).toggleClass("active");
+			$(".n_headng_n").not(this).next(".shw_dts").slideUp();
+			$(".n_headng_n").not(this).removeClass("active");
+		});
+
+		$(document).on('mousemove keydown click', function () {
+			setNewSessionTimeout();
+		});
+
+		$(window).on('load', function () {
+			GetCacheTurnOver();
+			//GetOpenSessionInActivePopUp();
+			CheckClientSession();
+			listenForStorageUpdates();
+			InitAddTkr();
+			CallIndices();
+		});
+
+		$('input[type=number]').click(function () {
+			selectAllText($(this));
+		});
+
+		function selectAllText(textbox) {
+			textbox.focus();
+			textbox.select();
+		}
+
+		function GetIP() {
+			$.ajax({
+				type: "POST",
+				url: IPURL,
+				async: false,
+				success: function (response) {
+					myip = response;
+					if (response != "") {
+						myip = response;
+					}
+					else {
+						myip = "";
+					}
+				}
+			});
+		}
+	</script>
+	<script type="text/javascript">
+		try {
+			WS_connect();
+		} catch (e) {
+
+		}
+
+		$(".resp_table .table td").find(".fa-chevron-down").click(function () {
+			$(this).parent("td").parent("tr").toggleClass("active");
+			$(this).parent("td").parent("tr").next("tr.detel_viw").slideToggle();
+			$(".resp_table .table td").find(".fa-chevron-down").not(this).parent("td").parent("tr").next("tr.detel_viw").slideUp(300);
+			$(".resp_table .table td").find(".fa-chevron-down").not(this).parent("td").parent("tr").removeClass("active");
+		});
+		$(".resp_table .table td").find(".fa-chevron-up").click(function () {
+			$(this).parent("td").parent("tr").next("tr.detel_viw").slideUp(300);
+			$(this).parent("td").parent("tr").removeClass("active");
+		})
+		$("#mob_main_nav").click(function () {
+			$("#desk_nav").slideToggle();
+		});
+		if ($(window).width() < 993) {
+			$(".outr_row > td.frst").click(function () {
+				$(this).toggleClass("activearw");
+				$(".outr_row > td.frst").not(this).removeClass("activearw");
+				$(this).parents("tr").find("td").toggleClass("get_block");
+				$(".outr_row > td.frst").not(this).parents("tr").find("td").removeClass("get_block");
+				$("tr.detel_viw").removeClass("get_block");
+				$("tr.detel_viw").find("tr").removeClass("actv");
+				$(".detel_viw .frst_cel").removeClass("activearw");
+			})
+
+			$(".outr_row > td.more").click(function () {
+				$(this).toggleClass("clickd");
+				$(this).parents("tr").next("tr.detel_viw").toggleClass("get_block");
+			})
+
+			$(".detel_viw .frst_cel").click(function () {
+				$(this).toggleClass("activearw");
+				$(".detel_viw .frst_cel").not(this).removeClass("activearw");
+				$(this).parent("tr").toggleClass("actv");
+				$(".detel_viw .frst_cel").not(this).parent("tr").removeClass("actv");
+			})
+		}
+	</script>
+	<script type="text/javascript">
+		function OpenChart(ticker) {
+			var route = '/Chart?Scrip=' + ticker;
+			window.open(route, '_blank');
+
+			// document.getElementById("chartDiv").innerHTML = '<object type="text/html" data=' + route + ' style="height:500px; width:100%;"></object>';
+			// $("#ModChart").modal("show");
+		}
+		function AfterCloseChartWindow() {
+			$("#ModChart").modal("hide");
+			$('#chartDiv').empty();
+		}
+		document.body.onclick = function (e) {
+			switch (e.which) {
+				case 1:
+					clearTimeout(_isClearTimeOut);
+					clearTimeout(_reActivateSession);
+					//GetOpenSessionInActivePopUp();
+					CheckClientSession();
+					break;
+			}
+		}
+	</script>
+
+	<script type="text/javascript">
+		function noBack() {
+			window.history.forward();
+		}
+		noBack();
+		window.onload = noBack;
+		window.onpageshow = function (evt) {
+			if (evt.persisted) noBack()
+		}
+		window.onunload = function () {
+			void (0)
+		}
+
+	</script>
+
+	<style type="text/css">
+		.ui-tooltip {
+			font-size: 12px !important;
+			padding: 4px;
+		}
+	</style>
+
+	<script>
+			(function () {
+				const urlParams = new URLSearchParams(window.location.search);
+				const report = urlParams.get("Report");
+				const reportsWithHeight = ["ORDERBOOK", "TRADEBOOK", "HOLDINGDATA", "NETPOSITION"];
+
+				const mainEl = document.getElementById("mainHeight");
+				if (reportsWithHeight.includes(report)) {
+					mainEl.style.height = "87vh";
+				} else {
+					mainEl.style.height = "";
+				}
+			})();
+	</script>
+
+
+
+<div id="ui-datepicker-div" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all"></div><ul id="ui-id-1" tabindex="0" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" style="display: none;"></ul><div role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></div></body></html>
