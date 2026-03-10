@@ -84,8 +84,12 @@ def main():
     DRY_RUN = True 
     POLL_INTERVAL = 60 # Seconds to wait between polls if market is open
     SLEEP_INTERVAL_CLOSED = 60 # Seconds to wait if market is closed (checking periodically)
+    RUN_ONCE = os.getenv("RUN_ONCE", "False").lower() == "true"
 
-    print("--- Starting Portfolio Tracker Bot (Scheduler Mode) ---")
+    if RUN_ONCE:
+        print("--- Starting Portfolio Tracker Bot (Single Run Mode) ---")
+    else:
+        print("--- Starting Portfolio Tracker Bot (Scheduler Mode) ---")
 
     while True:
         open_status, message = True, "Simulating Open Market"
@@ -160,6 +164,10 @@ def main():
                 print("Closing browser...")
                 browser.close()
         
+        if RUN_ONCE:
+            print("Single run complete. Exiting...")
+            break
+            
         print(f"Cycle complete. Waiting {POLL_INTERVAL} seconds...")
         time.sleep(POLL_INTERVAL)
 
