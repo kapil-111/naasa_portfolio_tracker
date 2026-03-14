@@ -83,4 +83,7 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add placed_orders_today.json 2>/dev/null || true
-          git diff-index --cached --quiet HEAD || (git commit -m "Update daily placed orders state" && git push)
+          git add chukul_data.csv chukul_indicators.csv chukul_fundamental.csv \
+                  chukul_bonus.csv chukul_broker_buy.csv chukul_broker_sell.csv \
+                  chukul_brokers.csv portfolio_data.csv live_market_data.csv 2>/dev/null || true
+          git diff-index --cached --quiet HEAD || (git commit -m "Update market data and order state" && git push)

@@ -27,7 +27,7 @@ def fetch_chukul_history(symbol):
 
         df = pd.DataFrame(data)
         df['stock'] = symbol
-        return df
+        return df.head(50)  # API returns newest-first; keep 50 bars (≥26 needed for MACD)
 
     except Exception as e:
         # print(f"Error processing {symbol}: {str(e)}")

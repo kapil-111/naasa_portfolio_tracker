@@ -19,3 +19,12 @@ env/
 *.csv
 !all_symbols.csv
 !portfolio_summary.json
+!chukul_data.csv
+!chukul_indicators.csv
+!chukul_fundamental.csv
+!chukul_bonus.csv
+!chukul_broker_buy.csv
+!chukul_broker_sell.csv
+!chukul_brokers.csv
+!portfolio_data.csv
+!live_market_data.csv
