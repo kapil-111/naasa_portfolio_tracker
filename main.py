@@ -321,12 +321,12 @@ def main():
                 if actionable:
                     notify_signals(actionable)
 
-                # 10. Execute Trades
+                # 10. Execute Trades (sorted by score: strongest first)
                 if signals:
                     trader        = Trader(page, dry_run=DRY_RUN)
                     placed_orders = load_placed_orders()
 
-                    for signal in signals:
+                    for signal in sorted(signals, key=lambda s: s["score"], reverse=True):
                         symbol = signal['symbol']
                         side   = signal['side'].upper()
 
