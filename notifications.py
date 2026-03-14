@@ -45,11 +45,15 @@ def notify_signals(signals):
 
     for s in buys:
         bd = _breakdown_str(s)
-        lines.append(f"🟢 *BUY {s['symbol']}*  score=`{s['score']:+d}`  @{s['price']:.2f}\n   {bd}")
+        strength = s.get("strength", "")
+        icon = "🔥" if strength == "STRONG" else ("🟢" if strength == "MODERATE" else "🟡")
+        lines.append(f"{icon} *{strength} BUY {s['symbol']}*  score=`{s['score']:+d}`  @{s['price']:.2f}\n   {bd}")
 
     for s in sells:
         bd = _breakdown_str(s)
-        lines.append(f"🔴 *SELL {s['symbol']}*  score=`{s['score']:+d}`  @{s['price']:.2f}\n   {bd}")
+        strength = s.get("strength", "")
+        icon = "⛔" if strength == "STRONG" else ("🔴" if strength == "MODERATE" else "🟠")
+        lines.append(f"{icon} *{strength} SELL {s['symbol']}*  score=`{s['score']:+d}`  @{s['price']:.2f}\n   {bd}")
 
     _tg_send("\n".join(lines))
 

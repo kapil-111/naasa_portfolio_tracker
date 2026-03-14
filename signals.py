@@ -300,14 +300,26 @@ def generate_signals(portfolio):
         bd_str = "  ".join(f"{k}={v:+d}" for k, v in breakdown.items() if v != 0)
         if score >= buy_threshold:
             signal_side = "BUY"
+            if score >= 5:
+                strength = "STRONG"
+            elif score == 4:
+                strength = "MODERATE"
+            else:
+                strength = "WEAK"
         elif score <= sell_threshold:
             signal_side = "SELL"
+            if score <= -5:
+                strength = "STRONG"
+            elif score == -4:
+                strength = "MODERATE"
+            else:
+                strength = "WEAK"
         else:
             if abs(score) >= 2:
                 print(f"  [{symbol}] NEUTRAL score={score:+d}  {bd_str}")
             continue
 
-        print(f"  [{symbol}] *** {signal_side} ***  score={score:+d}  price={last_close}  {bd_str}")
+        print(f"  [{symbol}] *** {strength} {signal_side} ***  score={score:+d}  price={last_close}  {bd_str}")
 
         qty = default_buy_qty
 
@@ -331,6 +343,7 @@ def generate_signals(portfolio):
 
         signals.append({
             "side":      signal_side,
+            "strength":  strength,
             "symbol":    symbol,
             "quantity":  qty,
             "price":     last_close,
