@@ -11,10 +11,14 @@ on:
 jobs:
   trade:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -78,10 +82,14 @@ jobs:
         run: python main.py
 
       # ── Persist daily order state ──────────────────────────────────────────
+      # ── Persist daily order state ──────────────────────────────────────────
       - name: Save order state
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git add placed_orders_today.json 2>/dev/null || true
           git add chukul_data.csv chukul_indicators.csv chukul_fundamental.csv \
                   chukul_bonus.csv chukul_broker_buy.csv chukul_broker_sell.csv \
