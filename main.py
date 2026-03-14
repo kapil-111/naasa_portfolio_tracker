@@ -134,7 +134,10 @@ def main():
         last_was_open = open_status
 
         if not open_status:
-            print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}. Waiting...")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}.")
+            if RUN_ONCE:
+                print("Market closed. Exiting (RUN_ONCE mode).")
+                break
             time.sleep(SLEEP_INTERVAL_CLOSED)
             continue
 
