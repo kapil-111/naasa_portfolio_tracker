@@ -83,4 +83,4 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add placed_orders_today.json 2>/dev/null || true
-          git diff-index --quiet HEAD || (git commit -m "Update daily placed orders state" && git push)
+          git diff-index --cached --quiet HEAD || (git commit -m "Update daily placed orders state" && git push)
