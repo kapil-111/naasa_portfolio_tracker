@@ -103,9 +103,8 @@ def _load_cached_portfolio():
 
 def _ensure_market_ohlcv():
     """
-    Ensure chukul_data.csv has OHLCV data for all NEPSE symbols.
-    If cache has < 100 symbols, fetches all symbols (one-time ~1-2 min cost).
-    This is required for full BUY signal discovery across the whole market.
+    Ensure all market data CSVs (OHLCV, indicators, broker, fundamentals) are populated.
+    If cache has < 100 symbols, fetches all data for full market scan.
     """
     existing_count = 0
     if os.path.exists("chukul_data.csv"):
@@ -120,13 +119,32 @@ def _ensure_market_ohlcv():
         print(f"OHLCV cache has {existing_count} symbols — using cache.")
         return
 
-    print(f"OHLCV cache has only {existing_count} symbols. Fetching all NEPSE symbols for full market scan...")
+    print(f"OHLCV cache has only {existing_count} symbols. Fetching all market data for full scan...")
     symbols = fetch_all_symbols()
-    if symbols:
-        update_chukul_data(symbols=symbols, verbose=False)
-        print(f"OHLCV cache updated with {len(symbols)} symbols.")
-    else:
+    if not symbols:
         print("Warning: Could not fetch symbol list for market scan.")
+        return
+
+    update_chukul_data(symbols=symbols, verbose=False)
+    print(f"OHLCV updated with {len(symbols)} symbols.")
+
+    try:
+        update_indicators_data(symbols=symbols, verbose=False)
+        print("Indicators updated.")
+    except Exception as e:
+        print(f"Warning: Indicators fetch failed: {e}")
+
+    try:
+        update_broker_data(symbols=symbols, verbose=False)
+        print("Broker data updated.")
+    except Exception as e:
+        print(f"Warning: Broker data fetch failed: {e}")
+
+    try:
+        update_fundamental_data(symbols=symbols, verbose=False)
+        print("Fundamentals updated.")
+    except Exception as e:
+        print(f"Warning: Fundamentals fetch failed: {e}")
 
 
 def _fetch_chukul_data(today_str, last_fundamental_date):
