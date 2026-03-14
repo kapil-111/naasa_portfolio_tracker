@@ -54,10 +54,7 @@ def update_chukul_data(symbols=None, input_file="live_market_data.csv",
 
     print(f"Fetching data for {len(symbols)} symbols from chukul.com (Concurrent)...")
 
-    # Use ThreadPoolExecutor for parallel processing
-    # Adjust max_workers as needed (too high might get flagged by server)
-    max_workers = 10 
-    
+    max_workers = int(os.getenv("FETCH_MAX_WORKERS", "8"))
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_symbol = {executor.submit(fetch_chukul_history, symbol): symbol for symbol in symbols}
         

@@ -134,7 +134,7 @@ def update_fundamental_data(symbols=None, input_file="live_market_data.csv",
 
     print(f"\nFetching fundamental reports for {len(symbols)} symbols...")
     fundamental_rows = []
-    max_workers = int(os.getenv("FETCH_MAX_WORKERS") or "")
+    max_workers = int(os.getenv("FETCH_MAX_WORKERS", "8"))
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_sym = {

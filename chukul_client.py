@@ -22,20 +22,25 @@ BASE_URL = "https://chukul.com/api"
 _session = requests.Session()
 _session.headers.update(HEADERS)
 _logged_in = False
+_login_failed = False
 
 
 def _chukul_login():
     """
     Log in to Chukul and attach session cookies for authenticated endpoints.
     Called automatically before any authenticated request.
+    Failure is cached — only one attempt per process to avoid log spam.
     """
-    global _logged_in
+    global _logged_in, _login_failed
     if _logged_in:
         return True
+    if _login_failed:
+        return False
     username = os.getenv("CHUKUL_USERNAME")
     password = os.getenv("CHUKUL_PASSWORD")
     if not username or not password:
-        print("Warning: CHUKUL_USERNAME/CHUKUL_PASSWORD not set. Authenticated endpoints will be skipped.")
+        print("Warning: CHUKUL_USERNAME/CHUKUL_PASSWORD not set. Broker endpoints skipped.")
+        _login_failed = True
         return False
     try:
         resp = _session.post(
@@ -48,10 +53,12 @@ def _chukul_login():
             print("Chukul login successful.")
             return True
         else:
-            print(f"Chukul login failed: HTTP {resp.status_code}")
+            print(f"Chukul login failed: HTTP {resp.status_code}. Broker endpoints skipped.")
+            _login_failed = True
             return False
     except Exception as e:
-        print(f"Chukul login error: {e}")
+        print(f"Chukul login error: {e}. Broker endpoints skipped.")
+        _login_failed = True
         return False
 
 
@@ -122,8 +129,17 @@ def fetch_all_symbols():
     symbols = []
     for item in raw:
         sym = item.get("symbol") or item.get("ticker")
-        if sym and _is_common_share(sym):
-            symbols.append(sym)
+        if not sym:
+            continue
+        item_type = item.get("type")
+        if item_type is not None:
+            # API provides type field: use it as authoritative filter
+            if item_type == "stock":
+                symbols.append(sym)
+        else:
+            # Fallback: pattern-based filter
+            if _is_common_share(sym):
+                symbols.append(sym)
     return symbols
 
 

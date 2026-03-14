@@ -111,7 +111,7 @@ def update_indicators_data(symbols=None, input_file="live_market_data.csv",
     print(f"Fetching technical indicators for {len(symbols)} symbols from chukul.com...")
 
     all_results = []
-    max_workers = int(os.getenv("FETCH_MAX_WORKERS") or "")
+    max_workers = int(os.getenv("FETCH_MAX_WORKERS", "8"))
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_symbol = {executor.submit(_fetch_all_for_symbol, sym): sym for sym in symbols}
