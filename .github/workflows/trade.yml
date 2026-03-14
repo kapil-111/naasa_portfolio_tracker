@@ -2,18 +2,14 @@ name: Auto Trade Runner
 
 on:
   schedule:
-    # Run every 10 minutes between 11:00 and 15:00 Sun-Thu
-    # Note: GitHub Actions cron is in UTC.
-    # Nepal Time (NPT) is UTC+05:45.
-    # 11:00 NPT = 05:15 UTC
-    # 15:00 NPT = 09:15 UTC
+    # Every 10 minutes during NEPSE market hours (11:00–15:00 NPT = 05:15–09:15 UTC), Sun–Thu
     - cron: '15,25,35,45,55 5-9 * * 0-4'
-  workflow_dispatch: # Allows you to run it manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   trade:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,12 +19,37 @@ jobs:
         with:
           python-version: '3.12'
 
+      # ── Cache pip packages ──────────────────────────────────────────────────
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: pip-
+
+      # ── Cache Playwright browser ────────────────────────────────────────────
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('requirements.txt') }}
+          restore-keys: playwright-chromium-
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          playwright install chromium
 
+      - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: playwright install chromium --with-deps
+
+      - name: Install Playwright system deps (cached browser)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: playwright install-deps chromium
+
+      # ── Run bot ────────────────────────────────────────────────────────────
       - name: Run Trading Bot
         env:
           NAASA_USERNAME: ${{ secrets.NAASA_USERNAME }}
@@ -40,28 +61,24 @@ jobs:
           RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
           SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          RUN_ONCE: "True"
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DRY_RUN: ${{ secrets.DRY_RUN }}
-          POLL_INTERVAL: ${{ secrets.POLL_INTERVAL }}
-          SLEEP_INTERVAL_CLOSED: ${{ secrets.SLEEP_INTERVAL_CLOSED }}
           MAX_DAILY_BUYS: ${{ secrets.MAX_DAILY_BUYS }}
           BUY_THRESHOLD: ${{ secrets.BUY_THRESHOLD }}
           SELL_THRESHOLD: ${{ secrets.SELL_THRESHOLD }}
           DEFAULT_BUY_QTY: ${{ secrets.DEFAULT_BUY_QTY }}
           BROKER_CONCENTRATION_THRESHOLD: ${{ secrets.BROKER_CONCENTRATION_THRESHOLD }}
           FETCH_MAX_WORKERS: ${{ secrets.FETCH_MAX_WORKERS }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          python main.py
+          RUN_ONCE: "True"
+          POLL_INTERVAL: "60"
+          SLEEP_INTERVAL_CLOSED: "60"
+        run: python main.py
 
-      - name: Commit State Changes (Optional)
-        # If an order is made, it will be saved to placed_orders_today.json.
-        # This writes it back to the repo so the next interval remembers it.
+      # ── Persist daily order state ──────────────────────────────────────────
+      - name: Save order state
         run: |
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git add placed_orders_today.json
-          git status
-          # Only commit and push if the state file changed
           git diff-index --quiet HEAD || (git commit -m "Update daily placed orders state" && git push)
