@@ -39,7 +39,7 @@ def scrape_portfolio(page: Page):
             # Wait for the table to appear inside the GridDiv
             page.wait_for_selector("#GridDiv table", state="visible", timeout=10000)
             print("Holdings table detected.")
-        except:
+        except Exception:
             print("Holdings table not detected within timeout.")
 
         # Check for specific "No data" message

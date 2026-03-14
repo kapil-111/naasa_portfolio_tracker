@@ -1,7 +1,7 @@
 import os
 import sys
 import shutil
-import time # Keep standard time for sleep
+import time
 import json
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
@@ -12,11 +12,15 @@ from trader import Trader
 from signals import generate_signals
 from fetch_live_data import fetch_live_data
 from fetch_chukul_history import update_chukul_data
+from fetch_chukul_indicators import update_indicators_data
+from fetch_chukul_fundamental import update_fundamental_data
+from fetch_chukul_broker import update_broker_data
+from fetch_chukul_floorsheet import update_floorsheet_data
+from notifications import send_email_notification
 
-from datetime import datetime, time as dt_time, timedelta # Rename datetime.time to prevent conflict
+from datetime import datetime, time as dt_time, timedelta
 import pytz
 
-# ... existing imports ...
 
 def is_market_open():
     """
@@ -26,150 +30,208 @@ def is_market_open():
     """
     tz = pytz.timezone('Asia/Kathmandu')
     now = datetime.now(tz)
-    
-    # 1. Check Day (Friday=4, Saturday=5 are closed)
-    if now.weekday() in [4, 5]: # Friday, Saturday
+
+    if now.weekday() in [4, 5]:
         return False, "Market Closed (Weekend)"
-    
-    # 2. Check Time (11:00 - 15:00)
+
     market_open = dt_time(11, 0)
     market_close = dt_time(15, 0)
     current_time = now.time()
-    
+
     if market_open <= current_time <= market_close:
         return True, "Market Open"
     else:
         return False, f"Market Closed (Time: {current_time.strftime('%H:%M')})"
 
+
 def load_placed_orders():
-    """Loads today's placed orders to prevent duplicates."""
+    """Loads today's placed orders to prevent duplicates and limit buys."""
     filename = "placed_orders_today.json"
     today_str = datetime.now().strftime("%Y-%m-%d")
-    
+
     if os.path.exists(filename):
         try:
             with open(filename, 'r') as f:
                 data = json.load(f)
-                # If the file is from a previous day, clear it
                 if data.get("date") != today_str:
-                    return {"date": today_str, "symbols": []}
+                    return {"date": today_str, "orders": []}
+                if "symbols" in data and "orders" not in data:
+                    migrated_orders = [{"symbol": sym, "side": "BUY"} for sym in data["symbols"]]
+                    return {"date": today_str, "orders": migrated_orders}
                 return data
         except json.JSONDecodeError:
             pass
-            
-    return {"date": today_str, "symbols": []}
 
-def save_placed_order(symbol):
-    """Saves a symbol to the placed orders list."""
+    return {"date": today_str, "orders": []}
+
+
+def save_placed_order(symbol, side):
+    """Saves a symbol and its side to the placed orders list."""
     filename = "placed_orders_today.json"
     data = load_placed_orders()
-    if symbol not in data["symbols"]:
-        data["symbols"].append(symbol)
-        
+
+    new_order = {"symbol": symbol, "side": side}
+    if new_order not in data["orders"]:
+        data["orders"].append(new_order)
+
     with open(filename, 'w') as f:
         json.dump(data, f)
-    print(f"Recorded order for {symbol} in state file.")
+    print(f"Recorded order for {side} {symbol} in state file.")
+
 
 def main():
     load_dotenv()
-    
+
     username = os.getenv("NAASA_USERNAME")
     password = os.getenv("NAASA_PASSWORD")
-    
+
     if not username or not password:
         print("Error: NAASA_USERNAME or NAASA_PASSWORD not found.")
         sys.exit(1)
 
-    # Trading Configuration
-    DRY_RUN = True 
-    POLL_INTERVAL = 60 # Seconds to wait between polls if market is open
-    SLEEP_INTERVAL_CLOSED = 60 # Seconds to wait if market is closed (checking periodically)
-    RUN_ONCE = os.getenv("RUN_ONCE", "False").lower() == "true"
+    _required = {
+        "DRY_RUN": os.getenv("DRY_RUN"),
+        "POLL_INTERVAL": os.getenv("POLL_INTERVAL"),
+        "SLEEP_INTERVAL_CLOSED": os.getenv("SLEEP_INTERVAL_CLOSED"),
+        "RUN_ONCE": os.getenv("RUN_ONCE"),
+        "MAX_DAILY_BUYS": os.getenv("MAX_DAILY_BUYS"),
+    }
+    missing = [k for k, v in _required.items() if not v]
+    if missing:
+        print(f"Error: Missing required env vars: {', '.join(missing)}")
+        sys.exit(1)
+
+    DRY_RUN = _required["DRY_RUN"].lower() == "true"  # type: ignore[union-attr]
+    POLL_INTERVAL = int(_required["POLL_INTERVAL"])  # type: ignore[arg-type]
+    SLEEP_INTERVAL_CLOSED = int(_required["SLEEP_INTERVAL_CLOSED"])  # type: ignore[arg-type]
+    RUN_ONCE = _required["RUN_ONCE"].lower() == "true"  # type: ignore[union-attr]
+    MAX_DAILY_BUYS = int(_required["MAX_DAILY_BUYS"])  # type: ignore[arg-type]
 
     if RUN_ONCE:
         print("--- Starting Portfolio Tracker Bot (Single Run Mode) ---")
     else:
         print("--- Starting Portfolio Tracker Bot (Scheduler Mode) ---")
 
+    last_fundamental_date = None
+
     while True:
-        open_status, message = True, "Simulating Open Market"
-        
+        open_status, message = is_market_open()
+
         if not open_status:
             print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}. Waiting...")
-            time.sleep(SLEEP_INTERVAL_CLOSED) # Sleep and check again
+            time.sleep(SLEEP_INTERVAL_CLOSED)
             continue
-            
+
         print(f"[{datetime.now().strftime('%H:%M:%S')}] Market is OPEN. Starting cycle...")
 
         with sync_playwright() as p:
-            # RUN HEADLESS FOR AUTOMATION
             browser = p.chromium.launch(headless=True)
             context = browser.new_context()
             page = context.new_page()
-            
+
             try:
                 # 1. Login
                 login(page, username, password)
-                
+
                 # 2. Fetch Live Market Data
                 print("Fetching live market data...")
                 fetch_live_data(page)
-                
+
                 # 3. Update Historical Data from Chukul
                 print("Updating historical data from Chukul...")
                 update_chukul_data(verbose=False)
-                
-                # 2. Scrape Portfolio
+
+                # 4. Fetch Technical Indicators (RSI, support, resistance)
+                print("Fetching technical indicators from Chukul...")
+                try:
+                    update_indicators_data(verbose=False)
+                except Exception as e:
+                    print(f"Warning: Indicators fetch failed: {e}")
+
+                # 5. Fetch Broker Buy/Sell Data (last 5 days)
+                print("Fetching broker analysis from Chukul...")
+                try:
+                    update_broker_data(verbose=False)
+                except Exception as e:
+                    print(f"Warning: Broker data fetch failed: {e}")
+
+                # 6. Fetch Floorsheet for today
+                today_str = datetime.now().strftime("%Y-%m-%d")
+                print(f"Fetching floorsheet for {today_str}...")
+                try:
+                    update_floorsheet_data(date=today_str, verbose=False)
+                except Exception as e:
+                    print(f"Warning: Floorsheet fetch failed: {e}")
+
+                # 7. Fetch Fundamental Data (once per day only — slow)
+                today_str = datetime.now().strftime("%Y-%m-%d")
+                if last_fundamental_date != today_str:
+                    print("Fetching fundamental data from Chukul (daily run)...")
+                    try:
+                        update_fundamental_data(verbose=False)
+                        last_fundamental_date = today_str
+                    except Exception as e:
+                        print(f"Warning: Fundamental data fetch failed: {e}")
+                else:
+                    print("Skipping fundamental fetch (already done today).")
+
+                # 8. Scrape Portfolio
                 data = scrape_portfolio(page)
-                
+
                 if data:
                     print("Saving portfolio data...")
-                    # Save summary
                     if "summary" in data:
                         save_to_json(data["summary"], "portfolio_summary.json")
-                    
-                    # Save holdings
                     if "holdings" in data and data["holdings"]:
                         save_to_csv(data["holdings"], "portfolio_data.csv")
                     else:
                         print("No holdings data to save.")
-                
-                # 5. Generate Signals
+
+                # 9. Generate Signals
                 signals = generate_signals(data)
                 print(f"Generated {len(signals)} signals.")
-                
-                # 6. Execute Trades
+
+                # 10. Execute Trades
                 if signals:
                     trader = Trader(page, dry_run=DRY_RUN)
                     placed_orders = load_placed_orders()
-                    
+
                     for signal in signals:
                         symbol = signal['symbol']
-                        
-                        # Check state to prevent infinite loops
-                        if symbol in placed_orders["symbols"]:
-                            print(f"[STATE CHECK] Order for {symbol} already placed today. Skipping.")
+                        side = signal['side'].upper()
+
+                        already_placed = any(o['symbol'] == symbol and o['side'] == side for o in placed_orders.get('orders', []))
+                        if already_placed:
+                            print(f"[STATE CHECK] Order for {side} {symbol} already placed today. Skipping.")
                             continue
-                            
+
+                        if side == "BUY":
+                            buy_count = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY')
+                            if buy_count >= MAX_DAILY_BUYS:
+                                print(f"[LIMIT REACHED] Max daily buys ({MAX_DAILY_BUYS}) reached. Skipping BUY {symbol}.")
+                                continue
+
                         success = trader.place_order(signal)
                         if success:
-                            save_placed_order(symbol)
+                            save_placed_order(symbol, side)
+                            placed_orders = load_placed_orders()
+                            send_email_notification(signal, is_dry_run=DRY_RUN)
                 else:
                     print("No trading signals generated.")
-                    
+
             except Exception as e:
                 print(f"An error occurred: {e}")
-                # Optional: page.screenshot(path=f"error_{datetime.now().strftime('%H%M%S')}.png")
             finally:
                 print("Closing browser...")
                 browser.close()
-        
+
         if RUN_ONCE:
             print("Single run complete. Exiting...")
             break
-            
+
         print(f"Cycle complete. Waiting {POLL_INTERVAL} seconds...")
         time.sleep(POLL_INTERVAL)
+
 
 if __name__ == "__main__":
     main()

@@ -33,7 +33,23 @@ jobs:
         env:
           NAASA_USERNAME: ${{ secrets.NAASA_USERNAME }}
           NAASA_PASSWORD: ${{ secrets.NAASA_PASSWORD }}
+          CHUKUL_USERNAME: ${{ secrets.CHUKUL_USERNAME }}
+          CHUKUL_PASSWORD: ${{ secrets.CHUKUL_PASSWORD }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
+          RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
           RUN_ONCE: "True"
+          DRY_RUN: ${{ secrets.DRY_RUN }}
+          POLL_INTERVAL: ${{ secrets.POLL_INTERVAL }}
+          SLEEP_INTERVAL_CLOSED: ${{ secrets.SLEEP_INTERVAL_CLOSED }}
+          MAX_DAILY_BUYS: ${{ secrets.MAX_DAILY_BUYS }}
+          BUY_THRESHOLD: ${{ secrets.BUY_THRESHOLD }}
+          SELL_THRESHOLD: ${{ secrets.SELL_THRESHOLD }}
+          DEFAULT_BUY_QTY: ${{ secrets.DEFAULT_BUY_QTY }}
+          BROKER_CONCENTRATION_THRESHOLD: ${{ secrets.BROKER_CONCENTRATION_THRESHOLD }}
+          FETCH_MAX_WORKERS: ${{ secrets.FETCH_MAX_WORKERS }}
         run: |
           python main.py
 
@@ -46,4 +62,4 @@ jobs:
           git add placed_orders_today.json
           git status
           # Only commit and push if the state file changed
-          git diff-index --quiet HEAD || git commit -m "Update daily placed orders state" && git push
+          git diff-index --quiet HEAD || (git commit -m "Update daily placed orders state" && git push)
