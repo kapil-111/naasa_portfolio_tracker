@@ -4,7 +4,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 
-from chukul_client import BASE_URL, _get, _session_get
+from chukul_client import BASE_URL, _get
 
 
 def fetch_broker_list(output_file="chukul_brokers.csv"):
@@ -48,7 +48,7 @@ def fetch_top_buyers(symbol, from_date, to_date):
     Fetch top buying brokers for a symbol over a date range.
     Returns a list of dicts with broker number, quantity, rate, amount.
     """
-    data = _session_get(f"{BASE_URL}/data/top-buy/", params={
+    data = _get(f"{BASE_URL}/data/top-buy/", params={
         "symbol": symbol,
         "from_date": from_date,
         "to_date": to_date
@@ -68,7 +68,7 @@ def fetch_top_sellers(symbol, from_date, to_date):
     Fetch top selling brokers for a symbol over a date range.
     Returns a list of dicts with broker number, quantity, rate, amount.
     """
-    data = _session_get(f"{BASE_URL}/data/top-sell/", params={
+    data = _get(f"{BASE_URL}/data/top-sell/", params={
         "symbol": symbol,
         "from_date": from_date,
         "to_date": to_date
