@@ -16,7 +16,7 @@ from fetch_chukul_indicators import update_indicators_data
 from fetch_chukul_fundamental import update_fundamental_data
 from fetch_chukul_broker import update_broker_data
 from fetch_chukul_floorsheet import update_floorsheet_data
-from chukul_client import fetch_all_symbols
+from chukul_client import fetch_all_symbols, BASE_URL, _get
 from notifications import (
     notify_market_open,
     notify_signals,
@@ -32,24 +32,27 @@ import pytz
 
 def is_market_open():
     """
-    Checks if the NEPSE market is open (11 AM - 3 PM, Sun-Thu).
-    Friday (4) and Saturday (5) are closed.
-    Timezone: Asia/Kathmandu
+    Checks NEPSE market status via Chukul API (handles weekends + holidays).
+    Falls back to time-based check (11 AM–3 PM, Sun–Thu) if API is unavailable.
     """
+    data = _get(f"{BASE_URL}/tools/market/status/")
+    if data and "is_open" in data:
+        as_of = data.get("as_of_live", "")
+        if data["is_open"]:
+            return True, f"Market Open (as of {as_of})"
+        else:
+            return False, f"Market Closed (as of {as_of})"
+
+    # Fallback: time-based check
     tz = pytz.timezone('Asia/Kathmandu')
     now = datetime.now(tz)
-
     if now.weekday() in [4, 5]:
         return False, "Market Closed (Weekend)"
-
     market_open  = dt_time(11, 0)
     market_close = dt_time(15, 0)
-    current_time = now.time()
-
-    if market_open <= current_time <= market_close:
+    if market_open <= now.time() <= market_close:
         return True, "Market Open"
-    else:
-        return False, f"Market Closed (Time: {current_time.strftime('%H:%M')})"
+    return False, f"Market Closed (Time: {now.strftime('%H:%M')})"
 
 
 def load_placed_orders():
