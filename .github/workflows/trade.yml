@@ -81,8 +81,7 @@ jobs:
           SLEEP_INTERVAL_CLOSED: "60"
         run: python main.py
 
-      # ── Persist daily order state ──────────────────────────────────────────
-      # ── Persist daily order state ──────────────────────────────────────────
+      # ── Persist daily order state (no CSVs — all data fetched fresh) ────────
       - name: Save order state
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -91,7 +90,4 @@ jobs:
           git config --global user.email "action@github.com"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git add placed_orders_today.json 2>/dev/null || true
-          git add chukul_data.csv chukul_indicators.csv chukul_fundamental.csv \
-                  chukul_bonus.csv chukul_broker_buy.csv chukul_broker_sell.csv \
-                  chukul_brokers.csv portfolio_data.csv live_market_data.csv 2>/dev/null || true
-          git diff-index --cached --quiet HEAD || (git commit -m "Update market data and order state" && git push)
+          git diff-index --cached --quiet HEAD || (git commit -m "Update order state" && git push)
