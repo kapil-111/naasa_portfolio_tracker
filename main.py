@@ -101,6 +101,34 @@ def _load_cached_portfolio():
     return {"holdings": [], "summary": {}}
 
 
+def _ensure_market_ohlcv():
+    """
+    Ensure chukul_data.csv has OHLCV data for all NEPSE symbols.
+    If cache has < 100 symbols, fetches all symbols (one-time ~1-2 min cost).
+    This is required for full BUY signal discovery across the whole market.
+    """
+    existing_count = 0
+    if os.path.exists("chukul_data.csv"):
+        try:
+            df_existing = pd.read_csv("chukul_data.csv", usecols=lambda c: c in ("symbol", "stock"))
+            col = "symbol" if "symbol" in df_existing.columns else "stock"
+            existing_count = df_existing[col].nunique()
+        except Exception:
+            pass
+
+    if existing_count >= 100:
+        print(f"OHLCV cache has {existing_count} symbols — using cache.")
+        return
+
+    print(f"OHLCV cache has only {existing_count} symbols. Fetching all NEPSE symbols for full market scan...")
+    symbols = fetch_all_symbols()
+    if symbols:
+        update_chukul_data(symbols=symbols, verbose=False)
+        print(f"OHLCV cache updated with {len(symbols)} symbols.")
+    else:
+        print("Warning: Could not fetch symbol list for market scan.")
+
+
 def _fetch_chukul_data(today_str, last_fundamental_date):
     """Fetch all Chukul data for all NEPSE symbols. Returns updated last_fundamental_date."""
     print("Fetching full NEPSE symbol list from Chukul...")
@@ -210,6 +238,7 @@ def main():
                     print("Outside pre-market window — using cached Chukul data.")
 
                 data    = _load_cached_portfolio()
+                _ensure_market_ohlcv()
                 signals = generate_signals(data)
                 print(f"Generated {len(signals)} signals from cached portfolio.")
 
@@ -261,6 +290,9 @@ def main():
                         save_to_csv(data["holdings"], "portfolio_data.csv")
                     else:
                         print("No holdings data to save.")
+
+                # Ensure OHLCV data exists for all market symbols before signals
+                _ensure_market_ohlcv()
 
                 # 9. Generate Signals
                 signals = generate_signals(data)
