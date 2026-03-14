@@ -17,7 +17,6 @@ from fetch_chukul_fundamental import update_fundamental_data
 from fetch_chukul_broker import update_broker_data
 from fetch_chukul_floorsheet import update_floorsheet_data
 from notifications import (
-    send_email_notification,
     notify_market_open,
     notify_signals,
     notify_order,
@@ -284,7 +283,6 @@ def main():
                             placed_orders = load_placed_orders()
                             orders_placed_this_cycle += 1
                             notify_order(signal, is_dry_run=DRY_RUN)
-                            send_email_notification(signal, is_dry_run=DRY_RUN)
                 else:
                     print("No trading signals generated.")
 
