@@ -241,10 +241,7 @@ def main():
                 print("Fetching live market data...")
                 fetch_live_data(page)
 
-                # 3-7. Fetch all Chukul data
-                last_fundamental_date = _fetch_chukul_data(today_str, last_fundamental_date)
-
-                # 8. Scrape Portfolio
+                # 3. Scrape Portfolio
                 data = scrape_portfolio(page)
 
                 if data:
