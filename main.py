@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import json
+import pandas as pd
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 from auth import login
@@ -86,6 +87,53 @@ def save_placed_order(symbol, side):
     print(f"Recorded order for {side} {symbol} in state file.")
 
 
+def _load_cached_portfolio():
+    """Load last known portfolio holdings from CSV for offline analysis."""
+    if os.path.exists("portfolio_data.csv"):
+        try:
+            df = pd.read_csv("portfolio_data.csv")
+            return {"holdings": df.to_dict("records"), "summary": {}}
+        except Exception as e:
+            print(f"Warning: Could not load cached portfolio: {e}")
+    return {"holdings": [], "summary": {}}
+
+
+def _fetch_chukul_data(today_str, last_fundamental_date):
+    """Fetch all Chukul data. Returns updated last_fundamental_date."""
+    print("Updating historical data from Chukul...")
+    update_chukul_data(verbose=False)
+
+    print("Fetching technical indicators from Chukul...")
+    try:
+        update_indicators_data(verbose=False)
+    except Exception as e:
+        print(f"Warning: Indicators fetch failed: {e}")
+
+    print("Fetching broker analysis from Chukul...")
+    try:
+        update_broker_data(verbose=False)
+    except Exception as e:
+        print(f"Warning: Broker data fetch failed: {e}")
+
+    print(f"Fetching floorsheet for {today_str}...")
+    try:
+        update_floorsheet_data(date=today_str, verbose=False)
+    except Exception as e:
+        print(f"Warning: Floorsheet fetch failed: {e}")
+
+    if last_fundamental_date != today_str:
+        print("Fetching fundamental data from Chukul (daily run)...")
+        try:
+            update_fundamental_data(verbose=False)
+            last_fundamental_date = today_str
+        except Exception as e:
+            print(f"Warning: Fundamental data fetch failed: {e}")
+    else:
+        print("Skipping fundamental fetch (already done today).")
+
+    return last_fundamental_date
+
+
 def main():
     load_dotenv()
 
@@ -120,35 +168,56 @@ def main():
         print("--- Starting Portfolio Tracker Bot (Scheduler Mode) ---")
 
     last_fundamental_date = None
-    market_open_notified_date = None   # send market-open Telegram once per day
-    last_was_open = False              # track transition → closed for market-close alert
+    market_open_notified_date = None
+    last_was_open = False
 
     while True:
         open_status, message = is_market_open()
         today_str = datetime.now().strftime("%Y-%m-%d")
 
-        # ── Market just closed: send close summary ──────────────────────────
+        # ── Market just closed: send close summary ───────────────────────────
         if last_was_open and not open_status:
             placed = load_placed_orders().get("orders", [])
             notify_market_close(placed)
         last_was_open = open_status
 
+        signals = []
+        orders_placed_this_cycle = 0
+
+        # ── Market CLOSED: analysis-only cycle (no login, no trading) ────────
         if not open_status:
-            print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}.")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}. Running analysis cycle...")
+
+            try:
+                last_fundamental_date = _fetch_chukul_data(today_str, last_fundamental_date)
+
+                data    = _load_cached_portfolio()
+                signals = generate_signals(data)
+                print(f"Generated {len(signals)} signals from cached portfolio.")
+
+                actionable = [s for s in signals if s["side"] in ("BUY", "SELL")]
+                if actionable:
+                    notify_signals(actionable)
+
+            except Exception as e:
+                print(f"Analysis cycle error: {e}")
+                notify_error(e)
+
+            notify_cycle_summary(signals, 0, SLEEP_INTERVAL_CLOSED)
+
             if RUN_ONCE:
-                print("Market closed. Exiting (RUN_ONCE mode).")
+                print("Analysis complete. Exiting (RUN_ONCE mode).")
                 break
+
             time.sleep(SLEEP_INTERVAL_CLOSED)
             continue
 
+        # ── Market OPEN: full trading cycle ───────────────────────────────────
         print(f"[{datetime.now().strftime('%H:%M:%S')}] Market is OPEN. Starting cycle...")
 
-        # ── Market open: notify once per day ────────────────────────────────
         if market_open_notified_date != today_str:
             notify_market_open(DRY_RUN)
             market_open_notified_date = today_str
-
-        orders_placed_this_cycle = 0
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
@@ -163,41 +232,8 @@ def main():
                 print("Fetching live market data...")
                 fetch_live_data(page)
 
-                # 3. Update Historical Data from Chukul
-                print("Updating historical data from Chukul...")
-                update_chukul_data(verbose=False)
-
-                # 4. Fetch Technical Indicators
-                print("Fetching technical indicators from Chukul...")
-                try:
-                    update_indicators_data(verbose=False)
-                except Exception as e:
-                    print(f"Warning: Indicators fetch failed: {e}")
-
-                # 5. Fetch Broker Buy/Sell Data
-                print("Fetching broker analysis from Chukul...")
-                try:
-                    update_broker_data(verbose=False)
-                except Exception as e:
-                    print(f"Warning: Broker data fetch failed: {e}")
-
-                # 6. Fetch Floorsheet for today
-                print(f"Fetching floorsheet for {today_str}...")
-                try:
-                    update_floorsheet_data(date=today_str, verbose=False)
-                except Exception as e:
-                    print(f"Warning: Floorsheet fetch failed: {e}")
-
-                # 7. Fetch Fundamental Data (once per day)
-                if last_fundamental_date != today_str:
-                    print("Fetching fundamental data from Chukul (daily run)...")
-                    try:
-                        update_fundamental_data(verbose=False)
-                        last_fundamental_date = today_str
-                    except Exception as e:
-                        print(f"Warning: Fundamental data fetch failed: {e}")
-                else:
-                    print("Skipping fundamental fetch (already done today).")
+                # 3-7. Fetch all Chukul data
+                last_fundamental_date = _fetch_chukul_data(today_str, last_fundamental_date)
 
                 # 8. Scrape Portfolio
                 data = scrape_portfolio(page)
@@ -215,7 +251,6 @@ def main():
                 signals = generate_signals(data)
                 print(f"Generated {len(signals)} signals.")
 
-                # Telegram: notify all BUY/SELL signals at once
                 actionable = [s for s in signals if s["side"] in ("BUY", "SELL")]
                 if actionable:
                     notify_signals(actionable)
@@ -260,8 +295,7 @@ def main():
                 print("Closing browser...")
                 browser.close()
 
-        # Telegram: cycle summary
-        notify_cycle_summary(signals if 'signals' in dir() else [], orders_placed_this_cycle, POLL_INTERVAL)
+        notify_cycle_summary(signals, orders_placed_this_cycle, POLL_INTERVAL)
 
         if RUN_ONCE:
             print("Single run complete. Exiting...")

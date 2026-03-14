@@ -2,7 +2,9 @@ name: Auto Trade Runner
 
 on:
   schedule:
-    # Every 10 minutes during NEPSE market hours (11:00–15:00 NPT = 05:15–09:15 UTC), Sun–Thu
+    # Pre-market analysis: 10:15 AM NPT (04:30 UTC), Sun–Thu
+    - cron: '30 4 * * 0-4'
+    # Every 10 min during + just after market hours: 11:00–15:40 NPT (05:15–09:55 UTC), Sun–Thu
     - cron: '15,25,35,45,55 5-9 * * 0-4'
   workflow_dispatch:
 
@@ -80,5 +82,5 @@ jobs:
         run: |
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
-          git add placed_orders_today.json
+          git add placed_orders_today.json 2>/dev/null || true
           git diff-index --quiet HEAD || (git commit -m "Update daily placed orders state" && git push)
