@@ -1,6 +1,5 @@
 import os
 import sys
-import shutil
 import time
 import json
 from dotenv import load_dotenv
@@ -16,9 +15,17 @@ from fetch_chukul_indicators import update_indicators_data
 from fetch_chukul_fundamental import update_fundamental_data
 from fetch_chukul_broker import update_broker_data
 from fetch_chukul_floorsheet import update_floorsheet_data
-from notifications import send_email_notification
+from notifications import (
+    send_email_notification,
+    notify_market_open,
+    notify_signals,
+    notify_order,
+    notify_error,
+    notify_cycle_summary,
+    notify_market_close,
+)
 
-from datetime import datetime, time as dt_time, timedelta
+from datetime import datetime, time as dt_time
 import pytz
 
 
@@ -34,7 +41,7 @@ def is_market_open():
     if now.weekday() in [4, 5]:
         return False, "Market Closed (Weekend)"
 
-    market_open = dt_time(11, 0)
+    market_open  = dt_time(11, 0)
     market_close = dt_time(15, 0)
     current_time = now.time()
 
@@ -46,7 +53,7 @@ def is_market_open():
 
 def load_placed_orders():
     """Loads today's placed orders to prevent duplicates and limit buys."""
-    filename = "placed_orders_today.json"
+    filename  = "placed_orders_today.json"
     today_str = datetime.now().strftime("%Y-%m-%d")
 
     if os.path.exists(filename):
@@ -56,8 +63,8 @@ def load_placed_orders():
                 if data.get("date") != today_str:
                     return {"date": today_str, "orders": []}
                 if "symbols" in data and "orders" not in data:
-                    migrated_orders = [{"symbol": sym, "side": "BUY"} for sym in data["symbols"]]
-                    return {"date": today_str, "orders": migrated_orders}
+                    migrated = [{"symbol": s, "side": "BUY"} for s in data["symbols"]]
+                    return {"date": today_str, "orders": migrated}
                 return data
         except json.JSONDecodeError:
             pass
@@ -68,7 +75,7 @@ def load_placed_orders():
 def save_placed_order(symbol, side):
     """Saves a symbol and its side to the placed orders list."""
     filename = "placed_orders_today.json"
-    data = load_placed_orders()
+    data     = load_placed_orders()
 
     new_order = {"symbol": symbol, "side": side}
     if new_order not in data["orders"]:
@@ -90,22 +97,22 @@ def main():
         sys.exit(1)
 
     _required = {
-        "DRY_RUN": os.getenv("DRY_RUN"),
-        "POLL_INTERVAL": os.getenv("POLL_INTERVAL"),
+        "DRY_RUN":               os.getenv("DRY_RUN"),
+        "POLL_INTERVAL":         os.getenv("POLL_INTERVAL"),
         "SLEEP_INTERVAL_CLOSED": os.getenv("SLEEP_INTERVAL_CLOSED"),
-        "RUN_ONCE": os.getenv("RUN_ONCE"),
-        "MAX_DAILY_BUYS": os.getenv("MAX_DAILY_BUYS"),
+        "RUN_ONCE":              os.getenv("RUN_ONCE"),
+        "MAX_DAILY_BUYS":        os.getenv("MAX_DAILY_BUYS"),
     }
     missing = [k for k, v in _required.items() if not v]
     if missing:
         print(f"Error: Missing required env vars: {', '.join(missing)}")
         sys.exit(1)
 
-    DRY_RUN = _required["DRY_RUN"].lower() == "true"  # type: ignore[union-attr]
-    POLL_INTERVAL = int(_required["POLL_INTERVAL"])  # type: ignore[arg-type]
-    SLEEP_INTERVAL_CLOSED = int(_required["SLEEP_INTERVAL_CLOSED"])  # type: ignore[arg-type]
-    RUN_ONCE = _required["RUN_ONCE"].lower() == "true"  # type: ignore[union-attr]
-    MAX_DAILY_BUYS = int(_required["MAX_DAILY_BUYS"])  # type: ignore[arg-type]
+    DRY_RUN               = _required["DRY_RUN"].lower() == "true"               # type: ignore[union-attr]
+    POLL_INTERVAL         = int(_required["POLL_INTERVAL"])                       # type: ignore[arg-type]
+    SLEEP_INTERVAL_CLOSED = int(_required["SLEEP_INTERVAL_CLOSED"])               # type: ignore[arg-type]
+    RUN_ONCE              = _required["RUN_ONCE"].lower() == "true"               # type: ignore[union-attr]
+    MAX_DAILY_BUYS        = int(_required["MAX_DAILY_BUYS"])                      # type: ignore[arg-type]
 
     if RUN_ONCE:
         print("--- Starting Portfolio Tracker Bot (Single Run Mode) ---")
@@ -113,9 +120,18 @@ def main():
         print("--- Starting Portfolio Tracker Bot (Scheduler Mode) ---")
 
     last_fundamental_date = None
+    market_open_notified_date = None   # send market-open Telegram once per day
+    last_was_open = False              # track transition → closed for market-close alert
 
     while True:
         open_status, message = is_market_open()
+        today_str = datetime.now().strftime("%Y-%m-%d")
+
+        # ── Market just closed: send close summary ──────────────────────────
+        if last_was_open and not open_status:
+            placed = load_placed_orders().get("orders", [])
+            notify_market_close(placed)
+        last_was_open = open_status
 
         if not open_status:
             print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}. Waiting...")
@@ -124,10 +140,17 @@ def main():
 
         print(f"[{datetime.now().strftime('%H:%M:%S')}] Market is OPEN. Starting cycle...")
 
+        # ── Market open: notify once per day ────────────────────────────────
+        if market_open_notified_date != today_str:
+            notify_market_open(DRY_RUN)
+            market_open_notified_date = today_str
+
+        orders_placed_this_cycle = 0
+
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             context = browser.new_context()
-            page = context.new_page()
+            page    = context.new_page()
 
             try:
                 # 1. Login
@@ -141,14 +164,14 @@ def main():
                 print("Updating historical data from Chukul...")
                 update_chukul_data(verbose=False)
 
-                # 4. Fetch Technical Indicators (RSI, support, resistance)
+                # 4. Fetch Technical Indicators
                 print("Fetching technical indicators from Chukul...")
                 try:
                     update_indicators_data(verbose=False)
                 except Exception as e:
                     print(f"Warning: Indicators fetch failed: {e}")
 
-                # 5. Fetch Broker Buy/Sell Data (last 5 days)
+                # 5. Fetch Broker Buy/Sell Data
                 print("Fetching broker analysis from Chukul...")
                 try:
                     update_broker_data(verbose=False)
@@ -156,15 +179,13 @@ def main():
                     print(f"Warning: Broker data fetch failed: {e}")
 
                 # 6. Fetch Floorsheet for today
-                today_str = datetime.now().strftime("%Y-%m-%d")
                 print(f"Fetching floorsheet for {today_str}...")
                 try:
                     update_floorsheet_data(date=today_str, verbose=False)
                 except Exception as e:
                     print(f"Warning: Floorsheet fetch failed: {e}")
 
-                # 7. Fetch Fundamental Data (once per day only — slow)
-                today_str = datetime.now().strftime("%Y-%m-%d")
+                # 7. Fetch Fundamental Data (once per day)
                 if last_fundamental_date != today_str:
                     print("Fetching fundamental data from Chukul (daily run)...")
                     try:
@@ -191,16 +212,24 @@ def main():
                 signals = generate_signals(data)
                 print(f"Generated {len(signals)} signals.")
 
+                # Telegram: notify all BUY/SELL signals at once
+                actionable = [s for s in signals if s["side"] in ("BUY", "SELL")]
+                if actionable:
+                    notify_signals(actionable)
+
                 # 10. Execute Trades
                 if signals:
-                    trader = Trader(page, dry_run=DRY_RUN)
+                    trader        = Trader(page, dry_run=DRY_RUN)
                     placed_orders = load_placed_orders()
 
                     for signal in signals:
                         symbol = signal['symbol']
-                        side = signal['side'].upper()
+                        side   = signal['side'].upper()
 
-                        already_placed = any(o['symbol'] == symbol and o['side'] == side for o in placed_orders.get('orders', []))
+                        already_placed = any(
+                            o['symbol'] == symbol and o['side'] == side
+                            for o in placed_orders.get('orders', [])
+                        )
                         if already_placed:
                             print(f"[STATE CHECK] Order for {side} {symbol} already placed today. Skipping.")
                             continue
@@ -215,15 +244,21 @@ def main():
                         if success:
                             save_placed_order(symbol, side)
                             placed_orders = load_placed_orders()
+                            orders_placed_this_cycle += 1
+                            notify_order(signal, is_dry_run=DRY_RUN)
                             send_email_notification(signal, is_dry_run=DRY_RUN)
                 else:
                     print("No trading signals generated.")
 
             except Exception as e:
                 print(f"An error occurred: {e}")
+                notify_error(e)
             finally:
                 print("Closing browser...")
                 browser.close()
+
+        # Telegram: cycle summary
+        notify_cycle_summary(signals if 'signals' in dir() else [], orders_placed_this_cycle, POLL_INTERVAL)
 
         if RUN_ONCE:
             print("Single run complete. Exiting...")

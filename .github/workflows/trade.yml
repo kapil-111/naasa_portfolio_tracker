@@ -50,6 +50,8 @@ jobs:
           DEFAULT_BUY_QTY: ${{ secrets.DEFAULT_BUY_QTY }}
           BROKER_CONCENTRATION_THRESHOLD: ${{ secrets.BROKER_CONCENTRATION_THRESHOLD }}
           FETCH_MAX_WORKERS: ${{ secrets.FETCH_MAX_WORKERS }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python main.py
 
