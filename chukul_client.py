@@ -8,6 +8,7 @@ All fetch modules import from here — no duplicate HEADERS/BASE_URL/_get() defi
 
 import os
 import re
+import threading
 import requests
 from dotenv import load_dotenv
 
@@ -23,43 +24,49 @@ _session = requests.Session()
 _session.headers.update(HEADERS)
 _logged_in = False
 _login_failed = False
+_login_lock = threading.Lock()
 
 
 def _chukul_login():
     """
     Log in to Chukul and attach session cookies for authenticated endpoints.
-    Called automatically before any authenticated request.
-    Failure is cached — only one attempt per process to avoid log spam.
+    Thread-safe: only one login attempt per process; failure is cached.
     """
     global _logged_in, _login_failed
     if _logged_in:
         return True
     if _login_failed:
         return False
-    username = os.getenv("CHUKUL_USERNAME")
-    password = os.getenv("CHUKUL_PASSWORD")
-    if not username or not password:
-        print("Warning: CHUKUL_USERNAME/CHUKUL_PASSWORD not set. Broker endpoints skipped.")
-        _login_failed = True
-        return False
-    try:
-        resp = _session.post(
-            f"{BASE_URL}/auth/login/",
-            json={"username": username, "password": password},
-            timeout=15
-        )
-        if resp.status_code in (200, 201):
-            _logged_in = True
-            print("Chukul login successful.")
+    with _login_lock:
+        # Re-check inside lock — another thread may have just finished
+        if _logged_in:
             return True
-        else:
-            print(f"Chukul login failed: HTTP {resp.status_code}. Broker endpoints skipped.")
+        if _login_failed:
+            return False
+        username = os.getenv("CHUKUL_USERNAME")
+        password = os.getenv("CHUKUL_PASSWORD")
+        if not username or not password:
+            print("Warning: CHUKUL_USERNAME/CHUKUL_PASSWORD not set. Broker endpoints skipped.")
             _login_failed = True
             return False
-    except Exception as e:
-        print(f"Chukul login error: {e}. Broker endpoints skipped.")
-        _login_failed = True
-        return False
+        try:
+            resp = _session.post(
+                f"{BASE_URL}/auth/login/",
+                json={"username": username, "password": password},
+                timeout=15
+            )
+            if resp.status_code in (200, 201):
+                _logged_in = True
+                print("Chukul login successful.")
+                return True
+            else:
+                print(f"Chukul login failed: HTTP {resp.status_code}. Broker endpoints skipped.")
+                _login_failed = True
+                return False
+        except Exception as e:
+            print(f"Chukul login error: {e}. Broker endpoints skipped.")
+            _login_failed = True
+            return False
 
 
 _EXCLUDE_EXACT = {
@@ -129,17 +136,8 @@ def fetch_all_symbols():
     symbols = []
     for item in raw:
         sym = item.get("symbol") or item.get("ticker")
-        if not sym:
-            continue
-        item_type = item.get("type")
-        if item_type is not None:
-            # API provides type field: use it as authoritative filter
-            if item_type == "stock":
-                symbols.append(sym)
-        else:
-            # Fallback: pattern-based filter
-            if _is_common_share(sym):
-                symbols.append(sym)
+        if sym and _is_common_share(sym):
+            symbols.append(sym)
     return symbols
 
 
