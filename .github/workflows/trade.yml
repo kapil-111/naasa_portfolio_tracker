@@ -71,6 +71,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DRY_RUN: ${{ secrets.DRY_RUN }}
           MAX_DAILY_BUYS: ${{ secrets.MAX_DAILY_BUYS }}
+          MAX_PORTFOLIO_STOCKS: ${{ secrets.MAX_PORTFOLIO_STOCKS }}
           BUY_THRESHOLD: ${{ secrets.BUY_THRESHOLD }}
           SELL_THRESHOLD: ${{ secrets.SELL_THRESHOLD }}
           DEFAULT_BUY_QTY: ${{ secrets.DEFAULT_BUY_QTY }}

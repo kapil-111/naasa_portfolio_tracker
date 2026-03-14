@@ -205,6 +205,7 @@ def main():
         "SLEEP_INTERVAL_CLOSED": os.getenv("SLEEP_INTERVAL_CLOSED"),
         "RUN_ONCE":              os.getenv("RUN_ONCE"),
         "MAX_DAILY_BUYS":        os.getenv("MAX_DAILY_BUYS"),
+        "MAX_PORTFOLIO_STOCKS":  os.getenv("MAX_PORTFOLIO_STOCKS"),
     }
     missing = [k for k, v in _required.items() if not v]
     if missing:
@@ -216,6 +217,7 @@ def main():
     SLEEP_INTERVAL_CLOSED = int(_required["SLEEP_INTERVAL_CLOSED"])               # type: ignore[arg-type]
     RUN_ONCE              = _required["RUN_ONCE"].lower() == "true"               # type: ignore[union-attr]
     MAX_DAILY_BUYS        = int(_required["MAX_DAILY_BUYS"])                      # type: ignore[arg-type]
+    MAX_PORTFOLIO_STOCKS  = int(_required["MAX_PORTFOLIO_STOCKS"])                # type: ignore[arg-type]
 
     if RUN_ONCE:
         print("--- Starting Portfolio Tracker Bot (Single Run Mode) ---")
@@ -342,6 +344,10 @@ def main():
                             buy_count = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY')
                             if buy_count >= MAX_DAILY_BUYS:
                                 print(f"[LIMIT REACHED] Max daily buys ({MAX_DAILY_BUYS}) reached. Skipping BUY {symbol}.")
+                                continue
+                            portfolio_size = len(data.get("holdings", []))
+                            if portfolio_size >= MAX_PORTFOLIO_STOCKS:
+                                print(f"[LIMIT REACHED] Portfolio has {portfolio_size} stocks (max {MAX_PORTFOLIO_STOCKS}). Skipping BUY {symbol}.")
                                 continue
 
                         success = trader.place_order(signal)
