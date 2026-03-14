@@ -16,6 +16,7 @@ from fetch_chukul_indicators import update_indicators_data
 from fetch_chukul_fundamental import update_fundamental_data
 from fetch_chukul_broker import update_broker_data
 from fetch_chukul_floorsheet import update_floorsheet_data
+from chukul_client import fetch_all_symbols
 from notifications import (
     notify_market_open,
     notify_signals,
@@ -98,19 +99,25 @@ def _load_cached_portfolio():
 
 
 def _fetch_chukul_data(today_str, last_fundamental_date):
-    """Fetch all Chukul data. Returns updated last_fundamental_date."""
-    print("Updating historical data from Chukul...")
-    update_chukul_data(verbose=False)
+    """Fetch all Chukul data for all NEPSE symbols. Returns updated last_fundamental_date."""
+    print("Fetching full NEPSE symbol list from Chukul...")
+    symbols = fetch_all_symbols()
+    if not symbols:
+        print("Warning: Could not fetch symbol list. Falling back to portfolio symbols.")
+        symbols = None  # each update_* will fall back to live_market_data.csv
+
+    print(f"Updating historical data for {len(symbols) if symbols else '?'} symbols...")
+    update_chukul_data(symbols=symbols, verbose=False)
 
     print("Fetching technical indicators from Chukul...")
     try:
-        update_indicators_data(verbose=False)
+        update_indicators_data(symbols=symbols, verbose=False)
     except Exception as e:
         print(f"Warning: Indicators fetch failed: {e}")
 
     print("Fetching broker analysis from Chukul...")
     try:
-        update_broker_data(verbose=False)
+        update_broker_data(symbols=symbols, verbose=False)
     except Exception as e:
         print(f"Warning: Broker data fetch failed: {e}")
 
@@ -123,7 +130,7 @@ def _fetch_chukul_data(today_str, last_fundamental_date):
     if last_fundamental_date != today_str:
         print("Fetching fundamental data from Chukul (daily run)...")
         try:
-            update_fundamental_data(verbose=False)
+            update_fundamental_data(symbols=symbols, verbose=False)
             last_fundamental_date = today_str
         except Exception as e:
             print(f"Warning: Fundamental data fetch failed: {e}")

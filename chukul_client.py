@@ -54,6 +54,26 @@ def _chukul_login():
         return False
 
 
+def fetch_all_symbols():
+    """
+    Fetch all NEPSE stock symbols from Chukul API.
+    Returns a list of symbol strings, e.g. ["NABIL", "NICA", ...]
+    """
+    data = _get(f"{BASE_URL}/data/symbol/")
+    symbols = []
+    if data and isinstance(data, list):
+        for item in data:
+            sym = item.get("symbol") or item.get("ticker")
+            if sym:
+                symbols.append(sym)
+    elif data and isinstance(data, dict):
+        for item in (data.get("results") or data.get("data") or []):
+            sym = item.get("symbol") or item.get("ticker")
+            if sym:
+                symbols.append(sym)
+    return symbols
+
+
 def _get(url, params=None):
     """Unauthenticated GET with error handling."""
     try:

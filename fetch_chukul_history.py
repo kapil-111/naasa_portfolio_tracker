@@ -33,25 +33,22 @@ def fetch_chukul_history(symbol):
         # print(f"Error processing {symbol}: {str(e)}")
         return None
 
-def update_chukul_data(verbose=False):
-    input_file = "live_market_data.csv"
-    output_file = "chukul_data.csv"
-    
-    if not os.path.exists(input_file):
-        print(f"Error: {input_file} not found.")
-        sys.exit(1)
-        
-    print(f"Reading symbols from {input_file}...")
-    try:
-        live_data = pd.read_csv(input_file)
-        if "Symbol" not in live_data.columns:
-            print("Error: 'Symbol' column not found in input CSV.")
+def update_chukul_data(symbols=None, input_file="live_market_data.csv",
+                       output_file="chukul_data.csv", verbose=False):
+    if symbols is None:
+        if not os.path.exists(input_file):
+            print(f"Error: {input_file} not found.")
             sys.exit(1)
-            
-        symbols = live_data["Symbol"].tolist()
-    except Exception as e:
-        print(f"Error reading input CSV: {e}")
-        sys.exit(1)
+        print(f"Reading symbols from {input_file}...")
+        try:
+            live_data = pd.read_csv(input_file)
+            if "Symbol" not in live_data.columns:
+                print("Error: 'Symbol' column not found in input CSV.")
+                sys.exit(1)
+            symbols = live_data["Symbol"].tolist()
+        except Exception as e:
+            print(f"Error reading input CSV: {e}")
+            sys.exit(1)
 
     all_data = []
 
