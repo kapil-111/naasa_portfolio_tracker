@@ -309,10 +309,11 @@ def main():
                     else:
                         print("No holdings data to save.")
 
-                # Ensure OHLCV data exists for all market symbols before signals
-                _ensure_market_ohlcv()
+                # 4. Fetch fresh Chukul data every market cycle (hourly run)
+                print("Fetching fresh market data from Chukul...")
+                last_fundamental_date = _fetch_chukul_data(today_str, last_fundamental_date)
 
-                # 9. Generate Signals
+                # 5. Generate Signals
                 signals = generate_signals(data)
                 print(f"Generated {len(signals)} signals.")
 
