@@ -198,7 +198,16 @@ def main():
             print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}. Running analysis cycle...")
 
             try:
-                last_fundamental_date = _fetch_chukul_data(today_str, last_fundamental_date)
+                # Only refresh Chukul data during the pre-market window (9–11 AM NPT).
+                # All other closed cycles (post-market, weekends, manual runs) use cache.
+                tz  = pytz.timezone('Asia/Kathmandu')
+                npt = datetime.now(tz)
+                is_market_day    = npt.weekday() not in [4, 5]   # Mon–Thu, Sun = 0-3,6
+                in_premarket_win = dt_time(9, 0) <= npt.time() < dt_time(11, 0)
+                if is_market_day and in_premarket_win:
+                    last_fundamental_date = _fetch_chukul_data(today_str, last_fundamental_date)
+                else:
+                    print("Outside pre-market window — using cached Chukul data.")
 
                 data    = _load_cached_portfolio()
                 signals = generate_signals(data)
