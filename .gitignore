@@ -17,4 +17,3 @@ env/
 
 # Ignore all data files — fetched fresh on every run
 *.csv
-portfolio_summary.json
