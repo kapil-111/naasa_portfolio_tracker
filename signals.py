@@ -297,6 +297,9 @@ def generate_signals(portfolio):
         if last_close is None:
             continue
 
+        if last_close < 100:
+            continue
+
         bd_str = "  ".join(f"{k}={v:+d}" for k, v in breakdown.items() if v != 0)
         if score >= buy_threshold:
             signal_side = "BUY"
