@@ -106,7 +106,8 @@ def score_symbol(symbol, sym_df, fund_map):
 
 # ── Backtest Engine ────────────────────────────────────────────────────────────
 
-def run_backtest(df, fund_map, buy_threshold, sell_threshold, initial_capital, buy_qty):
+def run_backtest(df, fund_map, buy_threshold, sell_threshold, initial_capital, buy_qty,
+                 stop_loss_pct, take_profit_pct):
     dates    = sorted(df["date"].unique())
     cash     = float(initial_capital)
     holdings = {}  # symbol -> {qty, avg_price, buy_date}
@@ -124,8 +125,39 @@ def run_backtest(df, fund_map, buy_threshold, sell_threshold, initial_capital, b
             score, _ = score_symbol(symbol, sym_df, fund_map)
             last_close = float(sym_df["close"].iloc[-1])
 
-            # SELL
+            # Stop-loss / Take-profit (min 3-day hold — NEPSE T+3 rule)
+            if symbol in holdings:
+                pos       = holdings[symbol]
+                hold_days = (date - pos["buy_date"]).days
+                if hold_days < 3:
+                    continue
+                change    = (last_close - pos["avg_price"]) / pos["avg_price"] * 100
+                exit_reason = None
+                if change <= -stop_loss_pct:
+                    exit_reason = f"STOP-LOSS({change:+.1f}%)"
+                elif change >= take_profit_pct:
+                    exit_reason = f"TAKE-PROFIT({change:+.1f}%)"
+                if exit_reason:
+                    holdings.pop(symbol)
+                    proceeds = pos["qty"] * last_close
+                    cash    += proceeds
+                    pnl      = proceeds - pos["qty"] * pos["avg_price"]
+                    trades.append({
+                        "symbol":    symbol,
+                        "side":      exit_reason,
+                        "date":      date,
+                        "price":     last_close,
+                        "qty":       pos["qty"],
+                        "pnl":       pnl,
+                        "pnl_pct":   pnl / (pos["qty"] * pos["avg_price"]) * 100,
+                        "hold_days": (date - pos["buy_date"]).days,
+                    })
+                    continue
+
+            # SELL signal (also respect T+3 min hold)
             if score <= sell_threshold and symbol in holdings:
+                if (date - holdings[symbol]["buy_date"]).days < 3:
+                    continue
                 pos      = holdings.pop(symbol)
                 proceeds = pos["qty"] * last_close
                 cash    += proceeds
@@ -227,6 +259,8 @@ def main():
     parser.add_argument("--buy-threshold",  type=int,   default=DEFAULT_BUY_THRESHOLD)
     parser.add_argument("--sell-threshold", type=int,   default=DEFAULT_SELL_THRESHOLD)
     parser.add_argument("--qty",            type=int,   default=DEFAULT_BUY_QTY)
+    parser.add_argument("--stop-loss",      type=float, default=7.0,  help="Stop-loss %%  (default: 7)")
+    parser.add_argument("--take-profit",    type=float, default=15.0, help="Take-profit %% (default: 15)")
     parser.add_argument("--symbols",        type=str,   default=None,
                         help="Comma-separated symbols to test (default: all)")
     args = parser.parse_args()
@@ -269,6 +303,7 @@ def main():
     print(f"Period  : {date_min} → {date_max}")
     print(f"Symbols : {df['symbol'].nunique()}")
     print(f"Config  : BUY>={args.buy_threshold}  SELL<={args.sell_threshold}  "
+          f"SL=-{args.stop_loss}%  TP=+{args.take_profit}%  "
           f"Qty={args.qty}  Capital=NPR {args.capital:,.0f}")
     print("Running backtest (this may take a minute for all symbols)...")
 
@@ -278,6 +313,8 @@ def main():
         sell_threshold  = args.sell_threshold,
         initial_capital = args.capital,
         buy_qty         = args.qty,
+        stop_loss_pct   = args.stop_loss,
+        take_profit_pct = args.take_profit,
     )
 
     print_report(args.capital, final_capital, trades)
