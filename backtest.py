@@ -106,16 +106,40 @@ def score_symbol(symbol, sym_df, fund_map):
 
 # ── Backtest Engine ────────────────────────────────────────────────────────────
 
+def _load_nepse_index():
+    """Fetch NEPSE index history and return DataFrame with date + close."""
+    import requests
+    try:
+        r = requests.get("https://chukul.com/api/data/historydata/?symbol=NEPSE",
+                         headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
+        data = r.json()
+        df = pd.DataFrame(data)
+        df["date"]  = pd.to_datetime(df["date"])
+        df["close"] = pd.to_numeric(df["close"], errors="coerce")
+        df = df[["date", "close"]].sort_values("date").reset_index(drop=True)
+        ema9  = calc_ema(df["close"], 9)
+        ema21 = calc_ema(df["close"], 21)
+        df["bullish"] = ema9 > ema21
+        return df.set_index("date")["bullish"].to_dict()
+    except Exception as e:
+        print(f"Warning: Could not fetch NEPSE index — market filter disabled: {e}")
+        return {}
+
+
 def run_backtest(df, fund_map, buy_threshold, sell_threshold, initial_capital, buy_qty,
-                 stop_loss_pct, take_profit_pct):
-    dates    = sorted(df["date"].unique())
-    cash     = float(initial_capital)
-    holdings = {}  # symbol -> {qty, avg_price, buy_date}
-    trades   = []
+                 stop_loss_pct, take_profit_pct, max_hold_days, use_market_filter):
+    dates         = sorted(df["date"].unique())
+    cash          = float(initial_capital)
+    holdings      = {}  # symbol -> {qty, avg_price, buy_date}
+    trades        = []
+    nepse_trend   = _load_nepse_index() if use_market_filter else {}
 
     for i, date in enumerate(dates):
         if i < 26:
             continue
+
+        # Market filter: only BUY when NEPSE index EMA9 > EMA21
+        market_bullish = nepse_trend.get(date, True) if use_market_filter else True
 
         window     = df[df["date"] <= date]
         buys_today = 0
@@ -133,7 +157,9 @@ def run_backtest(df, fund_map, buy_threshold, sell_threshold, initial_capital, b
                     continue
                 change    = (last_close - pos["avg_price"]) / pos["avg_price"] * 100
                 exit_reason = None
-                if change <= -stop_loss_pct:
+                if hold_days >= max_hold_days:
+                    exit_reason = f"MAX-HOLD({hold_days}d)"
+                elif change <= -stop_loss_pct:
                     exit_reason = f"STOP-LOSS({change:+.1f}%)"
                 elif change >= take_profit_pct:
                     exit_reason = f"TAKE-PROFIT({change:+.1f}%)"
@@ -173,8 +199,8 @@ def run_backtest(df, fund_map, buy_threshold, sell_threshold, initial_capital, b
                     "hold_days": (date - pos["buy_date"]).days,
                 })
 
-            # BUY
-            elif score >= buy_threshold and symbol not in holdings and buys_today < MAX_DAILY_BUYS:
+            # BUY (blocked when NEPSE index is bearish)
+            elif score >= buy_threshold and symbol not in holdings and buys_today < MAX_DAILY_BUYS and market_bullish:
                 cost = buy_qty * last_close
                 if cash >= cost:
                     cash -= cost
@@ -261,6 +287,8 @@ def main():
     parser.add_argument("--qty",            type=int,   default=DEFAULT_BUY_QTY)
     parser.add_argument("--stop-loss",      type=float, default=7.0,  help="Stop-loss %%  (default: 7)")
     parser.add_argument("--take-profit",    type=float, default=15.0, help="Take-profit %% (default: 15)")
+    parser.add_argument("--max-hold",       type=int,   default=30,   help="Max hold days (default: 30)")
+    parser.add_argument("--market-filter",  action="store_true",      help="Only BUY when NEPSE index EMA9 > EMA21")
     parser.add_argument("--symbols",        type=str,   default=None,
                         help="Comma-separated symbols to test (default: all)")
     args = parser.parse_args()
@@ -302,9 +330,10 @@ def main():
     date_max = df["date"].max().date()
     print(f"Period  : {date_min} → {date_max}")
     print(f"Symbols : {df['symbol'].nunique()}")
+    mf = "ON" if args.market_filter else "OFF"
     print(f"Config  : BUY>={args.buy_threshold}  SELL<={args.sell_threshold}  "
-          f"SL=-{args.stop_loss}%  TP=+{args.take_profit}%  "
-          f"Qty={args.qty}  Capital=NPR {args.capital:,.0f}")
+          f"SL=-{args.stop_loss}%  TP=+{args.take_profit}%  MaxHold={args.max_hold}d  "
+          f"MarketFilter={mf}  Qty={args.qty}  Capital=NPR {args.capital:,.0f}")
     print("Running backtest (this may take a minute for all symbols)...")
 
     final_capital, trades = run_backtest(
@@ -313,8 +342,10 @@ def main():
         sell_threshold  = args.sell_threshold,
         initial_capital = args.capital,
         buy_qty         = args.qty,
-        stop_loss_pct   = args.stop_loss,
-        take_profit_pct = args.take_profit,
+        stop_loss_pct      = args.stop_loss,
+        take_profit_pct    = args.take_profit,
+        max_hold_days      = args.max_hold,
+        use_market_filter  = args.market_filter,
     )
 
     print_report(args.capital, final_capital, trades)
