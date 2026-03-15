@@ -63,11 +63,9 @@ class Trader:
             else:
                 print("Submitting order...")
                 submit_button.click()
-                
-                # Handle confirmation if it exists
-                # This is speculative until we see the confirmation modal
-                # self.page.click("button:has-text('Confirm')") 
-                print("Order submitted (Simulated/Real).")
+                self.page.wait_for_timeout(2000)
+                self.page.screenshot(path="order_result.png")
+                print("Order submitted. Screenshot saved.")
             return True
                 
         except Exception as e:
