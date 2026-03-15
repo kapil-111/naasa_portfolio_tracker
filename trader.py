@@ -41,7 +41,8 @@ class Trader:
             self.page.fill("#OrdertxtQty", str(signal['quantity']))
 
             # 5. Submit
-            submit_button = self.page.locator("#btnBuy")
+            btn_id = "#btnBuy" if signal['side'].upper() == "BUY" else "#btnSell"
+            submit_button = self.page.locator(btn_id)
 
             if self.dry_run:
                 print(f"[DRY RUN] MKT order form filled for {signal['symbol']}. NOT submitting.")
