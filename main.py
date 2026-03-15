@@ -90,6 +90,30 @@ def save_placed_order(symbol, side):
     print(f"Recorded order for {side} {symbol} in state file.")
 
 
+def is_nepse_bullish():
+    """
+    Returns True if NEPSE index EMA9 > EMA21 (bullish trend), False if bearish.
+    Defaults to True on API failure so the bot doesn't block all buys on connectivity issues.
+    """
+    data = _get(f"{BASE_URL}/data/historydata/?symbol=NEPSE")
+    if not data or not isinstance(data, list) or len(data) < 22:
+        print("Warning: Could not fetch NEPSE index — market filter defaulting to bullish.")
+        return True
+    try:
+        df = pd.DataFrame(data)
+        df["close"] = pd.to_numeric(df["close"], errors="coerce")
+        df = df.dropna(subset=["close"]).sort_values("date").reset_index(drop=True)
+        ema9  = df["close"].ewm(span=9,  adjust=False).mean()
+        ema21 = df["close"].ewm(span=21, adjust=False).mean()
+        bullish = bool(ema9.iloc[-1] > ema21.iloc[-1])
+        trend = "BULLISH" if bullish else "BEARISH"
+        print(f"NEPSE trend: {trend} (EMA9={ema9.iloc[-1]:.1f}, EMA21={ema21.iloc[-1]:.1f})")
+        return bullish
+    except Exception as e:
+        print(f"Warning: NEPSE filter error — defaulting to bullish: {e}")
+        return True
+
+
 def _load_cached_portfolio():
     """Load last known portfolio holdings from CSV for offline analysis."""
     if os.path.exists("portfolio_data.csv"):
@@ -327,6 +351,7 @@ def main():
                 if signals:
                     trader        = Trader(page, dry_run=DRY_RUN)
                     placed_orders = load_placed_orders()
+                    nepse_bullish = is_nepse_bullish()
 
                     for signal in sorted(signals, key=lambda s: s["score"], reverse=True):
                         symbol = signal['symbol']
@@ -341,6 +366,9 @@ def main():
                             continue
 
                         if side == "BUY":
+                            if not nepse_bullish:
+                                print(f"[MARKET FILTER] NEPSE bearish — skipping BUY {symbol}.")
+                                continue
                             buy_count = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY')
                             if buy_count >= MAX_DAILY_BUYS:
                                 print(f"[LIMIT REACHED] Max daily buys ({MAX_DAILY_BUYS}) reached. Skipping BUY {symbol}.")
