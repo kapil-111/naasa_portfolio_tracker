@@ -129,6 +129,27 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         if row['close'] < 100:
             continue
 
+        # --- Orphan Position: held in portfolio but no bot state ---
+        # Auto-seed state so exit logic applies. Entry price from NAASA "Average Rate" column.
+        if is_in_live_portfolio and not state.get('in_position') and symbol not in swing_targets:
+            holding = held_symbols[symbol]
+            avg_rate_str = holding.get('Average Rate', '')
+            try:
+                avg_rate = float(str(avg_rate_str).replace(',', ''))
+            except (ValueError, TypeError):
+                avg_rate = float(row['close'])
+                print(f"[{symbol}] Orphan position: could not read 'Average Rate', using current price as entry.")
+            state = {
+                'in_position': True,
+                'entry_date':  (pd.to_datetime('today') - pd.Timedelta(days=10)).strftime('%Y-%m-%d'),
+                'entry_price': avg_rate,
+                'initial_entry': avg_rate,
+                'half_sold':   False,
+                'position_count': 1,
+            }
+            states[symbol] = state
+            print(f"[{symbol}] Orphan position seeded: avg_rate={avg_rate}")
+
         # --- Generate BUY Signals ---
         if not state.get('in_position'):
             if symbol in swing_targets:
