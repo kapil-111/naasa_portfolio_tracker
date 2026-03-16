@@ -188,19 +188,37 @@ def main():
         if not open_status:
             print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}. Running analysis-only cycle...")
             try:
+                # Scrape live portfolio even when market is closed
+                with sync_playwright() as p:
+                    browser = p.chromium.launch(
+                        headless=True,
+                        args=["--disable-blink-features=AutomationControlled", "--no-sandbox"]
+                    )
+                    context = browser.new_context(
+                        user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                        viewport={"width": 1280, "height": 800},
+                    )
+                    context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+                    page = context.new_page()
+                    login(page, username, password)
+                    portfolio_data = scrape_portfolio(page)
+                    if portfolio_data and portfolio_data.get("holdings"):
+                        save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
+                    else:
+                        portfolio_data = _load_cached_portfolio()
+                    browser.close()
+
                 latest_data = load_and_prepare_data()
                 if latest_data is not None:
                     states = load_states()
-                    portfolio = _load_cached_portfolio()
-                    # In analysis mode, no daily buy limit is applied for notification purposes
-                    signals = generate_mr_signals(latest_data, states, portfolio, 0, 99) 
+                    signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99)
                     print(f"Generated {len(signals)} potential signals for next open.")
                     if signals:
                         notify_signals(signals)
             except Exception as e:
                 print(f"Analysis cycle error: {e}")
                 notify_error(e)
-            
+
             if RUN_ONCE: break
             time.sleep(SLEEP_INTERVAL_CLOSED)
             continue
