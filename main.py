@@ -16,6 +16,7 @@ from fetch_chukul_history import update_chukul_data
 from fetch_chukul_fundamental import update_fundamental_data
 from chukul_client import fetch_all_symbols, BASE_URL, _get
 from notifications import (
+    notify_bot_started,
     notify_market_open,
     notify_signals,
     notify_order,
@@ -163,6 +164,8 @@ def main():
     MAX_PORTFOLIO_STOCKS  = int(_required["MAX_PORTFOLIO_STOCKS"])
 
     print("--- Starting Portfolio Tracker Bot (Mean Reversion Strategy) ---")
+    open_status, message = is_market_open()
+    notify_bot_started(DRY_RUN, message)
 
     market_open_notified_date = None
     last_was_open = False

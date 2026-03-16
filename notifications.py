@@ -24,6 +24,14 @@ def _tg_send(text):
         return False
 
 
+def notify_bot_started(dry_run, market_status):
+    mode = "DRY RUN" if dry_run else "LIVE"
+    _tg_send(
+        f"🤖 *Bot Started — {_now_npt()}*\n"
+        f"Mode: {mode} | {market_status}"
+    )
+
+
 def notify_market_open(dry_run):
     mode = "🟡 DRY RUN" if dry_run else "🔴 LIVE TRADING"
     _tg_send(

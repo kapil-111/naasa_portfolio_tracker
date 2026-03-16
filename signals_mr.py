@@ -235,13 +235,15 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             # Double-down BUY signal
             if not state.get('half_sold') and drop_from_start <= -10 and state.get('position_count') == 1:
                 if daily_buy_count < daily_buy_limit:
-                    print(f"[{symbol}] *** MR BUY (Double Down) *** price={row['close']}")
                     current_qty = _get_holding_qty(held_symbols.get(symbol, {}))
-                    print(f"[{symbol}] Double-down qty: current={current_qty}, ordering={current_qty * 2}")
-                    signals.append({
-                        "side": "BUY", "symbol": symbol, "price": row['close'], "type": "DOUBLE_DOWN",
-                        "quantity": current_qty * 2
-                    })
+                    if current_qty <= 0:
+                        print(f"[{symbol}] Skipping double-down: current_qty=0 (portfolio not loaded).")
+                    else:
+                        print(f"[{symbol}] *** MR BUY (Double Down) *** price={row['close']}, ordering={current_qty}")
+                        signals.append({
+                            "side": "BUY", "symbol": symbol, "price": row['close'], "type": "DOUBLE_DOWN",
+                            "quantity": current_qty
+                        })
                 else:
                     print(f"[{symbol}] Skipping double-down buy due to daily limit.")
 
