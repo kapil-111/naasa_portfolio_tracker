@@ -91,5 +91,5 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-          git add placed_orders_today.json portfolio_summary.json mean_reversion_state.json swing_targets.json 2>/dev/null || true
+          git add placed_orders_today.json portfolio_summary.json mean_reversion_state.json swing_targets.json chukul_fundamental.csv 2>/dev/null || true
           git diff-index --cached --quiet HEAD || (git commit -m "Update order state" && git push)

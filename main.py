@@ -13,6 +13,7 @@ from signals_mr import load_and_prepare_data, generate_signals as generate_mr_si
 from state_manager import load_states, save_states, update_state_for_trade
 from fetch_live_data import fetch_live_data
 from fetch_chukul_history import update_chukul_data
+from fetch_chukul_fundamental import update_fundamental_data
 from chukul_client import fetch_all_symbols, BASE_URL, _get
 from notifications import (
     notify_market_open,
@@ -101,7 +102,7 @@ def _load_cached_portfolio():
 
 
 def _fetch_chukul_data():
-    """Fetch historical OHLCV data for all NEPSE symbols."""
+    """Fetch historical OHLCV and (if stale) fundamental data for all NEPSE symbols."""
     print("Fetching full NEPSE symbol list from Chukul...")
     symbols = fetch_all_symbols()
     if not symbols:
@@ -109,6 +110,15 @@ def _fetch_chukul_data():
         symbols = None
     print(f"Updating historical data for {len(symbols) if symbols else '?'} symbols...")
     update_chukul_data(symbols=symbols, verbose=False)
+
+    fund_file = "chukul_fundamental.csv"
+    stale = True
+    if os.path.exists(fund_file):
+        age_days = (datetime.now().timestamp() - os.path.getmtime(fund_file)) / 86400
+        stale = age_days > 7
+    if stale:
+        print("Fetching fundamental data (file missing or >7 days old)...")
+        update_fundamental_data(symbols=symbols, verbose=False)
 
 
 def main():

@@ -17,3 +17,5 @@ env/
 
 # Ignore all data files — fetched fresh on every run
 *.csv
+# Exception: fundamental data is fetched weekly and must persist between Actions runs
+!chukul_fundamental.csv
