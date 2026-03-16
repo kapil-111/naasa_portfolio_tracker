@@ -44,10 +44,10 @@ def notify_signals(signals):
     lines = [f"📊 *Signals — {_now_npt()}*\n"]
 
     for s in buys:
-        lines.append(f"🟢 *{s.get('type','BUY')} {s['symbol']}*  @{s['price']:.2f}  qty={s.get('quantity','?')}")
+        lines.append(f"🟢 *BUY {s['symbol']}* ({s.get('type','?')})  @{s['price']:.2f}  qty={s.get('quantity','?')}")
 
     for s in sells:
-        lines.append(f"🔴 *{s.get('type','SELL')} {s['symbol']}*  @{s['price']:.2f}  qty={s.get('quantity','?')}")
+        lines.append(f"🔴 *SELL {s['symbol']}* ({s.get('type','?')})  @{s['price']:.2f}  qty={s.get('quantity','?')}")
 
     _tg_send("\n".join(lines))
 
