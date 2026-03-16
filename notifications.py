@@ -52,10 +52,16 @@ def notify_signals(signals):
     lines = [f"📊 *Signals — {_now_npt()}*\n"]
 
     for s in buys:
-        lines.append(f"🟢 *BUY {s['symbol']}* ({s.get('type','?')})  @{s['price']:.2f}  qty={s.get('quantity','?')}")
+        line = f"🟢 *BUY {s['symbol']}* ({s.get('type','?')})  @{s['price']:.2f}  qty={s.get('quantity','?')}"
+        if s.get('drop_pct') is not None:
+            line += f"\n    drop={s['drop_pct']:+.1f}%  held={s.get('days_held','?')}d"
+        lines.append(line)
 
     for s in sells:
-        lines.append(f"🔴 *SELL {s['symbol']}* ({s.get('type','?')})  @{s['price']:.2f}  qty={s.get('quantity','?')}")
+        line = f"🔴 *SELL {s['symbol']}* ({s.get('type','?')})  @{s['price']:.2f}  qty={s.get('quantity','?')}"
+        if s.get('profit_pct') is not None:
+            line += f"\n    P&L={s['profit_pct']:+.1f}%  entry={s.get('entry_price','?')}  held={s.get('days_held','?')}d"
+        lines.append(line)
 
     _tg_send("\n".join(lines))
 

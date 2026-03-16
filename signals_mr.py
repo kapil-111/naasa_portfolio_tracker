@@ -242,7 +242,8 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                         print(f"[{symbol}] *** MR BUY (Double Down) *** price={row['close']}, ordering={current_qty}")
                         signals.append({
                             "side": "BUY", "symbol": symbol, "price": row['close'], "type": "DOUBLE_DOWN",
-                            "quantity": current_qty
+                            "quantity": current_qty,
+                            "drop_pct": round(drop_from_start, 1), "days_held": days_held,
                         })
                 else:
                     print(f"[{symbol}] Skipping double-down buy due to daily limit.")
@@ -255,11 +256,13 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                 # RSI overbought + price not rising → exit all
                 rsi        = float(row['rsi'])        if not pd.isna(row.get('rsi',        float('nan'))) else 50
                 prev_close = float(row['prev_close']) if not pd.isna(row.get('prev_close', float('nan'))) else row['close']
+                _ctx = {"profit_pct": round(profit_pct, 1), "days_held": days_held, "entry_price": state['entry_price']}
+
                 if rsi > 80 and row['close'] <= prev_close:
                     print(f"[{symbol}] *** RSI OVERBOUGHT EXIT *** rsi={rsi:.1f} price={row['close']}")
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": row['close'], "type": "RSI_OB",
-                        "quantity": current_qty
+                        "quantity": current_qty, **_ctx
                     })
                     continue
 
@@ -268,7 +271,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     print(f"[{symbol}] *** SWING TARGET HIT *** price={row['close']} >= target={swing_targets[symbol]}")
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": row['close'], "type": "SWING_TARGET",
-                        "quantity": current_qty
+                        "quantity": current_qty, **_ctx
                     })
                     continue
 
@@ -280,7 +283,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     print(f"[{symbol}] *** MR SELL (Half) *** price={row['close']}")
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": row['close'], "type": "HALF_SELL",
-                        "quantity": sell_qty
+                        "quantity": sell_qty, **_ctx
                     })
                     half_sell_generated = True
 
@@ -292,7 +295,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                         print(f"[{symbol}] *** MR SELL (Full) *** price={row['close']}")
                         signals.append({
                             "side": "SELL", "symbol": symbol, "price": row['close'], "type": "FULL_EXIT",
-                            "quantity": current_qty
+                            "quantity": current_qty, **_ctx
                         })
 
     return signals

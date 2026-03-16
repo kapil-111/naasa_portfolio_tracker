@@ -202,11 +202,16 @@ def main():
                     page = context.new_page()
                     login(page, username, password)
                     portfolio_data = scrape_portfolio(page)
+                    available_fund = scrape_available_fund(page)
                     if portfolio_data and portfolio_data.get("holdings"):
                         save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
                     else:
                         portfolio_data = _load_cached_portfolio()
                     browser.close()
+
+                holdings_count = len(portfolio_data.get("holdings", []))
+                fund_str = f"NPR {available_fund:,.2f}" if available_fund is not None else "N/A"
+                print(f"Portfolio: {holdings_count} holdings | Fund: {fund_str}")
 
                 latest_data = load_and_prepare_data()
                 if latest_data is not None:
