@@ -102,7 +102,7 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
     df_adjusted.dropna(subset=['low52', 'high52'], inplace=True)
     print("Data preparation complete.")
 
-    return df_adjusted.loc[df_adjusted.groupby('symbol')['date'].idxmax()]
+    return df_adjusted.loc[df_adjusted.groupby('symbol')['date'].idxmax()].set_index('symbol')
 
 # --- Core Signal Generation Logic ---
 
