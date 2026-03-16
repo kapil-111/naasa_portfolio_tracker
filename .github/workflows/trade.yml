@@ -83,15 +83,6 @@ jobs:
           SLEEP_INTERVAL_CLOSED: "60"
         run: python main.py
 
-      # ── Upload screenshots for debugging ───────────────────────────────────
-      - name: Upload screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: order-screenshots
-          path: "*.png"
-          if-no-files-found: ignore
-
       # ── Persist daily order state (no CSVs — all data fetched fresh) ────────
       - name: Save order state
         env:
