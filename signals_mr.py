@@ -66,6 +66,16 @@ def _adjust_prices(df, actions_file="chukul_corporate_actions.csv"):
         parts.append(sym_df)
     return pd.concat(parts, ignore_index=True)
 
+def _calc_rsi(series, period=14):
+    delta    = series.diff()
+    gain     = delta.clip(lower=0)
+    loss     = -delta.clip(upper=0)
+    avg_gain = gain.ewm(alpha=1/period, adjust=False).mean()
+    avg_loss = loss.ewm(alpha=1/period, adjust=False).mean()
+    rs       = avg_gain / avg_loss.where(avg_loss != 0, other=float('nan'))
+    return 100 - (100 / (1 + rs))
+
+
 def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
     """Loads OHLCV data, adjusts for corporate actions, and calculates 52-week boundaries."""
     print("Loading and preparing data for MR strategy...")
@@ -96,9 +106,11 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
         print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols (incl. {len(swing_target_syms)} swing-target exits)")
 
     print("Calculating 52-week highs/lows and 20-day avg volume...")
-    df_adjusted['low52']     = df_adjusted.groupby('symbol')['low'].transform(lambda x: x.rolling(252, min_periods=126).min())
-    df_adjusted['high52']    = df_adjusted.groupby('symbol')['high'].transform(lambda x: x.rolling(252, min_periods=126).max())
-    df_adjusted['vol_avg20'] = df_adjusted.groupby('symbol')['volume'].transform(lambda x: x.rolling(20, min_periods=5).mean())
+    df_adjusted['low52']      = df_adjusted.groupby('symbol')['low'].transform(lambda x: x.rolling(252, min_periods=126).min())
+    df_adjusted['high52']     = df_adjusted.groupby('symbol')['high'].transform(lambda x: x.rolling(252, min_periods=126).max())
+    df_adjusted['vol_avg20']  = df_adjusted.groupby('symbol')['volume'].transform(lambda x: x.rolling(20, min_periods=5).mean())
+    df_adjusted['rsi']        = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_rsi(x, 14))
+    df_adjusted['prev_close'] = df_adjusted.groupby('symbol')['close'].shift(1)
     df_adjusted.dropna(subset=['low52', 'high52'], inplace=True)
     print("Data preparation complete.")
 
@@ -192,6 +204,17 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             # Exit signals (only after T+3)
             if days_held >= 3:
                 current_qty = int(held_symbols.get(symbol, {}).get('Quantity', 0))
+
+                # RSI overbought + price not rising → exit all
+                rsi        = float(row['rsi'])        if not pd.isna(row.get('rsi',        float('nan'))) else 50
+                prev_close = float(row['prev_close']) if not pd.isna(row.get('prev_close', float('nan'))) else row['close']
+                if rsi > 80 and row['close'] <= prev_close:
+                    print(f"[{symbol}] *** RSI OVERBOUGHT EXIT *** rsi={rsi:.1f} price={row['close']}")
+                    signals.append({
+                        "side": "SELL", "symbol": symbol, "price": row['close'], "type": "RSI_OB",
+                        "quantity": current_qty
+                    })
+                    continue
 
                 # Swing target exit — sell all when price hits manual resistance
                 if symbol in swing_targets and row['close'] >= swing_targets[symbol]:

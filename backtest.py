@@ -174,6 +174,8 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
         lambda x: x.rolling(252, min_periods=126).max())
     df['vol_avg20'] = df.groupby('symbol')['volume'].transform(
         lambda x: x.rolling(20, min_periods=5).mean())
+    df['rsi']        = df.groupby('symbol')['close'].transform(lambda x: calc_rsi(x, 14))
+    df['prev_close'] = df.groupby('symbol')['close'].shift(1)
     print("Pre-calculation complete.")
 
     for i, date in enumerate(dates):
@@ -198,6 +200,8 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
             volume_spike = vol_avg20 > 0 and volume >= vol_avg20 * 1.5
             buy_trigger  = low_52wk  * 1.05
             near_52wk_hi = last_close >= high_52wk * 0.95
+            rsi          = float(row['rsi'])        if not pd.isna(row['rsi'])        else 50
+            prev_close   = float(row['prev_close']) if not pd.isna(row['prev_close']) else last_close
 
             # ── Manage existing position ──────────────────────────────────────
             if symbol in holdings:
@@ -225,6 +229,21 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
 
                 # T+3 gate for all exits
                 if hold_days < 3:
+                    continue
+
+                # RSI overbought + price not rising → exit all
+                if rsi > 80 and last_close <= prev_close:
+                    proceeds = pos["qty"] * last_close
+                    cash    += proceeds
+                    pnl      = proceeds - pos["qty"] * pos["avg_price"]
+                    last_sell_prices[symbol] = last_close
+                    holdings.pop(symbol)
+                    trades.append({
+                        "symbol": symbol, "side": "RSI-OB(>80)", "date": date,
+                        "price": last_close, "qty": pos["qty"], "pnl": pnl,
+                        "pnl_pct": pnl / (pos["qty"] * pos["avg_price"]) * 100,
+                        "hold_days": hold_days
+                    })
                     continue
 
                 # Half-sell at 10% profit
