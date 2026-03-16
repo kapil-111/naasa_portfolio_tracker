@@ -159,6 +159,8 @@ def main():
         signals = []
         orders_placed_this_cycle = 0
 
+        _fetch_chukul_data()
+
         # Run analysis cycle when market is closed
         if not open_status:
             print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}. Running analysis-only cycle...")
@@ -203,8 +205,6 @@ def main():
                 if portfolio_data:
                     save_to_json(portfolio_data.get("summary", {}), "portfolio_summary.json")
                     save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
-
-                _fetch_chukul_data()
 
                 # --- NEW SIGNAL GENERATION ---
                 latest_data = load_and_prepare_data()
