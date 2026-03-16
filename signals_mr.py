@@ -1,13 +1,20 @@
 import os
 import json
 import pandas as pd
-import numpy as np
 
 def _load_swing_targets(path="swing_targets.json"):
     if os.path.exists(path):
         with open(path) as f:
             return json.load(f)
     return {}
+
+def remove_swing_target(symbol, path="swing_targets.json"):
+    targets = _load_swing_targets(path)
+    if symbol in targets:
+        del targets[symbol]
+        with open(path, 'w') as f:
+            json.dump(targets, f, indent=4)
+        print(f"[{symbol}] Removed from swing_targets.json — now eligible for fundamental re-evaluation.")
 
 # --- Data Loading and Preparation Helpers ---
 
@@ -76,6 +83,8 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
     df_adjusted = _adjust_prices(df.copy())
 
     # Fundamental filter: only trade quality stocks
+    # Exception: always include symbols with a swing target set (for exit-only tracking)
+    swing_target_syms = set(_load_swing_targets().keys())
     if os.path.exists("chukul_fundamental.csv"):
         fund = pd.read_csv("chukul_fundamental.csv")
         eps_ok = fund[fund["eps"].notna() & (fund["eps"] > 0)]["symbol"]
@@ -83,12 +92,13 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
         npl_ok = fund[fund["npl"].isna() | (fund["npl"] < 10)]["symbol"]
         good = set(eps_ok) & set(roe_ok) & set(npl_ok)
         before = df_adjusted["symbol"].nunique()
-        df_adjusted = df_adjusted[df_adjusted["symbol"].isin(good)]
-        print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols")
+        df_adjusted = df_adjusted[df_adjusted["symbol"].isin(good | swing_target_syms)]
+        print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols (incl. {len(swing_target_syms)} swing-target exits)")
 
-    print("Calculating 52-week highs and lows for signal generation...")
-    df_adjusted['low52'] = df_adjusted.groupby('symbol')['low'].transform(lambda x: x.rolling(252, min_periods=126).min())
-    df_adjusted['high52'] = df_adjusted.groupby('symbol')['high'].transform(lambda x: x.rolling(252, min_periods=126).max())
+    print("Calculating 52-week highs/lows and 20-day avg volume...")
+    df_adjusted['low52']     = df_adjusted.groupby('symbol')['low'].transform(lambda x: x.rolling(252, min_periods=126).min())
+    df_adjusted['high52']    = df_adjusted.groupby('symbol')['high'].transform(lambda x: x.rolling(252, min_periods=126).max())
+    df_adjusted['vol_avg20'] = df_adjusted.groupby('symbol')['volume'].transform(lambda x: x.rolling(20, min_periods=5).mean())
     df_adjusted.dropna(subset=['low52', 'high52'], inplace=True)
     print("Data preparation complete.")
 
@@ -121,18 +131,23 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
 
         # --- Generate BUY Signals ---
         if not state.get('in_position'):
+            if symbol in swing_targets:
+                continue  # Swing-target stocks are exit-only — never buy
             if daily_buy_count >= daily_buy_limit:
                 continue # Skip new buys if daily limit is reached
 
-            buy_signal = row['close'] <= (row['low52'] * 1.05)
-            if state.get('last_exit_price', 0) > 0 and row['close'] <= (state['last_exit_price'] * 0.80):
+            vol_avg20     = float(row['vol_avg20']) if 'vol_avg20' in row.index and not pd.isna(row['vol_avg20']) else 0
+            volume_spike  = vol_avg20 > 0 and float(row.get('volume', 0)) >= vol_avg20 * 1.5
+
+            buy_signal = row['close'] <= (row['low52'] * 1.05) and volume_spike
+            if state.get('last_exit_price', 0) > 0 and row['close'] <= (state['last_exit_price'] * 0.80) and volume_spike:
                 buy_signal = True
-            
+
             if buy_signal:
                 print(f"[{symbol}] *** MR BUY (Initial) *** price={row['close']}")
                 signals.append({
                     "side": "BUY", "symbol": symbol, "price": row['close'], "type": "INITIAL",
-                    "quantity": int(os.getenv("DEFAULT_BUY_QTY", 10)) # Use default qty for initial buy
+                    "quantity": int(os.getenv("DEFAULT_BUY_QTY"))
                 })
         
         # --- Generate Position Management Signals (for existing positions) ---

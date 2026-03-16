@@ -13,11 +13,16 @@ import sys
 import numpy as np
 import pandas as pd
 import requests # Need this for _load_nepse_index
+try:
+    import plotly.graph_objects as go
+    PLOTLY_AVAILABLE = True
+except ImportError:
+    PLOTLY_AVAILABLE = False
 
 
 # ── Default config ─────────────────────────────────────────────────────────────
 DEFAULT_CAPITAL        = 100_000
-DEFAULT_BUY_QTY        = 10 # This will be used as a default for buy_qty in mean_reversion_backtest
+DEFAULT_BUY_QTY        = 20
 
 
 # ── Indicators (General Purpose) ─────────────────────────────────────────────────
@@ -144,114 +149,148 @@ def _load_nepse_index():
 # ── Mean Reversion Strategy (52-week high/low) ───────────────────────────────
 
 def run_mean_reversion_backtest(df, initial_capital, buy_qty,
-                                stop_loss_pct, take_profit_pct, max_hold_days,
+                                take_profit_pct,
                                 use_market_filter):
     """
     Mean Reversion Strategy
     -----------------------
-    BUY : Price is within 5% of the 52-week low.
-    SELL: Price is within 5% of the 52-week high.
-    Position sizing: 10% of capital per trade. Min hold: T+3.
+    BUY      : Price within 5% of 52-week low. Max 2 stocks/day.
+               Re-entry allowed only if price is 20% below last sell price.
+    DOUBLE   : If price drops 10% from entry, buy 2x original qty (once per cycle).
+    HALF-SELL: Sell 50% of position at 10% profit (T+3 min).
+    FINAL-SELL: Sell remaining 50% at 20% profit OR price within 5% of 52-week high.
     """
     dates = sorted(df["date"].unique())
     cash = float(initial_capital)
-    holdings = {}
+    holdings = {}       # symbol -> position dict
+    last_sell_prices = {}  # symbol -> last final sell price (for re-entry gate)
     trades = []
     nepse_trend = _load_nepse_index() if use_market_filter else {}
-    trading_days_in_year = 252  # Approximate trading days in a year
 
-    # Pre-calculate all 52-week highs and lows for efficiency
     print("Pre-calculating 52-week highs and lows...")
-    # Using min_periods=1 to align with original user request, making it less strict
-    df['low_52wk'] = df.groupby('symbol')['low'].transform(lambda x: x.rolling(trading_days_in_year, min_periods=1).min())
-    df['high_52wk'] = df.groupby('symbol')['high'].transform(lambda x: x.rolling(trading_days_in_year, min_periods=1).max())
+    df['low_52wk']  = df.groupby('symbol')['low'].transform(
+        lambda x: x.rolling(252, min_periods=126).min())
+    df['high_52wk'] = df.groupby('symbol')['high'].transform(
+        lambda x: x.rolling(252, min_periods=126).max())
+    df['vol_avg20'] = df.groupby('symbol')['volume'].transform(
+        lambda x: x.rolling(20, min_periods=5).mean())
     print("Pre-calculation complete.")
 
     for i, date in enumerate(dates):
-        # The rolling window already handles the min_periods, so no need for 'if i < trading_days_in_year:'
-        # However, we still need sufficient data for the strategy to make sense
-        if i < 20: # arbitrary minimum for some price action
+        if i < 126:
             continue
 
         market_bullish = nepse_trend.get(date, True) if use_market_filter else True
-        
-        # Use pre-calculated values for the current date
-        daily_df = df[df["date"] == date].copy() # Ensure copy to avoid SettingWithCopyWarning
-        buys_today = 0
-
+        daily_df = df[df["date"] == date].copy()
         for _, row in daily_df.iterrows():
-            symbol = row['symbol']
-            last_close = float(row['close'])
-            low_52_week = float(row['low_52wk'])
-            high_52_week = float(row['high_52wk'])
+            symbol      = row['symbol']
+            last_close  = float(row['close'])
+            low_52wk    = float(row['low_52wk'])
+            high_52wk   = float(row['high_52wk'])
+            volume      = float(row['volume'])
+            vol_avg20   = float(row['vol_avg20']) if not pd.isna(row['vol_avg20']) else 0
 
-            if pd.isna(low_52_week) or pd.isna(high_52_week):
+            if pd.isna(low_52wk) or pd.isna(high_52wk):
                 continue
-            
-            if last_close < 100: # Filter out very low price stocks
+            if last_close < 100:
                 continue
 
-            buy_trigger_price = low_52_week * 1.05
-            sell_trigger_price = high_52_week * 0.95
+            volume_spike = vol_avg20 > 0 and volume >= vol_avg20 * 1.5
+            buy_trigger  = low_52wk  * 1.05
+            near_52wk_hi = last_close >= high_52wk * 0.95
 
-            # Exit Conditions
+            # ── Manage existing position ──────────────────────────────────────
             if symbol in holdings:
-                pos = holdings[symbol]
+                pos       = holdings[symbol]
                 hold_days = (date - pos["buy_date"]).days
-                if hold_days < 3: # Min T+3 hold
+                change    = (last_close - pos["avg_price"]) / pos["avg_price"] * 100
+                entry_chg = (last_close - pos["entry_price"]) / pos["entry_price"] * 100
+
+                # Double-buy: price dropped 10% from entry, only once, no T+3 needed
+                if not pos["doubled"] and entry_chg <= -10:
+                    double_qty = 2 * pos["initial_qty"]
+                    cost = double_qty * last_close
+                    if cash >= cost:
+                        cash -= cost
+                        new_qty     = pos["qty"] + double_qty
+                        pos["avg_price"] = (pos["qty"] * pos["avg_price"] + double_qty * last_close) / new_qty
+                        pos["qty"]    = new_qty
+                        pos["doubled"] = True
+                        trades.append({
+                            "symbol": symbol, "side": "DOUBLE-BUY", "date": date,
+                            "price": last_close, "qty": double_qty,
+                            "pnl": 0, "pnl_pct": 0, "hold_days": hold_days
+                        })
+                    continue  # no exits on double-buy day
+
+                # T+3 gate for all exits
+                if hold_days < 3:
                     continue
 
-                change = (last_close - pos["avg_price"]) / pos["avg_price"] * 100
-                exit_reason = None
-                
-                # Primary exit: 52-week high target
-                if last_close >= sell_trigger_price:
-                    exit_reason = f"52WK-HIGH({change:+.1f}%)"
-                # Secondary exits: Max hold, Stop-loss, Take-profit
-                elif hold_days >= max_hold_days:
-                    exit_reason = f"MAX-HOLD({hold_days}d)"
-                elif change <= -stop_loss_pct:
-                    exit_reason = f"STOP-LOSS({change:+.1f}%)"
-                elif change >= take_profit_pct:
-                    exit_reason = f"TAKE-PROFIT({change:+.1f}%)"
-                
-                if exit_reason:
-                    holdings.pop(symbol)
+                # Half-sell at 10% profit
+                if not pos["half_sold"] and change >= 10:
+                    half_qty = pos["qty"] // 2
+                    if half_qty > 0:
+                        proceeds = half_qty * last_close
+                        cash    += proceeds
+                        pnl      = proceeds - half_qty * pos["avg_price"]
+                        pos["qty"]       -= half_qty
+                        pos["half_sold"]  = True
+                        trades.append({
+                            "symbol": symbol, "side": "HALF-SELL(10%)", "date": date,
+                            "price": last_close, "qty": half_qty, "pnl": pnl,
+                            "pnl_pct": pnl / (half_qty * pos["avg_price"]) * 100,
+                            "hold_days": hold_days
+                        })
+                    # fall through to check final sell on same day
+
+                # Final sell: 20% profit OR near 52-week high (after half sold)
+                if pos["half_sold"] and (change >= take_profit_pct or near_52wk_hi):
+                    reason   = "52WK-HIGH" if near_52wk_hi else f"FINAL-SELL({change:+.1f}%)"
                     proceeds = pos["qty"] * last_close
-                    cash += proceeds
-                    pnl = proceeds - pos["qty"] * pos["avg_price"]
+                    cash    += proceeds
+                    pnl      = proceeds - pos["qty"] * pos["avg_price"]
+                    last_sell_prices[symbol] = last_close
+                    holdings.pop(symbol)
                     trades.append({
-                        "symbol": symbol, "side": exit_reason, "date": date,
+                        "symbol": symbol, "side": reason, "date": date,
                         "price": last_close, "qty": pos["qty"], "pnl": pnl,
                         "pnl_pct": pnl / (pos["qty"] * pos["avg_price"]) * 100,
                         "hold_days": hold_days
                     })
+
+                continue  # done with this symbol for today
+
+            # ── BUY signal ────────────────────────────────────────────────────
+            if last_close <= buy_trigger and market_bullish and volume_spike:
+                # Re-entry gate: price must be 20% below last sell price
+                if symbol in last_sell_prices and last_close > last_sell_prices[symbol] * 0.80:
                     continue
 
-            # BUY Signal
-            # Only buy if not already holding, within daily limit, and market is bullish
-            if last_close <= buy_trigger_price and symbol not in holdings and buys_today < 2 and market_bullish: # Using a hardcoded max daily buys as the config var is gone
-                qty = max(1, int((cash * 0.10) / last_close)) # Size trade at 10% of current capital
+                qty  = buy_qty
                 cost = qty * last_close
                 if cash >= cost:
                     cash -= cost
-                    holdings[symbol] = {"qty": qty, "avg_price": last_close, "buy_date": date}
+                    holdings[symbol] = {
+                        "qty": qty, "initial_qty": qty,
+                        "avg_price": last_close, "entry_price": last_close,
+                        "buy_date": date, "doubled": False, "half_sold": False
+                    }
                     trades.append({
                         "symbol": symbol, "side": "BUY", "date": date,
                         "price": last_close, "qty": qty,
                         "pnl": 0, "pnl_pct": 0, "hold_days": 0
                     })
-                    buys_today += 1 # Increment daily buys for this date
 
-    # Close remaining positions at the last available price in the dataset
+    # Close remaining open positions at last available price
     last_date = dates[-1]
     for symbol, pos in holdings.items():
         last_price_series = df[df["symbol"] == symbol]["close"]
         if not last_price_series.empty:
             last_price = float(last_price_series.iloc[-1])
-            proceeds = pos["qty"] * last_price
-            cash += proceeds
-            pnl = proceeds - pos["qty"] * pos["avg_price"]
+            proceeds   = pos["qty"] * last_price
+            cash      += proceeds
+            pnl        = proceeds - pos["qty"] * pos["avg_price"]
             trades.append({
                 "symbol": symbol, "side": "SELL(end)", "date": last_date,
                 "price": last_price, "qty": pos["qty"], "pnl": pnl,
@@ -262,67 +301,166 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
     return cash, trades
 
 
+# ── Interactive Plot ───────────────────────────────────────────────────────────
+
+def plot_trades(df, trades):
+    if not PLOTLY_AVAILABLE:
+        print("plotly not installed. Run: pip install plotly")
+        return
+
+    SIDE_CONFIG = {
+        "BUY":            ("green",  "triangle-up",   "Buy"),
+        "DOUBLE-BUY":     ("blue",   "triangle-up",   "Double Buy"),
+        "HALF-SELL(10%)": ("orange", "triangle-down", "Half Sell"),
+        "52WK-HIGH":      ("red",    "triangle-down", "Final Sell"),
+        "SELL(end)":      ("gray",   "x",             "End Close"),
+    }
+    # Any FINAL-SELL(...) variant
+    def side_key(side):
+        if side.startswith("FINAL-SELL"):
+            return "52WK-HIGH"
+        return side
+
+    traded_symbols = sorted({t["symbol"] for t in trades})
+    trades_by_sym  = {s: [t for t in trades if t["symbol"] == s] for s in traded_symbols}
+
+    TRACES_PER_SYM = 1 + 2 + len(SIDE_CONFIG)  # price + low_band + high_band + events
+    fig = go.Figure()
+
+    for sym in traded_symbols:
+        sym_df  = df[df["symbol"] == sym].sort_values("date")
+        visible = (sym == traded_symbols[0])
+
+        fig.add_trace(go.Scatter(
+            x=sym_df["date"], y=sym_df["close"],
+            name=f"{sym} Price", line=dict(color="lightgray", width=1),
+            visible=visible
+        ))
+
+        # 52-week low band (buy zone)
+        fig.add_trace(go.Scatter(
+            x=sym_df["date"], y=sym_df["low_52wk"] * 1.05,
+            name="Buy Zone (52wk low +5%)", line=dict(color="green", width=1, dash="dot"),
+            visible=visible
+        ))
+
+        # 52-week high band (sell zone)
+        fig.add_trace(go.Scatter(
+            x=sym_df["date"], y=sym_df["high_52wk"] * 0.95,
+            name="Sell Zone (52wk high -5%)", line=dict(color="red", width=1, dash="dot"),
+            visible=visible
+        ))
+
+        sym_trades = trades_by_sym[sym]
+        for key, (color, marker_sym, label) in SIDE_CONFIG.items():
+            events = [(t["date"], t["price"]) for t in sym_trades if side_key(t["side"]) == key]
+            if events:
+                dates, prices = zip(*events)
+            else:
+                dates, prices = [], []
+            fig.add_trace(go.Scatter(
+                x=list(dates), y=list(prices),
+                mode="markers", name=label,
+                marker=dict(color=color, size=12, symbol=marker_sym),
+                visible=visible
+            ))
+
+    buttons = []
+    for i, sym in enumerate(traded_symbols):
+        vis = [False] * (len(traded_symbols) * TRACES_PER_SYM)
+        for j in range(TRACES_PER_SYM):
+            idx = i * TRACES_PER_SYM + j
+            if idx < len(fig.data):
+                vis[idx] = True
+        buttons.append(dict(label=sym, method="update",
+                            args=[{"visible": vis}, {"title": f"Trades — {sym}"}]))
+
+    fig.update_layout(
+        updatemenus=[dict(active=0, buttons=buttons, x=0.01, y=1.12, xanchor="left")],
+        title=f"Trades — {traded_symbols[0]}",
+        xaxis_title="Date", yaxis_title="Price (NPR)",
+        template="plotly_white", height=600
+    )
+    fig.show()
+
+
 # ── Report ─────────────────────────────────────────────────────────────────────
 
 def print_backtest_report(initial_capital, final_capital, trades):
-    """Generates a comprehensive backtest report including per-symbol summary."""
-    sell_trades = [t for t in trades if t["side"] != "BUY"]
-    buy_trades  = [t for t in trades if t["side"] == "BUY"]
+    BUY_SIDES      = {"BUY", "DOUBLE-BUY"}
+    STRATEGY_SIDES = {"HALF-SELL(10%)", "52WK-HIGH", "FINAL-SELL"}  # completed exits
+    buy_trades     = [t for t in trades if t["side"] in BUY_SIDES]
+    double_buys    = [t for t in trades if t["side"] == "DOUBLE-BUY"]
+    strategy_exits = [t for t in trades if t["side"] not in BUY_SIDES and t["side"] != "SELL(end)"]
+    open_ends      = [t for t in trades if t["side"] == "SELL(end)"]
     total_return     = final_capital - initial_capital
     total_return_pct = total_return / initial_capital * 100
 
-    print("\n" + "=" * 55)
+    print("\n" + "=" * 60)
     print("  BACKTEST RESULTS")
-    print("=" * 55)
-    print(f"  Initial Capital  : NPR {initial_capital:>12,.2f}")
-    print(f"  Final Capital    : NPR {final_capital:>12,.2f}")
-    print(f"  Total Return     : NPR {total_return:>+12,.2f}  ({total_return_pct:+.1f}%)")
-    print("-" * 55)
-    print(f"  Total BUY trades : {len(buy_trades)}")
-    print(f"  Total SELL trades: {len(sell_trades)}")
+    print("=" * 60)
+    print(f"  Initial Capital      : NPR {initial_capital:>12,.2f}")
+    print(f"  Final Capital        : NPR {final_capital:>12,.2f}")
+    print(f"  Total Return         : NPR {total_return:>+12,.2f}  ({total_return_pct:+.1f}%)")
+    print("-" * 60)
+    print(f"  BUY signals          : {len(buy_trades)} ({len(double_buys)} double-buys)")
+    print(f"  Strategy exits       : {len(strategy_exits)}  (completed cycles)")
+    print(f"  Open at end (SELL(end)): {len(open_ends)}  (position not yet closed by strategy)")
 
-    if sell_trades:
-        pnls       = [t["pnl"] for t in sell_trades]
-        winners    = [p for p in pnls if p > 0]
-        losers     = [p for p in pnls if p <= 0]
-        win_rate   = len(winners) / len(sell_trades) * 100
-        avg_hold   = np.mean([t["hold_days"] for t in sell_trades])
-        best       = max(sell_trades, key=lambda t: t["pnl"])
-        worst      = min(sell_trades, key=lambda t: t["pnl"])
+    # ── Completed cycles only ──────────────────────────────────────
+    if strategy_exits:
+        pnls     = [t["pnl"] for t in strategy_exits]
+        winners  = [p for p in pnls if p > 0]
+        losers   = [p for p in pnls if p <= 0]
+        win_rate = len(winners) / len(strategy_exits) * 100
+        avg_hold = np.mean([t["hold_days"] for t in strategy_exits])
+        best     = max(strategy_exits, key=lambda t: t["pnl_pct"])
+        worst    = min(strategy_exits, key=lambda t: t["pnl_pct"])
+        completed_pnl = sum(pnls)
 
-        print(f"  Win Rate         : {win_rate:.1f}%")
-        print(f"  Avg Win          : NPR {np.mean(winners):>+,.2f}" if winners else "  Avg Win         : —")
-        print(f"  Avg Loss         : NPR {np.mean(losers):>+,.2f}"  if losers  else "  Avg Loss        : —")
-        print(f"  Avg Hold Period  : {avg_hold:.1f} days")
-        print(f"  Best Trade       : {best['symbol']}  NPR {best['pnl']:>+,.2f}  ({best['pnl_pct']:+.1f}%)")
-        print(f"  Worst Trade      : {worst['symbol']} NPR {worst['pnl']:>+,.2f}  ({worst['pnl_pct']:+.1f}%)")
-    print("=" * 55)
+        print(f"\n  ── COMPLETED CYCLES ──────────────────────────────────")
+        print(f"  Total P&L            : NPR {completed_pnl:>+,.2f}")
+        print(f"  Win Rate             : {win_rate:.1f}%")
+        print(f"  Avg Win              : NPR {np.mean(winners):>+,.2f}" if winners else "  Avg Win             : —")
+        print(f"  Avg Loss             : NPR {np.mean(losers):>+,.2f}"  if losers  else "  Avg Loss            : —")
+        print(f"  Avg Hold Period      : {avg_hold:.1f} days")
+        print(f"  Best Exit            : {best['symbol']} {best['pnl_pct']:+.1f}%")
+        print(f"  Worst Exit           : {worst['symbol']} {worst['pnl_pct']:+.1f}%")
 
-    if sell_trades:
-        print(f"\n  {'Date':<12} {'Symbol':<8} {'Side':<10} {'Qty':>4} {'Price':>8} {'P&L':>10} {'%':>7} {'Days':>5}")
-        print("  " + "-" * 65)
-        for t in sorted(sell_trades, key=lambda x: x["date"]):
-            print(f"  {str(t['date'])[:10]:<12} {t['symbol']:<8} {t['side']:<10} "
+    # ── Open positions summary ─────────────────────────────────────
+    if open_ends:
+        open_pnl     = sum(t["pnl"] for t in open_ends)
+        open_winners = [t for t in open_ends if t["pnl"] > 0]
+        open_losers  = [t for t in open_ends if t["pnl"] <= 0]
+        print(f"\n  ── OPEN POSITIONS (still holding, not strategy exits) ──")
+        print(f"  Count                : {len(open_ends)}")
+        print(f"  Unrealized P&L       : NPR {open_pnl:>+,.2f}")
+        print(f"  In profit            : {len(open_winners)}  |  In loss: {len(open_losers)}")
+
+    print("=" * 60)
+
+    # ── Completed exits trade log ──────────────────────────────────
+    if strategy_exits:
+        print(f"\n  COMPLETED EXITS")
+        print(f"  {'Date':<12} {'Symbol':<8} {'Side':<18} {'Qty':>4} {'Price':>8} {'P&L':>10} {'%':>7} {'Days':>5}")
+        print("  " + "-" * 75)
+        for t in sorted(strategy_exits, key=lambda x: x["date"]):
+            print(f"  {str(t['date'])[:10]:<12} {t['symbol']:<8} {t['side']:<18} "
                   f"{t['qty']:>4} {t['price']:>8.2f} {t['pnl']:>+10.2f} "
                   f"{t['pnl_pct']:>+6.1f}% {t['hold_days']:>5}d")
-        
-        # Per-symbol summary
-        # Filter for all exit types, including the new 52WK-HIGH
-        exit_trades = [t for t in trades if t["side"] != "BUY"] # Changed to include all non-buy as exits
-        if exit_trades:
-            print("\n  PER-SYMBOL SUMMARY")
-            print("  " + "-" * 45)
-            sym_groups = {}
-            for t in exit_trades:
-                sym_groups.setdefault(t["symbol"], []).append(t["pnl_pct"])
-            # Filter out symbols with no valid pnl_pct (e.g., from 'SELL(end)' if no buy)
-            rows = [(s, np.mean([p for p in pcts if not pd.isna(p)]), len(pcts)) for s, pcts in sym_groups.items() if [p for p in pcts if not pd.isna(p)]]
-            rows.sort(key=lambda x: -x[1])
-            for sym, avg_pct, count in rows:
-                bar = "+" if avg_pct >= 0 else ""
-                print(f"  {sym:<8}  avg={bar}{avg_pct:.1f}%  trades={count}")
-            overall_avg = np.mean([r[1] for r in rows]) if rows else 0
-            print(f"\n  Overall avg profit/symbol: {overall_avg:+.1f}%")
+
+    # ── Per-symbol summary (completed only) ───────────────────────
+    if strategy_exits:
+        sym_groups = {}
+        for t in strategy_exits:
+            sym_groups.setdefault(t["symbol"], []).append(t["pnl_pct"])
+        rows = [(s, np.mean(pcts), len(pcts)) for s, pcts in sym_groups.items()]
+        rows.sort(key=lambda x: -x[1])
+        print(f"\n  PER-SYMBOL (completed cycles only)")
+        print("  " + "-" * 45)
+        for sym, avg_pct, count in rows:
+            print(f"  {sym:<8}  avg={avg_pct:+.1f}%  trades={count}")
+        print(f"\n  Avg return per completed symbol: {np.mean([r[1] for r in rows]):+.1f}%")
 
 
 # ── Main ───────────────────────────────────────────────────────────────────────
@@ -333,12 +471,12 @@ def main():
                         help="Strategy: 'mean_reversion' (52wk H/L)") # Only mean_reversion
     parser.add_argument("--capital",        type=float, default=DEFAULT_CAPITAL)
     parser.add_argument("--qty",            type=int,   default=DEFAULT_BUY_QTY)
-    parser.add_argument("--stop-loss",      type=float, default=7.0,  help="Stop-loss %%  (default: 7)")
-    parser.add_argument("--take-profit",    type=float, default=15.0, help="Take-profit %% (default: 15)")
-    parser.add_argument("--max-hold",       type=int,   default=30,   help="Max hold days (default: 30)")
+    parser.add_argument("--take-profit",    type=float, default=20.0, help="Final sell profit %% (default: 20)")
     parser.add_argument("--market-filter",  action="store_true",      help="Only BUY when NEPSE index EMA9 > EMA21")
     parser.add_argument("--symbols",        type=str,   default=None,
                         help="Comma-separated symbols to test (default: all)")
+    parser.add_argument("--plot",           action="store_true",
+                        help="Show interactive trade chart after backtest")
 
     args = parser.parse_args()
 
@@ -355,6 +493,17 @@ def main():
     df.sort_values(["symbol", "date"], inplace=True)
     df = _adjust_prices(df)
 
+    if os.path.exists("chukul_fundamental.csv"):
+        fund = pd.read_csv("chukul_fundamental.csv")
+        before = df["symbol"].nunique()
+        eps_ok  = fund[fund["eps"].notna()  & (fund["eps"]  > 0)]["symbol"]
+        roe_ok  = fund[fund["roe"].notna()  & (fund["roe"]  > 5)]["symbol"]
+        npl_ok  = fund[fund["npl"].isna()   | (fund["npl"]  < 10)]["symbol"]
+        good = set(eps_ok) & set(roe_ok) & set(npl_ok)
+        df = df[df["symbol"].isin(good)]
+        print(f"Fundamental filter: {before} → {df['symbol'].nunique()} symbols "
+              f"(EPS>0, ROE>5%, NPL<10%)")
+
     if args.symbols:
         syms = [s.strip().upper() for s in args.symbols.split(",")]
         df   = df[df["symbol"].isin(syms)]
@@ -365,8 +514,8 @@ def main():
     mf = "ON" if args.market_filter else "OFF"
     print(f"Period  : {date_min} → {date_max}")
     print(f"Symbols : {df['symbol'].nunique()}")
-    print(f"Strategy: {args.strategy.upper()}  SL=-{args.stop_loss}%  TP=+{args.take_profit}%  "
-          f"MaxHold={args.max_hold}d  MarketFilter={mf}  Qty={args.qty}  Capital=NPR {args.capital:,.0f}")
+    print(f"Strategy: {args.strategy.upper()}  TP=+{args.take_profit}%  "
+          f"MarketFilter={mf}  Qty={args.qty}  Capital=NPR {args.capital:,.0f}")
     print("Running backtest (this may take a minute for all symbols)...")
 
     # Only the mean_reversion strategy remains
@@ -376,9 +525,7 @@ def main():
             df,
             initial_capital   = args.capital,
             buy_qty           = args.qty,
-            stop_loss_pct     = args.stop_loss,
             take_profit_pct   = args.take_profit,
-            max_hold_days     = args.max_hold,
             use_market_filter = args.market_filter,
         )
     else: # Fallback for incorrect strategy argument - should not be hit if default is mean_reversion
@@ -386,6 +533,9 @@ def main():
         sys.exit(1)
 
     print_backtest_report(args.capital, final_capital, trades)
+
+    if args.plot:
+        plot_trades(df, trades)
 
 
 if __name__ == "__main__":

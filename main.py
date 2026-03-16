@@ -9,16 +9,10 @@ from auth import login
 from scraper import scrape_portfolio
 from storage import save_to_csv, save_to_json
 from trader import Trader
-# --- NEW IMPORTS for Mean Reversion Strategy ---
-from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals
+from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals, remove_swing_target
 from state_manager import load_states, save_states, update_state_for_trade
-# --- END NEW IMPORTS ---
 from fetch_live_data import fetch_live_data
 from fetch_chukul_history import update_chukul_data
-from fetch_chukul_indicators import update_indicators_data
-from fetch_chukul_fundamental import update_fundamental_data
-from fetch_chukul_broker import update_broker_data
-from fetch_chukul_floorsheet import update_floorsheet_data
 from chukul_client import fetch_all_symbols, BASE_URL, _get
 from notifications import (
     notify_market_open,
@@ -106,19 +100,15 @@ def _load_cached_portfolio():
     return {"holdings": [], "summary": {}}
 
 
-def _fetch_chukul_data(today_str, last_fundamental_date):
-    """Fetch all Chukul data for all NEPSE symbols. Returns updated last_fundamental_date."""
+def _fetch_chukul_data():
+    """Fetch historical OHLCV data for all NEPSE symbols."""
     print("Fetching full NEPSE symbol list from Chukul...")
     symbols = fetch_all_symbols()
     if not symbols:
         print("Warning: Could not fetch symbol list. Falling back to portfolio symbols.")
         symbols = None
-
     print(f"Updating historical data for {len(symbols) if symbols else '?'} symbols...")
     update_chukul_data(symbols=symbols, verbose=False)
-
-    # Other data fetches can remain as they are, as they support analysis but are not critical for MR signals.
-    return last_fundamental_date
 
 
 def main():
@@ -138,6 +128,7 @@ def main():
         "RUN_ONCE":              os.getenv("RUN_ONCE"),
         "MAX_DAILY_BUYS":        os.getenv("MAX_DAILY_BUYS"),
         "MAX_PORTFOLIO_STOCKS":  os.getenv("MAX_PORTFOLIO_STOCKS"),
+        "DEFAULT_BUY_QTY":       os.getenv("DEFAULT_BUY_QTY"),
     }
     missing = [k for k, v in _required.items() if not v]
     if missing:
@@ -153,7 +144,6 @@ def main():
 
     print("--- Starting Portfolio Tracker Bot (Mean Reversion Strategy) ---")
 
-    last_fundamental_date = None
     market_open_notified_date = None
     last_was_open = False
 
@@ -214,8 +204,8 @@ def main():
                     save_to_json(portfolio_data.get("summary", {}), "portfolio_summary.json")
                     save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
 
-                _fetch_chukul_data(today_str, last_fundamental_date)
-                
+                _fetch_chukul_data()
+
                 # --- NEW SIGNAL GENERATION ---
                 latest_data = load_and_prepare_data()
                 if latest_data is not None:
@@ -254,12 +244,15 @@ def main():
                         success = trader.place_order(signal)
                         if success:
                             save_placed_order(symbol, side, signal_type)
-                            
+
+                            if signal_type == "SWING_TARGET":
+                                remove_swing_target(symbol)
+
                             # --- UPDATE STATE on successful trade ---
                             symbol_state = states.get(symbol, {})
                             new_symbol_state = update_state_for_trade(symbol_state, signal, signal['price'], signal['quantity'])
                             states[symbol] = new_symbol_state
-                            
+
                             placed_orders = load_placed_orders() # Refresh placed orders
                             orders_placed_this_cycle += 1
                             notify_order(signal, is_dry_run=DRY_RUN)

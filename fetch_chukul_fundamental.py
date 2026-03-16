@@ -97,6 +97,19 @@ def fetch_bonus_history(symbol):
     return []
 
 
+def fetch_right_history(symbol):
+    """
+    Fetch historical right share data for a symbol.
+    Returns a list of dicts with keys: symbol, year, right, book_close_date.
+    """
+    data = _get(f"{BASE_URL}/right/", params={"symbol": symbol})
+    if data and isinstance(data, list):
+        return data
+    elif data and isinstance(data, dict):
+        return data.get("results") or data.get("data") or []
+    return []
+
+
 def _fetch_fundamental_for_symbol(symbol, symbol_map=None):
     """Fetch all fundamental data for a single symbol."""
     stock_id = get_stock_id(symbol, symbol_map)
@@ -113,9 +126,11 @@ def _fetch_fundamental_for_symbol(symbol, symbol_map=None):
 def update_fundamental_data(symbols=None, input_file="live_market_data.csv",
                             fundamental_output="chukul_fundamental.csv",
                             bonus_output="chukul_bonus.csv",
+                            actions_output="chukul_corporate_actions.csv",
                             verbose=True):
     """
-    Fetch fundamental + bonus data for all symbols and save to CSV.
+    Fetch fundamental + bonus + right share data for all symbols and save to CSV.
+    Also saves chukul_corporate_actions.csv with unified price adjustment data.
     """
     if symbols is None:
         if not os.path.exists(input_file):
@@ -175,7 +190,7 @@ def update_fundamental_data(symbols=None, input_file="live_market_data.csv",
                     r["symbol"] = sym
                     bonus_rows.append(r)
                 if verbose and records:
-                    print(f"  [{sym}] {len(records)} bonus/dividend records")
+                    print(f"  [{sym}] {len(records)} bonus records")
             except Exception as exc:
                 print(f"  [{sym}] Bonus error: {exc}")
 
@@ -183,11 +198,57 @@ def update_fundamental_data(symbols=None, input_file="live_market_data.csv",
         df_bonus = pd.DataFrame(bonus_rows)
         df_bonus.to_csv(bonus_output, index=False)
         print(f"\nSaved {len(df_bonus)} rows to {bonus_output}")
-        print(df_bonus.head().to_string(index=False))
-    else:
-        print("No bonus/dividend data fetched.")
 
-    return fundamental_rows, bonus_rows
+    print(f"\nFetching right share history for {len(symbols)} symbols...")
+    right_rows = []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_sym = {executor.submit(fetch_right_history, sym): sym for sym in symbols}
+        for future in as_completed(future_to_sym):
+            sym = future_to_sym[future]
+            try:
+                records = future.result()
+                for r in records:
+                    r["symbol"] = sym
+                    right_rows.append(r)
+                if verbose and records:
+                    print(f"  [{sym}] {len(records)} right share records")
+            except Exception as exc:
+                print(f"  [{sym}] Right error: {exc}")
+
+    # Build unified corporate actions CSV
+    action_rows = []
+    for r in bonus_rows:
+        bcd = r.get("book_close_date")
+        bonus_pct = r.get("bonus", 0) or 0
+        if bcd and bonus_pct > 0:
+            action_rows.append({
+                "symbol": r["symbol"],
+                "book_close_date": bcd,
+                "action_type": "bonus",
+                "pct": bonus_pct,
+            })
+    for r in right_rows:
+        bcd = r.get("book_close_date")
+        right_pct = r.get("right", 0) or 0
+        if bcd and right_pct > 0:
+            action_rows.append({
+                "symbol": r["symbol"],
+                "book_close_date": bcd,
+                "action_type": "right",
+                "pct": right_pct,
+            })
+
+    if action_rows:
+        df_actions = pd.DataFrame(action_rows)
+        df_actions.sort_values(["symbol", "book_close_date"], inplace=True)
+        df_actions.to_csv(actions_output, index=False)
+        print(f"\nSaved {len(df_actions)} corporate action rows to {actions_output}")
+        print(df_actions.head(10).to_string(index=False))
+    else:
+        print("No corporate action data fetched.")
+
+    return fundamental_rows, bonus_rows, right_rows
 
 
 if __name__ == "__main__":

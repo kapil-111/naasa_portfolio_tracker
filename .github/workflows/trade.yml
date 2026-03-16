@@ -72,10 +72,11 @@ jobs:
           DRY_RUN: ${{ secrets.DRY_RUN }}
           MAX_DAILY_BUYS: ${{ secrets.MAX_DAILY_BUYS }}
           MAX_PORTFOLIO_STOCKS: ${{ secrets.MAX_PORTFOLIO_STOCKS }}
-          BUY_THRESHOLD: ${{ secrets.BUY_THRESHOLD }}
-          SELL_THRESHOLD: ${{ secrets.SELL_THRESHOLD }}
           DEFAULT_BUY_QTY: ${{ secrets.DEFAULT_BUY_QTY }}
-          BROKER_CONCENTRATION_THRESHOLD: ${{ secrets.BROKER_CONCENTRATION_THRESHOLD }}
+          SWING_RSI_OVERSOLD: ${{ secrets.SWING_RSI_OVERSOLD }}
+          SWING_RSI_OVERBOUGHT: ${{ secrets.SWING_RSI_OVERBOUGHT }}
+          SWING_VOL_MULT: ${{ secrets.SWING_VOL_MULT }}
+          SWING_VOL_PERIOD: ${{ secrets.SWING_VOL_PERIOD }}
           FETCH_MAX_WORKERS: ${{ secrets.FETCH_MAX_WORKERS }}
           RUN_ONCE: "True"
           POLL_INTERVAL: "60"
@@ -99,5 +100,5 @@ jobs:
           git config --global user.name "GitHub Action Bot"
           git config --global user.email "action@github.com"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-          git add placed_orders_today.json portfolio_summary.json 2>/dev/null || true
+          git add placed_orders_today.json portfolio_summary.json mean_reversion_state.json swing_targets.json 2>/dev/null || true
           git diff-index --cached --quiet HEAD || (git commit -m "Update order state" && git push)
