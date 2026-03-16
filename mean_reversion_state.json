@@ -2,10 +2,10 @@
     "BNHC": {
         "in_position": true,
         "entry_date": "2026-03-05",
-        "entry_price": 645.4019,
+        "entry_price": 462.46729999999997,
         "initial_entry": 645.4019,
         "half_sold": false,
-        "position_count": 1,
+        "position_count": 3,
         "trades": 0
     },
     "CHCL": {
@@ -20,10 +20,10 @@
     "HDL": {
         "in_position": true,
         "entry_date": "2026-03-05",
-        "entry_price": 1527.8363,
+        "entry_price": 1309.9454333333333,
         "initial_entry": 1527.8363,
         "half_sold": false,
-        "position_count": 1,
+        "position_count": 3,
         "trades": 0
     },
     "MEN": {
@@ -38,10 +38,10 @@
     "NABIL": {
         "in_position": true,
         "entry_date": "2026-03-05",
-        "entry_price": 724.3173,
+        "entry_price": 594.1057666666667,
         "initial_entry": 724.3173,
         "half_sold": false,
-        "position_count": 1,
+        "position_count": 3,
         "trades": 0
     },
     "NLIC": {
