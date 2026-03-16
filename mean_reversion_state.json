@@ -1,0 +1,83 @@
+{
+    "BNHC": {
+        "in_position": true,
+        "entry_date": "2026-03-05",
+        "entry_price": 645.4019,
+        "initial_entry": 645.4019,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0
+    },
+    "CHCL": {
+        "in_position": true,
+        "entry_date": "2026-03-05",
+        "entry_price": 553.6913,
+        "initial_entry": 553.6913,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0
+    },
+    "HDL": {
+        "in_position": true,
+        "entry_date": "2026-03-05",
+        "entry_price": 1527.8363,
+        "initial_entry": 1527.8363,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0
+    },
+    "MEN": {
+        "in_position": true,
+        "entry_date": "2026-03-05",
+        "entry_price": 603.2519,
+        "initial_entry": 603.2519,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0
+    },
+    "NABIL": {
+        "in_position": true,
+        "entry_date": "2026-03-05",
+        "entry_price": 724.3173,
+        "initial_entry": 724.3173,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0
+    },
+    "NLIC": {
+        "in_position": true,
+        "entry_date": "2026-03-05",
+        "entry_price": 758.5183,
+        "initial_entry": 758.5183,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0
+    },
+    "NMB": {
+        "in_position": true,
+        "entry_date": "2026-03-05",
+        "entry_price": 258.0966,
+        "initial_entry": 258.0966,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0
+    },
+    "SAHAS": {
+        "in_position": true,
+        "entry_date": "2026-03-05",
+        "entry_price": 100.0,
+        "initial_entry": 100.0,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0
+    },
+    "SNLI": {
+        "in_position": true,
+        "entry_date": "2026-03-05",
+        "entry_price": 412.953,
+        "initial_entry": 412.953,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0
+    }
+}
