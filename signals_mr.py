@@ -1,6 +1,13 @@
 import os
+import json
 import pandas as pd
 import numpy as np
+
+def _load_swing_targets(path="swing_targets.json"):
+    if os.path.exists(path):
+        with open(path) as f:
+            return json.load(f)
+    return {}
 
 # --- Data Loading and Preparation Helpers ---
 
@@ -84,7 +91,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
     Does NOT modify state; state changes are handled by the main loop after successful trades.
     """
     signals = []
-    
+    swing_targets = _load_swing_targets()
     held_symbols = {h.get('Symbol') or h.get('symbol'): h for h in portfolio.get('holdings', [])}
 
     for symbol, row in latest_data.iterrows():
@@ -134,9 +141,19 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
 
             # Exit signals (only after T+3)
             if days_held >= 3:
+                current_qty = int(held_symbols.get(symbol, {}).get('Quantity', 0))
+
+                # Swing target exit — sell all when price hits manual resistance
+                if symbol in swing_targets and row['close'] >= swing_targets[symbol]:
+                    print(f"[{symbol}] *** SWING TARGET HIT *** price={row['close']} >= target={swing_targets[symbol]}")
+                    signals.append({
+                        "side": "SELL", "symbol": symbol, "price": row['close'], "type": "SWING_TARGET",
+                        "quantity": current_qty
+                    })
+                    continue
+
                 # Half-sell signal
                 if not state.get('half_sold') and profit_pct >= 10:
-                    current_qty = int(held_symbols.get(symbol, {}).get('Quantity', 0))
                     sell_qty = max(1, current_qty // 2)
                     print(f"[{symbol}] *** MR SELL (Half) *** price={row['close']}")
                     signals.append({
@@ -146,11 +163,10 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
 
                 # Full-sell signal
                 if (state.get('half_sold') and profit_pct >= 20) or (row['close'] >= (row['high52'] * 0.95)):
-                    current_qty = int(held_symbols.get(symbol, {}).get('Quantity', 0))
                     print(f"[{symbol}] *** MR SELL (Full) *** price={row['close']}")
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": row['close'], "type": "FULL_EXIT",
-                        "quantity": current_qty # Sell all remaining
+                        "quantity": current_qty
                     })
 
     return signals
