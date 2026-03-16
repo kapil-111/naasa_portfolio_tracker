@@ -6,7 +6,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 from auth import login
-from scraper import scrape_portfolio
+from scraper import scrape_portfolio, scrape_available_fund
 from storage import save_to_csv, save_to_json
 from trader import Trader
 from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals, remove_swing_target
@@ -231,6 +231,10 @@ def main():
                 login(page, username, password)
                 fetch_live_data(page)
                 portfolio_data = scrape_portfolio(page)
+                available_fund = scrape_available_fund(page)
+                if available_fund is not None:
+                    save_to_json({"available_fund": available_fund}, "available_fund.json")
+                    print(f"Available fund: NPR {available_fund:,.2f}")
 
                 if portfolio_data and portfolio_data.get("holdings"):
                     save_to_json(portfolio_data.get("summary", {}), "portfolio_summary.json")
@@ -281,6 +285,11 @@ def main():
                         if side == 'SELL' and qty < 10:
                             print(f"[SKIP] SELL {symbol} qty={qty} — below minimum sell threshold (10).")
                             continue
+                        if side == 'BUY' and available_fund is not None:
+                            order_cost = signal['price'] * qty
+                            if order_cost > available_fund:
+                                print(f"[SKIP] BUY {symbol} qty={qty} cost={order_cost:,.0f} > fund={available_fund:,.0f}.")
+                                continue
 
                         success = trader.place_order(signal)
                         if not success:

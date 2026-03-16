@@ -1,5 +1,30 @@
 from playwright.sync_api import Page
 
+
+def scrape_available_fund(page: Page):
+    """
+    Scrapes Total Collateral from NAASA wallet.
+    Returns float or None if not found.
+    """
+    print("Scraping available fund...")
+    page.goto("https://wallet.naasasecurities.com.np/")
+    try:
+        page.wait_for_selector("text=Total Collateral", timeout=10000)
+    except Exception:
+        print("[FUND] Timed out waiting for wallet page.")
+        return None
+
+    try:
+        # "Total Collateral" label → next sibling div → first span (the value)
+        value_text = page.locator("xpath=//span[normalize-space()='Total Collateral']/following-sibling::div[1]/span[1]").inner_text(timeout=3000)
+        value = float(value_text.replace(",", "").replace("Rs.", "").strip())
+        print(f"[FUND] Total Collateral: {value:,.2f}")
+        return value
+    except Exception as e:
+        print(f"[FUND] Could not parse Total Collateral: {e}")
+        return None
+
+
 def scrape_portfolio(page: Page):
     """
     Scrapes portfolio data from the dashboard.
