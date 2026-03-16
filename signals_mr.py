@@ -74,13 +74,24 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
     df.sort_values(["symbol", "date"], inplace=True)
     
     df_adjusted = _adjust_prices(df.copy())
-    
+
+    # Fundamental filter: only trade quality stocks
+    if os.path.exists("chukul_fundamental.csv"):
+        fund = pd.read_csv("chukul_fundamental.csv")
+        eps_ok = fund[fund["eps"].notna() & (fund["eps"] > 0)]["symbol"]
+        roe_ok = fund[fund["roe"].notna() & (fund["roe"] > 5)]["symbol"]
+        npl_ok = fund[fund["npl"].isna() | (fund["npl"] < 10)]["symbol"]
+        good = set(eps_ok) & set(roe_ok) & set(npl_ok)
+        before = df_adjusted["symbol"].nunique()
+        df_adjusted = df_adjusted[df_adjusted["symbol"].isin(good)]
+        print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols")
+
     print("Calculating 52-week highs and lows for signal generation...")
-    df_adjusted['low52'] = df_adjusted.groupby('symbol')['low'].transform(lambda x: x.rolling(252, min_periods=1).min())
-    df_adjusted['high52'] = df_adjusted.groupby('symbol')['high'].transform(lambda x: x.rolling(252, min_periods=1).max())
+    df_adjusted['low52'] = df_adjusted.groupby('symbol')['low'].transform(lambda x: x.rolling(252, min_periods=126).min())
+    df_adjusted['high52'] = df_adjusted.groupby('symbol')['high'].transform(lambda x: x.rolling(252, min_periods=126).max())
     df_adjusted.dropna(subset=['low52', 'high52'], inplace=True)
     print("Data preparation complete.")
-    
+
     return df_adjusted.loc[df_adjusted.groupby('symbol')['date'].idxmax()]
 
 # --- Core Signal Generation Logic ---
@@ -104,6 +115,9 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             print(f"[{symbol}] State conflict: In position by state, but not in live portfolio. Resetting state.")
             states[symbol] = {}
             state = {}
+
+        if row['close'] < 100:
+            continue
 
         # --- Generate BUY Signals ---
         if not state.get('in_position'):
