@@ -106,9 +106,19 @@ def _fetch_chukul_data():
     print("Fetching full NEPSE symbol list from Chukul...")
     symbols = fetch_all_symbols()
     if not symbols:
-        print("Warning: Could not fetch symbol list. Falling back to portfolio symbols.")
-        symbols = None
-    print(f"Updating historical data for {len(symbols) if symbols else '?'} symbols...")
+        print("Warning: Could not fetch symbol list from Chukul API.")
+        if os.path.exists("chukul_data.csv"):
+            try:
+                existing = pd.read_csv("chukul_data.csv")
+                if "stock" in existing.columns:
+                    symbols = existing["stock"].unique().tolist()
+                    print(f"Falling back to {len(symbols)} symbols from existing chukul_data.csv.")
+            except Exception:
+                pass
+        if not symbols:
+            print("Warning: No symbol source available, skipping historical data update.")
+            return
+    print(f"Updating historical data for {len(symbols)} symbols...")
     update_chukul_data(symbols=symbols, verbose=False)
 
     fund_file = "chukul_fundamental.csv"
@@ -203,18 +213,31 @@ def main():
         states = load_states()
 
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            context = browser.new_context()
+            browser = p.chromium.launch(
+                headless=True,
+                args=[
+                    "--disable-blink-features=AutomationControlled",
+                    "--no-sandbox",
+                ]
+            )
+            context = browser.new_context(
+                user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                viewport={"width": 1280, "height": 800},
+            )
+            context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
             page = context.new_page()
 
             try:
                 login(page, username, password)
                 fetch_live_data(page)
                 portfolio_data = scrape_portfolio(page)
-                
-                if portfolio_data:
+
+                if portfolio_data and portfolio_data.get("holdings"):
                     save_to_json(portfolio_data.get("summary", {}), "portfolio_summary.json")
                     save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
+                else:
+                    print("Warning: Portfolio scraping returned empty holdings. Falling back to cached portfolio.")
+                    portfolio_data = _load_cached_portfolio()
 
                 # --- NEW SIGNAL GENERATION ---
                 latest_data = load_and_prepare_data()
@@ -251,7 +274,17 @@ def main():
                                 print(f"[LIMIT REACHED] Portfolio has {portfolio_size} stocks (max {MAX_PORTFOLIO_STOCKS}). Skipping BUY {symbol}.")
                                 continue
 
+                        qty = signal.get('quantity', 0)
+                        if qty <= 0:
+                            print(f"[SKIP] {side} {symbol} qty={qty} — skipping zero-quantity order.")
+                            continue
+                        if side == 'SELL' and qty < 10:
+                            print(f"[SKIP] SELL {symbol} qty={qty} — below minimum sell threshold (10).")
+                            continue
+
                         success = trader.place_order(signal)
+                        if not success:
+                            notify_error(f"place_order failed: {side} {symbol} ({signal_type})")
                         if success:
                             save_placed_order(symbol, side, signal_type)
 

@@ -116,6 +116,40 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
 
     return df_adjusted.loc[df_adjusted.groupby('symbol')['date'].idxmax()].set_index('symbol')
 
+# --- Portfolio column helpers ---
+
+_SYMBOL_KEYS = ['Symbol', 'symbol', 'Stock Symbol', 'Script', 'Scrip']
+_QTY_KEYS    = ['CDS Total\nBalance', 'NAASA\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']
+_RATE_KEYS   = ['Average Rate', 'Avg Rate', 'Average Cost', 'Cost Price', 'Close Price\nPrice', 'LTP']
+
+def _get_holding_symbol(h):
+    for k in _SYMBOL_KEYS:
+        v = h.get(k)
+        if v:
+            return str(v).strip()
+    return None
+
+def _get_holding_qty(h):
+    for k in _QTY_KEYS:
+        v = h.get(k)
+        if v is not None and str(v).strip():
+            try:
+                return int(float(str(v).replace(',', '')))
+            except (ValueError, TypeError):
+                pass
+    return 0
+
+def _get_holding_rate(h):
+    for k in _RATE_KEYS:
+        v = h.get(k)
+        if v is not None and str(v).strip():
+            try:
+                return float(str(v).replace(',', ''))
+            except (ValueError, TypeError):
+                pass
+    return None
+
+
 # --- Core Signal Generation Logic ---
 
 def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_limit):
@@ -125,15 +159,20 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
     """
     signals = []
     swing_targets = _load_swing_targets()
-    held_symbols = {h.get('Symbol') or h.get('symbol'): h for h in portfolio.get('holdings', [])}
+    held_symbols = {}
+    for h in portfolio.get('holdings', []):
+        sym = _get_holding_symbol(h)
+        if sym:
+            held_symbols[sym] = h
 
     for symbol, row in latest_data.iterrows():
         state = states.get(symbol, {})
         is_in_live_portfolio = symbol in held_symbols
-        
+
         # --- State Reconciliation ---
-        # If state says we are in a position but we don't hold the stock, reset the state.
-        if state.get('in_position') and not is_in_live_portfolio:
+        # Only reset state if we have actual portfolio data (non-empty held_symbols).
+        # If held_symbols is empty, portfolio scraping likely failed — do NOT wipe state.
+        if state.get('in_position') and not is_in_live_portfolio and held_symbols:
             print(f"[{symbol}] State conflict: In position by state, but not in live portfolio. Resetting state.")
             states[symbol] = {}
             state = {}
@@ -145,12 +184,10 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         # Auto-seed state so exit logic applies. Entry price from NAASA "Average Rate" column.
         if is_in_live_portfolio and not state.get('in_position') and symbol not in swing_targets:
             holding = held_symbols[symbol]
-            avg_rate_str = holding.get('Average Rate', '')
-            try:
-                avg_rate = float(str(avg_rate_str).replace(',', ''))
-            except (ValueError, TypeError):
+            avg_rate = _get_holding_rate(holding)
+            if avg_rate is None:
                 avg_rate = float(row['close'])
-                print(f"[{symbol}] Orphan position: could not read 'Average Rate', using current price as entry.")
+                print(f"[{symbol}] Orphan position: could not read average rate, using current price as entry.")
             state = {
                 'in_position': True,
                 'entry_date':  (pd.to_datetime('today') - pd.Timedelta(days=10)).strftime('%Y-%m-%d'),
@@ -199,17 +236,19 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             if not state.get('half_sold') and drop_from_start <= -10 and state.get('position_count') == 1:
                 if daily_buy_count < daily_buy_limit:
                     print(f"[{symbol}] *** MR BUY (Double Down) *** price={row['close']}")
-                    current_qty = int(held_symbols.get(symbol, {}).get('Quantity', 0))
+                    current_qty = _get_holding_qty(held_symbols.get(symbol, {}))
+                    print(f"[{symbol}] Double-down qty: current={current_qty}, ordering={current_qty * 2}")
                     signals.append({
                         "side": "BUY", "symbol": symbol, "price": row['close'], "type": "DOUBLE_DOWN",
-                        "quantity": current_qty * 2 # Buy 2x the current holding
+                        "quantity": current_qty * 2
                     })
                 else:
                     print(f"[{symbol}] Skipping double-down buy due to daily limit.")
 
             # Exit signals (only after T+3)
             if days_held >= 3:
-                current_qty = int(held_symbols.get(symbol, {}).get('Quantity', 0))
+                current_qty = _get_holding_qty(held_symbols.get(symbol, {}))
+                print(f"[{symbol}] Exit check: current_qty={current_qty}, days_held={days_held}, profit={profit_pct:.1f}%")
 
                 # RSI overbought + price not rising → exit all
                 rsi        = float(row['rsi'])        if not pd.isna(row.get('rsi',        float('nan'))) else 50
@@ -231,22 +270,28 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     })
                     continue
 
-                # Half-sell signal
-                if not state.get('half_sold') and profit_pct >= 10:
-                    sell_qty = max(1, current_qty // 2)
+                MIN_SELL_QTY = 10
+                # Half-sell: need at least 20 shares so that half (>=10) meets minimum
+                half_sell_generated = False
+                if not state.get('half_sold') and profit_pct >= 10 and current_qty >= MIN_SELL_QTY * 2:
+                    sell_qty = current_qty // 2
                     print(f"[{symbol}] *** MR SELL (Half) *** price={row['close']}")
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": row['close'], "type": "HALF_SELL",
                         "quantity": sell_qty
                     })
+                    half_sell_generated = True
 
-                # Full-sell signal
-                if (state.get('half_sold') and profit_pct >= 20) or (row['close'] >= (row['high52'] * 0.95)):
-                    print(f"[{symbol}] *** MR SELL (Full) *** price={row['close']}")
-                    signals.append({
-                        "side": "SELL", "symbol": symbol, "price": row['close'], "type": "FULL_EXIT",
-                        "quantity": current_qty
-                    })
+                # Full-sell — skip if half-sell was generated this cycle
+                if not half_sell_generated and (
+                    (state.get('half_sold') and profit_pct >= 20) or (row['close'] >= (row['high52'] * 0.95))
+                ):
+                    if current_qty >= MIN_SELL_QTY:
+                        print(f"[{symbol}] *** MR SELL (Full) *** price={row['close']}")
+                        signals.append({
+                            "side": "SELL", "symbol": symbol, "price": row['close'], "type": "FULL_EXIT",
+                            "quantity": current_qty
+                        })
 
     return signals
 
