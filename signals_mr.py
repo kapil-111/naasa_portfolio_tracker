@@ -172,6 +172,12 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             vol_avg20     = float(row['vol_avg20']) if 'vol_avg20' in row.index and not pd.isna(row['vol_avg20']) else 0
             volume_spike  = vol_avg20 > 0 and float(row.get('volume', 0)) >= vol_avg20 * 1.5
 
+            # Skip if today is a panic/circuit-down day (falling knife)
+            prev_close_val = float(row['prev_close']) if not pd.isna(row.get('prev_close', float('nan'))) else row['close']
+            daily_return   = (row['close'] - prev_close_val) / prev_close_val if prev_close_val > 0 else 0
+            if daily_return <= -0.05:
+                continue
+
             buy_signal = row['close'] <= (row['low52'] * 1.05) and volume_spike
             if state.get('last_exit_price', 0) > 0 and row['close'] <= (state['last_exit_price'] * 0.80) and volume_spike:
                 buy_signal = True

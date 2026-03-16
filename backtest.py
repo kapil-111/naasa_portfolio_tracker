@@ -202,6 +202,7 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
             near_52wk_hi = last_close >= high_52wk * 0.95
             rsi          = float(row['rsi'])        if not pd.isna(row['rsi'])        else 50
             prev_close   = float(row['prev_close']) if not pd.isna(row['prev_close']) else last_close
+            daily_return = (last_close - prev_close) / prev_close if prev_close > 0 else 0
 
             # ── Manage existing position ──────────────────────────────────────
             if symbol in holdings:
@@ -281,7 +282,7 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
                 continue  # done with this symbol for today
 
             # ── BUY signal ────────────────────────────────────────────────────
-            if last_close <= buy_trigger and market_bullish and volume_spike:
+            if last_close <= buy_trigger and market_bullish and volume_spike and daily_return > -0.05:
                 # Re-entry gate: price must be 20% below last sell price
                 if symbol in last_sell_prices and last_close > last_sell_prices[symbol] * 0.80:
                     continue
