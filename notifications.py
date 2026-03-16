@@ -109,12 +109,6 @@ def _now_npt():
     return datetime.now(pytz.timezone("Asia/Kathmandu")).strftime("%H:%M NPT")
 
 
-def _breakdown_str(signal):
-    bd = signal.get("breakdown", {})
-    parts = [f"{k}={v:+d}" for k, v in bd.items() if v != 0]
-    return "  ".join(parts) if parts else "—"
-
-
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()

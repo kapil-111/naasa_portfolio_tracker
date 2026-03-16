@@ -1,6 +1,5 @@
 import pandas as pd
 import requests
-import time
 import os
 import sys
 from tqdm import tqdm
