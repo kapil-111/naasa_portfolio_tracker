@@ -4,6 +4,7 @@ class Trader:
     def __init__(self, page: Page, dry_run=True):
         self.page = page
         self.dry_run = dry_run
+        self.last_error = ""
 
     def place_order(self, signal):
         print(f"--- Placing Order: {signal['side']} {signal['symbol']} x {signal['quantity']} ---")
@@ -55,6 +56,7 @@ class Trader:
             return True
 
         except Exception as e:
+            self.last_error = str(e)
             print(f"Error placing order: {e}")
             self.page.screenshot(path="order_error.png")
             return False

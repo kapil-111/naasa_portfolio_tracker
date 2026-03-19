@@ -319,7 +319,7 @@ def main():
 
                         success = trader.place_order(signal)
                         if not success:
-                            notify_error(f"place_order failed: {side} {symbol} ({signal_type})")
+                            notify_error(f"place_order failed: {side} {symbol} ({signal_type})\n{trader.last_error}")
                         if success:
                             save_placed_order(symbol, side, signal_type)
 
