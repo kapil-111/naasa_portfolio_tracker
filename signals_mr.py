@@ -106,9 +106,11 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
         print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols (incl. {len(swing_target_syms)} swing-target exits)")
 
     print("Calculating 52-week highs/lows and 20-day avg volume...")
-    df_adjusted['low52']      = df_adjusted.groupby('symbol')['low'].transform(lambda x: x.rolling(252, min_periods=126).min())
-    df_adjusted['high52']     = df_adjusted.groupby('symbol')['high'].transform(lambda x: x.rolling(252, min_periods=126).max())
-    df_adjusted['vol_avg20']  = df_adjusted.groupby('symbol')['volume'].transform(lambda x: x.rolling(20, min_periods=5).mean())
+    # Shift by 1 so metrics are based on confirmed previous-day data only,
+    # not today's partial intraday candle (avoids false signals from intraday dips).
+    df_adjusted['low52']      = df_adjusted.groupby('symbol')['low'].transform(lambda x: x.rolling(252, min_periods=126).min().shift(1))
+    df_adjusted['high52']     = df_adjusted.groupby('symbol')['high'].transform(lambda x: x.rolling(252, min_periods=126).max().shift(1))
+    df_adjusted['vol_avg20']  = df_adjusted.groupby('symbol')['volume'].transform(lambda x: x.rolling(20, min_periods=5).mean().shift(1))
     df_adjusted['rsi']        = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_rsi(x, 14))
     df_adjusted['prev_close'] = df_adjusted.groupby('symbol')['close'].shift(1)
     df_adjusted.dropna(subset=['low52', 'high52'], inplace=True)
