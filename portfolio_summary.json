@@ -1,3 +1,1 @@
-{
-    "error": "Locator.inner_text: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\".TotalAmountasofCP\")\n"
-}
+{}
