@@ -36,14 +36,12 @@
         "trades": 0
     },
     "NABIL": {
-        "in_position": false,
-        "entry_date": null,
-        "entry_price": 0,
-        "initial_entry": 0,
+        "in_position": true,
+        "entry_date": "2026-03-12",
+        "entry_price": 535.2,
+        "initial_entry": 535.2,
         "half_sold": false,
-        "position_count": 0,
-        "trades": 1,
-        "last_exit_price": 544.0
+        "position_count": 1
     },
     "NLIC": {
         "in_position": true,
