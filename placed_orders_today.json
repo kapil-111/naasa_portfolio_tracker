@@ -1,20 +1,15 @@
 {
-    "date": "2026-03-16",
+    "date": "2026-03-22",
     "orders": [
         {
-            "symbol": "BNHC",
-            "side": "BUY",
-            "type": "DOUBLE_DOWN"
-        },
-        {
-            "symbol": "HDL",
-            "side": "BUY",
-            "type": "DOUBLE_DOWN"
-        },
-        {
             "symbol": "NABIL",
-            "side": "BUY",
-            "type": "DOUBLE_DOWN"
+            "side": "SELL",
+            "type": "FULL_EXIT"
+        },
+        {
+            "symbol": "NLIC",
+            "side": "SELL",
+            "type": "HALF_SELL"
         }
     ]
 }
