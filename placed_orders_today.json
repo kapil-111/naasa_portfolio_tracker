@@ -10,6 +10,21 @@
             "symbol": "NLIC",
             "side": "SELL",
             "type": "HALF_SELL"
+        },
+        {
+            "symbol": "MSHL",
+            "side": "BUY",
+            "type": "INITIAL"
+        },
+        {
+            "symbol": "NLIC",
+            "side": "SELL",
+            "type": "FULL_EXIT"
+        },
+        {
+            "symbol": "NMB",
+            "side": "SELL",
+            "type": "FULL_EXIT"
         }
     ]
 }

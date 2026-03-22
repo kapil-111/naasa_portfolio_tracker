@@ -44,22 +44,24 @@
         "position_count": 1
     },
     "NLIC": {
-        "in_position": true,
-        "entry_date": "2026-03-05",
-        "entry_price": 758.5183,
-        "initial_entry": 758.5183,
-        "half_sold": true,
-        "position_count": 1,
-        "trades": 0
+        "in_position": false,
+        "entry_date": null,
+        "entry_price": 0,
+        "initial_entry": 0,
+        "half_sold": false,
+        "position_count": 0,
+        "trades": 1,
+        "last_exit_price": 847.0
     },
     "NMB": {
-        "in_position": true,
-        "entry_date": "2026-03-05",
-        "entry_price": 258.0966,
-        "initial_entry": 258.0966,
+        "in_position": false,
+        "entry_date": null,
+        "entry_price": 0,
+        "initial_entry": 0,
         "half_sold": false,
-        "position_count": 1,
-        "trades": 0
+        "position_count": 0,
+        "trades": 1,
+        "last_exit_price": 270.1
     },
     "SAHAS": {
         "in_position": true,
@@ -78,5 +80,14 @@
         "initial_entry": 870.1,
         "half_sold": false,
         "position_count": 1
+    },
+    "MSHL": {
+        "in_position": true,
+        "half_sold": false,
+        "initial_entry": 802.0,
+        "entry_price": 802.0,
+        "entry_date": "2026-03-22",
+        "position_count": 1,
+        "trades": 0
     }
 }
