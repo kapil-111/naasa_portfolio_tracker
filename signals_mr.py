@@ -132,22 +132,23 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
         print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols (incl. {len(swing_target_syms)} swing-target exits)")
 
     print("Calculating Fortress indicators (EMA9, EMA21, ADX, RSI, volume)...")
-    # All indicators shifted by 1 — based on confirmed previous-day data,
-    # not today's partial intraday candle.
-    df_adjusted['ema9']       = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_ema(x, 9))
-    df_adjusted['ema21']      = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_ema(x, 21))
-    df_adjusted['prev_ema9']  = df_adjusted.groupby('symbol')['ema9'].shift(1)
-    df_adjusted['prev_ema21'] = df_adjusted.groupby('symbol')['ema21'].shift(1)
-    df_adjusted['rsi']        = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_rsi(x, 14))
-    df_adjusted['vol_avg20']  = df_adjusted.groupby('symbol')['volume'].transform(
-                                    lambda x: x.rolling(20, min_periods=5).mean().shift(1))
+    # All indicators are shifted by 1 so they are based on the last CLOSED candle only.
+    # This means during live market hours, today's partial candle does NOT affect signals —
+    # the bot always acts on yesterday's confirmed data.
+    df_adjusted['ema9']        = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_ema(x, 9).shift(1))
+    df_adjusted['ema21']       = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_ema(x, 21).shift(1))
+    df_adjusted['prev_ema9']   = df_adjusted.groupby('symbol')['ema9'].shift(1)
+    df_adjusted['prev_ema21']  = df_adjusted.groupby('symbol')['ema21'].shift(1)
+    df_adjusted['rsi']         = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_rsi(x, 14).shift(1))
+    df_adjusted['vol_avg20']   = df_adjusted.groupby('symbol')['volume'].transform(
+                                     lambda x: x.rolling(20, min_periods=5).mean().shift(1))
     df_adjusted['prev_volume'] = df_adjusted.groupby('symbol')['volume'].shift(1)
-    df_adjusted['prev_close'] = df_adjusted.groupby('symbol')['close'].shift(1)
+    df_adjusted['prev_close']  = df_adjusted.groupby('symbol')['close'].shift(1)
 
-    # ADX per symbol
+    # ADX per symbol — also shifted by 1
     adx_parts = []
     for sym, grp in df_adjusted.groupby('symbol'):
-        adx_vals = _calc_adx(grp['high'], grp['low'], grp['close'])
+        adx_vals = _calc_adx(grp['high'], grp['low'], grp['close']).shift(1)
         adx_parts.append(pd.Series(adx_vals.values, index=grp.index, name='adx'))
     df_adjusted['adx'] = pd.concat(adx_parts).reindex(df_adjusted.index)
 
