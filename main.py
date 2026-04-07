@@ -23,6 +23,7 @@ from notifications import (
     notify_error,
     notify_cycle_summary,
     notify_market_close,
+    notify_premarket_report,
 )
 
 from datetime import datetime, time as dt_time
@@ -263,8 +264,7 @@ def main():
                     states = load_states()
                     signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99)
                     print(f"Generated {len(signals)} potential signals for next open.")
-                    if signals:
-                        notify_signals(signals)
+                    notify_premarket_report(portfolio_data, available_fund, signals)
             except Exception as e:
                 print(f"Analysis cycle error: {e}")
                 notify_error(e)

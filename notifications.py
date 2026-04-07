@@ -102,6 +102,61 @@ def notify_cycle_summary(signals, orders_placed, next_in_seconds):
     )
 
 
+def notify_premarket_report(portfolio_data, available_fund, signals):
+    """Send morning report: holdings, available fund, and today's buy/sell signals."""
+    lines = [f"📋 *Morning Report — {_now_npt()}*\n"]
+
+    # Portfolio holdings
+    holdings = portfolio_data.get("holdings", []) if portfolio_data else []
+    if holdings:
+        lines.append(f"*Holdings ({len(holdings)} stocks):*")
+        for h in holdings:
+            sym = None
+            qty = None
+            rate = None
+            for k in ['Symbol', 'symbol', 'Stock Symbol', 'Script', 'Scrip']:
+                if h.get(k):
+                    sym = str(h[k]).strip()
+                    break
+            for k in ['CDS Total\nBalance', 'NAASA\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']:
+                if h.get(k) is not None and str(h.get(k)).strip():
+                    try:
+                        qty = int(float(str(h[k]).replace(',', '')))
+                        break
+                    except (ValueError, TypeError):
+                        pass
+            for k in ['Average Rate', 'Avg Rate', 'Average Cost', 'Cost Price', 'LTP']:
+                if h.get(k) is not None and str(h.get(k)).strip():
+                    try:
+                        rate = float(str(h[k]).replace(',', ''))
+                        break
+                    except (ValueError, TypeError):
+                        pass
+            if sym:
+                rate_str = f"  avg={rate:,.2f}" if rate else ""
+                lines.append(f"  • *{sym}* × {qty or '?'}{rate_str}")
+    else:
+        lines.append("*Holdings:* None")
+
+    # Available fund
+    fund_str = f"NPR {available_fund:,.2f}" if available_fund is not None else "N/A"
+    lines.append(f"\n*Available Fund:* {fund_str}")
+
+    # Signals
+    buys  = [s for s in signals if s["side"] == "BUY"]
+    sells = [s for s in signals if s["side"] == "SELL"]
+    if buys or sells:
+        lines.append(f"\n*Signals for today:*")
+        for s in buys:
+            lines.append(f"  🟢 BUY *{s['symbol']}* qty={s.get('quantity','?')} @{s['price']:.2f}")
+        for s in sells:
+            lines.append(f"  🔴 SELL *{s['symbol']}* ({s.get('type','?')}) qty={s.get('quantity','?')}  P&L={s.get('profit_pct',0):+.1f}%")
+    else:
+        lines.append("\n*Signals:* None for today")
+
+    _tg_send("\n".join(lines))
+
+
 def notify_market_close(daily_orders):
     lines = [f"🔴 *Market Closed — {_now_npt()}*\n"]
     if daily_orders:
