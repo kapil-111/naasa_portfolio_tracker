@@ -145,7 +145,6 @@ def main():
     _required = {
         "DRY_RUN":               os.getenv("DRY_RUN"),
         "POLL_INTERVAL":         os.getenv("POLL_INTERVAL"),
-        "SLEEP_INTERVAL_CLOSED": os.getenv("SLEEP_INTERVAL_CLOSED"),
         "RUN_ONCE":              os.getenv("RUN_ONCE"),
         "MAX_DAILY_BUYS":        os.getenv("MAX_DAILY_BUYS"),
         "MAX_PORTFOLIO_STOCKS":  os.getenv("MAX_PORTFOLIO_STOCKS"),
@@ -158,7 +157,6 @@ def main():
 
     DRY_RUN               = _required["DRY_RUN"].lower() == "true"
     POLL_INTERVAL         = int(_required["POLL_INTERVAL"])
-    SLEEP_INTERVAL_CLOSED = int(_required["SLEEP_INTERVAL_CLOSED"])
     RUN_ONCE              = _required["RUN_ONCE"].lower() == "true"
     MAX_DAILY_BUYS        = int(_required["MAX_DAILY_BUYS"])
     MAX_PORTFOLIO_STOCKS  = int(_required["MAX_PORTFOLIO_STOCKS"])
@@ -184,52 +182,8 @@ def main():
 
         _fetch_chukul_data()
 
-        # Run analysis cycle when market is closed
-        if not open_status:
-            print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}. Running analysis-only cycle...")
-            try:
-                # Scrape live portfolio even when market is closed
-                with sync_playwright() as p:
-                    browser = p.chromium.launch(
-                        headless=True,
-                        args=["--disable-blink-features=AutomationControlled", "--no-sandbox"]
-                    )
-                    context = browser.new_context(
-                        user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-                        viewport={"width": 1280, "height": 800},
-                    )
-                    context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-                    page = context.new_page()
-                    login(page, username, password)
-                    portfolio_data = scrape_portfolio(page)
-                    available_fund = scrape_available_fund(page)
-                    if portfolio_data and portfolio_data.get("holdings"):
-                        save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
-                    else:
-                        portfolio_data = _load_cached_portfolio()
-                    browser.close()
-
-                holdings_count = len(portfolio_data.get("holdings", []))
-                fund_str = f"NPR {available_fund:,.2f}" if available_fund is not None else "N/A"
-                print(f"Portfolio: {holdings_count} holdings | Fund: {fund_str}")
-
-                latest_data = load_and_prepare_data()
-                if latest_data is not None:
-                    states = load_states()
-                    signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99)
-                    print(f"Generated {len(signals)} potential signals for next open.")
-                    if signals:
-                        notify_signals(signals)
-            except Exception as e:
-                print(f"Analysis cycle error: {e}")
-                notify_error(e)
-
-            if RUN_ONCE: break
-            time.sleep(SLEEP_INTERVAL_CLOSED)
-            continue
-
-        # --- Market OPEN: full trading cycle ---
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] Market is OPEN. Starting trading cycle...")
+        # Full trading cycle — NaasaX supports order placement when market is closed
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}. Starting trading cycle...")
 
         if market_open_notified_date != today_str:
             notify_market_open(DRY_RUN)
