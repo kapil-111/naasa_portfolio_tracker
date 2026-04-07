@@ -607,6 +607,162 @@ def run_momentum_backtest(df, initial_capital, buy_qty, take_profit_pct, use_mar
     return cash, trades
 
 
+# ── Fortress Signal Strategy (adapted from AlgoTrader skill for NEPSE daily bars) ──
+# Adapted from: ~/.claude/skills/algotrader/KNOWLEDGE.md § 9.3
+#
+# BUY  : EMA9 > EMA21 (trend) AND ADX > 25 (strength) AND RSI in [45,65] (momentum zone)
+#        AND prev_volume >= vol_avg20 * 1.5 (volume surge) AND price > EMA21 (above trend MA)
+#        AND daily_return > -0.05 (not a panic day)
+# SELL : Take profit at +take_profit_pct% OR stop loss at -10% OR RSI > 75 (overbought)
+#        OR EMA9 crosses below EMA21 (trend reversal)
+
+def run_fortress_backtest(df, initial_capital, buy_qty, take_profit_pct=20.0,
+                          use_market_filter=False, daily_buy_limit=2,
+                          rsi_min=45, rsi_max=65, adx_min=25):
+    """
+    Fortress Signal Strategy (NEPSE positional adaptation)
+    -------------------------------------------------------
+    BUY  : EMA9 > EMA21 AND ADX > adx_min AND RSI in [rsi_min, rsi_max]
+           AND volume >= 1.5x 20-day avg AND price > EMA21
+    SELL : TP at +take_profit_pct% OR SL at -10% OR RSI > 75 OR EMA9 < EMA21
+    """
+    print("Pre-calculating Fortress indicators (EMA9, EMA21, ADX, RSI, Volume)...")
+    df = df.copy()
+    df['ema9']        = df.groupby('symbol')['close'].transform(lambda x: calc_ema(x, 9))
+    df['ema21']       = df.groupby('symbol')['close'].transform(lambda x: calc_ema(x, 21))
+    df['rsi']         = df.groupby('symbol')['close'].transform(lambda x: calc_rsi(x, 14))
+    df['prev_rsi']    = df.groupby('symbol')['rsi'].shift(1)
+    df['vol_avg20']   = df.groupby('symbol')['volume'].transform(
+                            lambda x: x.rolling(20, min_periods=5).mean().shift(1))
+    df['prev_volume'] = df.groupby('symbol')['volume'].shift(1)
+    df['prev_close']  = df.groupby('symbol')['close'].shift(1)
+    df['prev_ema9']   = df.groupby('symbol')['ema9'].shift(1)
+    df['prev_ema21']  = df.groupby('symbol')['ema21'].shift(1)
+
+    # ADX computed per symbol
+    adx_parts = []
+    for sym, grp in df.groupby('symbol'):
+        idx = grp.index
+        adx_vals, _, _ = calc_adx(grp['high'], grp['low'], grp['close'])
+        adx_parts.append(pd.Series(adx_vals.values, index=idx))
+    df['adx'] = pd.concat(adx_parts).reindex(df.index)
+    print("Pre-calculation complete.")
+
+    dates    = sorted(df["date"].unique())
+    cash     = float(initial_capital)
+    holdings = {}
+    trades   = []
+    nepse_trend = _load_nepse_index() if use_market_filter else {}
+
+    for i, date in enumerate(dates):
+        if i < 21:  # Need at least 21 bars for EMA21
+            continue
+
+        market_bullish = nepse_trend.get(date, True) if use_market_filter else True
+        daily_df       = df[df["date"] == date].copy()
+        daily_buys     = 0
+
+        for _, row in daily_df.iterrows():
+            symbol     = row['symbol']
+            last_close = float(row['close'])
+            if last_close < 100:
+                continue
+
+            ema9       = float(row['ema9'])       if not pd.isna(row['ema9'])       else 0
+            ema21      = float(row['ema21'])      if not pd.isna(row['ema21'])      else 0
+            prev_ema9  = float(row['prev_ema9'])  if not pd.isna(row['prev_ema9'])  else 0
+            prev_ema21 = float(row['prev_ema21']) if not pd.isna(row['prev_ema21']) else 0
+            adx        = float(row['adx'])        if not pd.isna(row['adx'])        else 0
+            rsi        = float(row['rsi'])        if not pd.isna(row['rsi'])        else 50
+            vol_avg20  = float(row['vol_avg20'])  if not pd.isna(row['vol_avg20'])  else 0
+            prev_vol   = float(row['prev_volume'])if not pd.isna(row['prev_volume'])else 0
+            prev_close = float(row['prev_close']) if not pd.isna(row['prev_close']) else last_close
+            daily_return = (last_close - prev_close) / prev_close if prev_close > 0 else 0
+
+            volume_surge   = vol_avg20 > 0 and prev_vol >= vol_avg20 * 1.5
+            ema_bullish    = ema9 > ema21
+            ema_cross_down = prev_ema9 >= prev_ema21 and ema9 < ema21  # bearish crossover
+
+            # ── Manage existing position ──────────────────────────────
+            if symbol in holdings:
+                pos       = holdings[symbol]
+                hold_days = (date - pos["buy_date"]).days
+                change    = (last_close - pos["avg_price"]) / pos["avg_price"] * 100
+
+                take_profit = change >= take_profit_pct
+                stop_loss   = change <= -10
+                overbought  = rsi > 75
+                trend_exit  = ema_cross_down
+
+                if take_profit or stop_loss or overbought or trend_exit:
+                    reason = ("TP({:+.1f}%)".format(change) if take_profit
+                              else "SL(-10%)"   if stop_loss
+                              else "RSI-OB"     if overbought
+                              else "EMA-CROSS")
+                    proceeds = pos["qty"] * last_close
+                    cash    += proceeds
+                    pnl      = proceeds - pos["qty"] * pos["avg_price"]
+                    holdings.pop(symbol)
+                    trades.append({
+                        "symbol": symbol, "side": reason, "date": date,
+                        "buy_date": pos["buy_date"],
+                        "price": last_close, "qty": pos["qty"], "pnl": pnl,
+                        "avg_price": pos["avg_price"],
+                        "pnl_pct": pnl / (pos["qty"] * pos["avg_price"]) * 100,
+                        "hold_days": hold_days
+                    })
+                continue
+
+            # ── BUY signal (Fortress conditions) ─────────────────────
+            if daily_buys >= daily_buy_limit:
+                continue
+
+            fortress_buy = (
+                market_bullish          and
+                ema_bullish             and   # EMA9 > EMA21 (trend up)
+                adx > adx_min           and   # ADX > 25 (strong trend)
+                rsi_min <= rsi <= rsi_max and  # RSI in momentum zone
+                volume_surge            and   # Volume confirmation
+                last_close > ema21      and   # Price above trend MA
+                daily_return > -0.05          # Not a panic day
+            )
+
+            if fortress_buy:
+                cost = buy_qty * last_close
+                if cash >= cost:
+                    cash -= cost
+                    daily_buys += 1
+                    holdings[symbol] = {
+                        "qty": buy_qty, "avg_price": last_close,
+                        "buy_date": date, "entry_price": last_close,
+                    }
+                    trades.append({
+                        "symbol": symbol, "side": "BUY", "date": date,
+                        "buy_date": date, "price": last_close, "qty": buy_qty,
+                        "pnl": 0, "avg_price": last_close, "pnl_pct": 0, "hold_days": 0
+                    })
+
+    # Close remaining open positions at last price
+    last_date = dates[-1]
+    for symbol, pos in list(holdings.items()):
+        lp = df[df["symbol"] == symbol]["close"]
+        if not lp.empty:
+            last_price = float(lp.iloc[-1])
+            proceeds   = pos["qty"] * last_price
+            cash      += proceeds
+            pnl        = proceeds - pos["qty"] * pos["avg_price"]
+            trades.append({
+                "symbol": symbol, "side": "SELL(end)", "date": last_date,
+                "buy_date": pos["buy_date"],
+                "price": last_price, "qty": pos["qty"], "pnl": pnl,
+                "avg_price": pos["avg_price"],
+                "pnl_pct": pnl / (pos["qty"] * pos["avg_price"]) * 100,
+                "hold_days": (last_date - pos["buy_date"]).days
+            })
+
+    return cash, trades
+
+
 # ── RSI Crossover Strategy ──────────────────────────────────────────────────────
 # BUY  : RSI crosses UP through buy_threshold  (prev_rsi < threshold <= rsi)  → oversold recovery
 # SELL : RSI crosses UP through sell_threshold (prev_rsi < threshold <= rsi)  → entering overbought
@@ -790,7 +946,7 @@ def print_backtest_report(initial_capital, final_capital, trades):
 def main():
     parser = argparse.ArgumentParser(description="Backtest NAASA signal strategy")
     parser.add_argument("--strategy",       type=str,   default="mean_reversion",
-                        help="Strategy: 'mean_reversion' | 'momentum' | 'rsi_crossover'")
+                        help="Strategy: 'mean_reversion' | 'momentum' | 'rsi_crossover' | 'fortress'")
     parser.add_argument("--capital",        type=float, default=DEFAULT_CAPITAL)
     parser.add_argument("--qty",            type=int,   default=DEFAULT_BUY_QTY)
     parser.add_argument("--take-profit",    type=float, default=20.0, help="Final sell profit %% (default: 20)")
@@ -915,8 +1071,17 @@ def main():
             sell_threshold    = 67,
             use_market_filter = args.market_filter,
         )
+    elif args.strategy.lower() == "fortress":
+        print(f"Fortress params: EMA9>EMA21, ADX>25, RSI 45-65, Volume>=1.5x avg; exit: TP/{args.take_profit}%, SL-10%, RSI>75, EMA cross")
+        final_capital, trades = run_fortress_backtest(
+            df,
+            initial_capital   = args.capital,
+            buy_qty           = args.qty,
+            take_profit_pct   = args.take_profit,
+            use_market_filter = args.market_filter,
+        )
     else:
-        print(f"Error: Unknown strategy '{args.strategy}'. Use 'mean_reversion', 'momentum', or 'rsi_crossover'.")
+        print(f"Error: Unknown strategy '{args.strategy}'. Use 'mean_reversion', 'momentum', 'rsi_crossover', or 'fortress'.")
         sys.exit(1)
 
     print_backtest_report(args.capital, final_capital, trades)
