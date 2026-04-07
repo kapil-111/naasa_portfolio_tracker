@@ -53,6 +53,25 @@ def calc_atr(high, low, close, period):
                     (low  - prev_close).abs()], axis=1).max(axis=1)
     return tr.ewm(span=period, adjust=False).mean()
 
+def calc_adx(high, low, close, period=14):
+    prev_high  = high.shift(1)
+    prev_low   = low.shift(1)
+    prev_close = close.shift(1)
+    plus_dm  = (high - prev_high).clip(lower=0)
+    minus_dm = (prev_low - low).clip(lower=0)
+    mask     = plus_dm >= minus_dm
+    plus_dm  = plus_dm.where(mask,   0.0)
+    minus_dm = minus_dm.where(~mask, 0.0)
+    tr = pd.concat([high - low,
+                    (high - prev_close).abs(),
+                    (low  - prev_close).abs()], axis=1).max(axis=1)
+    atr      = tr.ewm(span=period, adjust=False).mean()
+    plus_di  = 100 * plus_dm.ewm(span=period,  adjust=False).mean() / atr
+    minus_di = 100 * minus_dm.ewm(span=period, adjust=False).mean() / atr
+    dx  = 100 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan)
+    adx = dx.ewm(span=period, adjust=False).mean()
+    return adx, plus_di, minus_di
+
 
 # ── Price Adjustment for Corporate Actions ─────────────────────────────────────
 # Keep this utility
@@ -169,11 +188,12 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
 
     print("Pre-calculating 52-week highs and lows...")
     df['low_52wk']  = df.groupby('symbol')['low'].transform(
-        lambda x: x.rolling(252, min_periods=126).min())
+        lambda x: x.rolling(252, min_periods=126).min().shift(1))
     df['high_52wk'] = df.groupby('symbol')['high'].transform(
-        lambda x: x.rolling(252, min_periods=126).max())
+        lambda x: x.rolling(252, min_periods=126).max().shift(1))
     df['vol_avg20'] = df.groupby('symbol')['volume'].transform(
-        lambda x: x.rolling(20, min_periods=5).mean())
+        lambda x: x.rolling(20, min_periods=5).mean().shift(1))
+    df['prev_volume'] = df.groupby('symbol')['volume'].shift(1)
     df['rsi']        = df.groupby('symbol')['close'].transform(lambda x: calc_rsi(x, 14))
     df['prev_close'] = df.groupby('symbol')['close'].shift(1)
     print("Pre-calculation complete.")
@@ -189,15 +209,15 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
             last_close  = float(row['close'])
             low_52wk    = float(row['low_52wk'])
             high_52wk   = float(row['high_52wk'])
-            volume      = float(row['volume'])
-            vol_avg20   = float(row['vol_avg20']) if not pd.isna(row['vol_avg20']) else 0
+            vol_avg20    = float(row['vol_avg20'])   if not pd.isna(row['vol_avg20'])   else 0
+            prev_volume  = float(row['prev_volume']) if not pd.isna(row['prev_volume']) else 0
 
             if pd.isna(low_52wk) or pd.isna(high_52wk):
                 continue
             if last_close < 100:
                 continue
 
-            volume_spike = vol_avg20 > 0 and volume >= vol_avg20 * 1.5
+            volume_spike = vol_avg20 > 0 and prev_volume >= vol_avg20 * 1.5
             buy_trigger  = low_52wk  * 1.05
             near_52wk_hi = last_close >= high_52wk * 0.95
             rsi          = float(row['rsi'])        if not pd.isna(row['rsi'])        else 50
@@ -313,7 +333,9 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
             pnl        = proceeds - pos["qty"] * pos["avg_price"]
             trades.append({
                 "symbol": symbol, "side": "SELL(end)", "date": last_date,
+                "buy_date": pos["buy_date"],
                 "price": last_price, "qty": pos["qty"], "pnl": pnl,
+                "avg_price": pos["avg_price"],
                 "pnl_pct": pnl / (pos["qty"] * pos["avg_price"]) * 100,
                 "hold_days": (last_date - pos["buy_date"]).days
             })
@@ -404,6 +426,253 @@ def plot_trades(df, trades):
     fig.show()
 
 
+# ── Momentum Strategy (RSI + ADX change values) ──────────────────────────────
+
+def _precompute_momentum(df):
+    print("Pre-calculating momentum indicators (ADX, RSI)...")
+    for sym, grp in df.groupby('symbol'):
+        idx = grp.index
+        adx, pdi, mdi = calc_adx(grp['high'], grp['low'], grp['close'])
+        df.loc[idx, 'adx']      = adx.values
+        df.loc[idx, 'plus_di']  = pdi.values
+        df.loc[idx, 'minus_di'] = mdi.values
+    df['rsi']         = df.groupby('symbol')['close'].transform(lambda x: calc_rsi(x, 14))
+    df['prev_rsi']    = df.groupby('symbol')['rsi'].shift(1)
+    df['adx_lag1']    = df.groupby('symbol')['adx'].shift(1)
+    df['vol_avg20']   = df.groupby('symbol')['volume'].transform(
+                            lambda x: x.rolling(20, min_periods=5).mean().shift(1))
+    df['prev_volume'] = df.groupby('symbol')['volume'].shift(1)
+    print("Pre-calculation complete.")
+
+
+def run_momentum_backtest(df, initial_capital, buy_qty, take_profit_pct, use_market_filter,
+                          rsi_low=45, rsi_high=65, adx_min=20, vol_surge_confirm=False,
+                          _precomputed=False):
+    """
+    Trend Momentum Strategy
+    -----------------------
+    BUY  : ADX > adx_min for 3 days AND +DI > -DI AND MACD crossover AND RSI in [rsi_low, rsi_high]
+           Optional: vol_surge_confirm requires prev_volume >= vol_avg20 * 1.2
+    SELL : Take profit at +take_profit_pct% OR MACD crosses below signal OR
+           RSI > 75 (overbought) OR stop loss at -10%
+    """
+    if not _precomputed:
+        _precompute_momentum(df)
+
+    dates = sorted(df["date"].unique())
+    cash  = float(initial_capital)
+    holdings = {}
+    trades   = []
+    nepse_trend     = _load_nepse_index() if use_market_filter else {}
+    daily_buy_limit = 2
+
+    for i, date in enumerate(dates):
+        if i < 33:
+            continue
+
+        market_bullish  = nepse_trend.get(date, True) if use_market_filter else True
+        daily_df        = df[df["date"] == date].copy()
+        daily_buy_count = 0
+
+        for _, row in daily_df.iterrows():
+            symbol     = row['symbol']
+            last_close = float(row['close'])
+
+            if last_close < 100:
+                continue
+
+            adx      = float(row['adx'])        if not pd.isna(row['adx'])        else 0
+            adx_lag1 = float(row['adx_lag1'])   if not pd.isna(row['adx_lag1'])   else 0
+            plus_di  = float(row['plus_di'])     if not pd.isna(row['plus_di'])    else 0
+            minus_di = float(row['minus_di'])    if not pd.isna(row['minus_di'])   else 0
+            rsi      = float(row['rsi'])         if not pd.isna(row['rsi'])        else 50
+            prev_rsi = float(row['prev_rsi'])    if not pd.isna(row['prev_rsi'])   else rsi
+            vol_avg20 = float(row['vol_avg20'])   if not pd.isna(row['vol_avg20'])   else 0
+            prev_vol  = float(row['prev_volume']) if not pd.isna(row['prev_volume']) else 0
+
+            rsi_rising = rsi > prev_rsi
+            adx_rising = adx > adx_lag1
+            adx_above  = adx > adx_min
+            vol_surge  = vol_avg20 > 0 and prev_vol >= vol_avg20 * 1.2
+
+            # ── Manage existing position ─────────────────────────────
+            if symbol in holdings:
+                pos       = holdings[symbol]
+                hold_days = (date - pos["buy_date"]).days
+                change    = (last_close - pos["avg_price"]) / pos["avg_price"] * 100
+
+                take_profit = change >= take_profit_pct
+                stop_loss   = change <= -10
+                overbought  = rsi > 75
+
+                adx_fading = adx < adx_lag1 and adx < adx_min
+                rsi_weak   = rsi < rsi_low
+
+                if take_profit or adx_fading or rsi_weak or stop_loss or overbought:
+                    reason   = (f"TP({change:+.1f}%)" if take_profit
+                                else "STOP-LOSS"       if stop_loss
+                                else "RSI-OB"          if overbought
+                                else "ADX-FADE"        if adx_fading
+                                else "RSI-WEAK")
+                    proceeds = pos["qty"] * last_close
+                    cash    += proceeds
+                    pnl      = proceeds - pos["qty"] * pos["avg_price"]
+                    holdings.pop(symbol)
+                    trades.append({
+                        "symbol": symbol, "side": reason, "date": date,
+                        "buy_date": pos["buy_date"],
+                        "price": last_close, "qty": pos["qty"], "pnl": pnl,
+                        "avg_price": pos["avg_price"],
+                        "pnl_pct": pnl / (pos["qty"] * pos["avg_price"]) * 100,
+                        "hold_days": hold_days
+                    })
+                continue
+
+            # ── BUY signal ───────────────────────────────────────────
+            if daily_buy_count >= daily_buy_limit:
+                continue
+
+            buy_signal = (
+                market_bullish         and
+                adx_above              and
+                adx_rising             and
+                rsi_rising             and
+                plus_di > minus_di     and
+                rsi_low <= rsi <= rsi_high and
+                (not vol_surge_confirm or vol_surge)
+            )
+
+            if buy_signal:
+                qty  = buy_qty
+                cost = qty * last_close
+                if cash >= cost:
+                    cash -= cost
+                    holdings[symbol] = {
+                        "qty": qty, "avg_price": last_close,
+                        "buy_date": date, "entry_price": last_close,
+                    }
+                    daily_buy_count += 1
+                    trades.append({
+                        "symbol": symbol, "side": "BUY", "date": date,
+                        "buy_date": date, "price": last_close, "qty": qty,
+                        "pnl": 0, "avg_price": last_close, "pnl_pct": 0, "hold_days": 0
+                    })
+
+    # ── Close remaining open positions at last price ─────────────────
+    last_date = dates[-1]
+    for symbol, pos in list(holdings.items()):
+        last_price_series = df[df["symbol"] == symbol]["close"]
+        if not last_price_series.empty:
+            last_price = float(last_price_series.iloc[-1])
+            proceeds   = pos["qty"] * last_price
+            cash      += proceeds
+            pnl        = proceeds - pos["qty"] * pos["avg_price"]
+            trades.append({
+                "symbol": symbol, "side": "SELL(end)", "date": last_date,
+                "buy_date": pos["buy_date"],
+                "price": last_price, "qty": pos["qty"], "pnl": pnl,
+                "avg_price": pos["avg_price"],
+                "pnl_pct": pnl / (pos["qty"] * pos["avg_price"]) * 100,
+                "hold_days": (last_date - pos["buy_date"]).days
+            })
+
+    return cash, trades
+
+
+# ── RSI Crossover Strategy ──────────────────────────────────────────────────────
+# BUY  : RSI crosses UP through buy_threshold  (prev_rsi < threshold <= rsi)  → oversold recovery
+# SELL : RSI crosses UP through sell_threshold (prev_rsi < threshold <= rsi)  → entering overbought
+
+def run_rsi_crossover_backtest(df, initial_capital, buy_qty, buy_threshold=32, sell_threshold=67,
+                                use_market_filter=False):
+    df = df.copy()
+    df["rsi"]      = df.groupby("symbol")["close"].transform(lambda x: calc_rsi(x, 14))
+    df["prev_rsi"] = df.groupby("symbol")["rsi"].shift(1)
+
+    cash     = float(initial_capital)
+    holdings = {}
+    trades   = []
+    dates    = sorted(df["date"].unique())
+
+    nepse_ema = _load_nepse_index() if use_market_filter else {}
+
+    for date in dates:
+        daily_df      = df[df["date"] == date]
+        market_bullish = True
+        if use_market_filter and date in nepse_ema:
+            e = nepse_ema[date]
+            market_bullish = e["ema9"] > e["ema21"]
+
+        for _, row in daily_df.iterrows():
+            symbol     = row["symbol"]
+            last_close = float(row["close"])
+            if last_close < 100:
+                continue
+
+            rsi      = float(row["rsi"])      if not pd.isna(row["rsi"])      else 50
+            prev_rsi = float(row["prev_rsi"]) if not pd.isna(row["prev_rsi"]) else rsi
+
+            # ── Manage existing position ─────────────────────────────
+            if symbol in holdings:
+                pos       = holdings[symbol]
+                hold_days = (date - pos["buy_date"]).days
+                change    = (last_close - pos["avg_price"]) / pos["avg_price"] * 100
+                sell_cross = prev_rsi < sell_threshold <= rsi
+                stop_loss  = change <= -10
+
+                if sell_cross or stop_loss:
+                    reason   = "RSI-SELL" if sell_cross else "STOP-LOSS"
+                    proceeds = pos["qty"] * last_close
+                    cash    += proceeds
+                    pnl      = proceeds - pos["qty"] * pos["avg_price"]
+                    holdings.pop(symbol)
+                    trades.append({
+                        "symbol": symbol, "side": reason, "date": date,
+                        "buy_date": pos["buy_date"],
+                        "price": last_close, "qty": pos["qty"], "pnl": pnl,
+                        "avg_price": pos["avg_price"],
+                        "pnl_pct": pnl / (pos["qty"] * pos["avg_price"]) * 100,
+                        "hold_days": hold_days
+                    })
+                continue
+
+            # ── BUY signal ───────────────────────────────────────────
+            buy_cross = prev_rsi < buy_threshold <= rsi
+            if market_bullish and buy_cross and symbol not in holdings:
+                cost = buy_qty * last_close
+                if cash >= cost:
+                    cash -= cost
+                    holdings[symbol] = {
+                        "qty": buy_qty, "avg_price": last_close,
+                        "buy_date": date, "entry_price": last_close,
+                    }
+                    trades.append({
+                        "symbol": symbol, "side": "BUY", "date": date,
+                        "buy_date": date, "price": last_close, "qty": buy_qty,
+                        "pnl": 0, "avg_price": last_close, "pnl_pct": 0, "hold_days": 0
+                    })
+
+    # ── Close remaining open positions at last price ─────────────────
+    last_date = dates[-1]
+    for symbol, pos in list(holdings.items()):
+        last_price_series = df[df["symbol"] == symbol]["close"]
+        if not last_price_series.empty:
+            last_price = float(last_price_series.iloc[-1])
+            proceeds   = pos["qty"] * last_price
+            cash      += proceeds
+            pnl        = proceeds - pos["qty"] * pos["avg_price"]
+            trades.append({
+                "symbol": symbol, "side": "SELL(end)", "date": last_date,
+                "buy_date": pos["buy_date"],
+                "price": last_price, "qty": pos["qty"], "pnl": pnl,
+                "avg_price": pos["avg_price"],
+                "pnl_pct": pnl / (pos["qty"] * pos["avg_price"]) * 100,
+                "hold_days": (last_date - pos["buy_date"]).days
+            })
+
+    return cash, trades
+
+
 # ── Report ─────────────────────────────────────────────────────────────────────
 
 def print_backtest_report(initial_capital, final_capital, trades):
@@ -456,6 +725,13 @@ def print_backtest_report(initial_capital, final_capital, trades):
         print(f"  Count                : {len(open_ends)}")
         print(f"  Unrealized P&L       : NPR {open_pnl:>+,.2f}")
         print(f"  In profit            : {len(open_winners)}  |  In loss: {len(open_losers)}")
+        print(f"\n  {'Symbol':<8} {'Buy Date':<12} {'Avg Price':>10} {'Last Price':>10} {'P&L':>10} {'%':>7} {'Days':>5}")
+        print("  " + "-" * 65)
+        for t in sorted(open_ends, key=lambda x: x["pnl_pct"], reverse=True):
+            buy_date = pd.Timestamp(t["buy_date"]).strftime("%Y-%m-%d")
+            print(f"  {t['symbol']:<8} {buy_date:<12} "
+                  f"{t['avg_price']:>10.2f} {t['price']:>10.2f} "
+                  f"{t['pnl']:>+10.2f} {t['pnl_pct']:>+6.1f}% {t['hold_days']:>5}d")
 
     print("=" * 60)
 
@@ -488,7 +764,7 @@ def print_backtest_report(initial_capital, final_capital, trades):
 def main():
     parser = argparse.ArgumentParser(description="Backtest NAASA signal strategy")
     parser.add_argument("--strategy",       type=str,   default="mean_reversion",
-                        help="Strategy: 'mean_reversion' (52wk H/L)") # Only mean_reversion
+                        help="Strategy: 'mean_reversion' | 'momentum' | 'rsi_crossover'")
     parser.add_argument("--capital",        type=float, default=DEFAULT_CAPITAL)
     parser.add_argument("--qty",            type=int,   default=DEFAULT_BUY_QTY)
     parser.add_argument("--take-profit",    type=float, default=20.0, help="Final sell profit %% (default: 20)")
@@ -497,6 +773,8 @@ def main():
                         help="Comma-separated symbols to test (default: all)")
     parser.add_argument("--plot",           action="store_true",
                         help="Show interactive trade chart after backtest")
+    parser.add_argument("--tune",           action="store_true",
+                        help="Run all 8 momentum parameter combinations and print comparison table")
 
     args = parser.parse_args()
 
@@ -538,7 +816,43 @@ def main():
           f"MarketFilter={mf}  Qty={args.qty}  Capital=NPR {args.capital:,.0f}")
     print("Running backtest (this may take a minute for all symbols)...")
 
-    # Only the mean_reversion strategy remains
+    if args.tune:
+        # ── Tune mode: all 8 combinations ──────────────────────────
+        combos = [
+            (rsi_l, rsi_h, adx, hist)
+            for rsi_l, rsi_h in [(45, 65), (50, 60)]
+            for adx               in [20, 25]
+            for hist              in [False, True]
+        ]
+        _precompute_momentum(df)
+        print(f"\n{'#':<3} {'RSI':^9} {'ADX':^5} {'Vol':^6} {'Buys':>5} {'Return%':>8} {'WinRate':>8} {'AvgHold':>8} {'AvgPnl':>9}")
+        print("-" * 65)
+        results = []
+        for i, (rsi_l, rsi_h, adx, vol) in enumerate(combos):
+            fc, trades = run_momentum_backtest(
+                df,
+                initial_capital   = args.capital,
+                buy_qty           = args.qty,
+                take_profit_pct   = args.take_profit,
+                use_market_filter = args.market_filter,
+                rsi_low=rsi_l, rsi_high=rsi_h, adx_min=adx,
+                vol_surge_confirm=vol, _precomputed=True,
+            )
+            BUY_SIDES = {"BUY", "DOUBLE-BUY"}
+            buys      = [t for t in trades if t["side"] in BUY_SIDES]
+            exits     = [t for t in trades if t["side"] not in BUY_SIDES and t["side"] != "SELL(end)"]
+            ret_pct   = (fc - args.capital) / args.capital * 100
+            win_rate  = (len([t for t in exits if t["pnl"] > 0]) / len(exits) * 100) if exits else 0
+            avg_hold  = np.mean([t["hold_days"] for t in exits]) if exits else 0
+            avg_pnl   = np.mean([t["pnl_pct"] for t in exits])   if exits else 0
+            vol_str   = "Y" if vol else "N"
+            print(f"{i+1:<3} {rsi_l}-{rsi_h:^6} {adx:<5} {vol_str:^6} {len(buys):>5} "
+                  f"{ret_pct:>+7.1f}% {win_rate:>7.1f}% {avg_hold:>7.1f}d {avg_pnl:>+8.1f}%")
+            results.append((i+1, rsi_l, rsi_h, adx, vol, ret_pct, win_rate, avg_hold, avg_pnl, len(buys)))
+        best = max(results, key=lambda x: x[5])
+        print(f"\nBest by return: combo #{best[0]}  RSI={best[1]}-{best[2]}  ADX={best[3]}  Vol={best[4]}  → {best[5]:+.1f}%")
+        return
+
     if args.strategy.lower() == "mean_reversion":
         print(f"Mean Reversion params: buy<=52wk_low*1.05, sell>=52wk_high*0.95")
         final_capital, trades = run_mean_reversion_backtest(
@@ -548,8 +862,27 @@ def main():
             take_profit_pct   = args.take_profit,
             use_market_filter = args.market_filter,
         )
-    else: # Fallback for incorrect strategy argument - should not be hit if default is mean_reversion
-        print("Error: Only 'mean_reversion' strategy is supported now. Exiting.")
+    elif args.strategy.lower() == "momentum":
+        print(f"Momentum params: ADX>20, +DI>-DI, MACD crossover, RSI 45-65; exit: TP/{args.take_profit}%, MACD-X-DN, RSI>75, SL-10%")
+        final_capital, trades = run_momentum_backtest(
+            df,
+            initial_capital   = args.capital,
+            buy_qty           = args.qty,
+            take_profit_pct   = args.take_profit,
+            use_market_filter = args.market_filter,
+        )
+    elif args.strategy.lower() == "rsi_crossover":
+        print(f"RSI Crossover params: buy_threshold=32, sell_threshold=67, SL=-10%")
+        final_capital, trades = run_rsi_crossover_backtest(
+            df,
+            initial_capital   = args.capital,
+            buy_qty           = args.qty,
+            buy_threshold     = 32,
+            sell_threshold    = 67,
+            use_market_filter = args.market_filter,
+        )
+    else:
+        print(f"Error: Unknown strategy '{args.strategy}'. Use 'mean_reversion', 'momentum', or 'rsi_crossover'.")
         sys.exit(1)
 
     print_backtest_report(args.capital, final_capital, trades)

@@ -111,6 +111,7 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
     df_adjusted['low52']      = df_adjusted.groupby('symbol')['low'].transform(lambda x: x.rolling(252, min_periods=126).min().shift(1))
     df_adjusted['high52']     = df_adjusted.groupby('symbol')['high'].transform(lambda x: x.rolling(252, min_periods=126).max().shift(1))
     df_adjusted['vol_avg20']  = df_adjusted.groupby('symbol')['volume'].transform(lambda x: x.rolling(20, min_periods=5).mean().shift(1))
+    df_adjusted['prev_volume'] = df_adjusted.groupby('symbol')['volume'].shift(1)
     df_adjusted['rsi']        = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_rsi(x, 14))
     df_adjusted['prev_close'] = df_adjusted.groupby('symbol')['close'].shift(1)
     df_adjusted.dropna(subset=['low52', 'high52'], inplace=True)
@@ -209,7 +210,8 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                 continue # Skip new buys if daily limit is reached
 
             vol_avg20     = float(row['vol_avg20']) if 'vol_avg20' in row.index and not pd.isna(row['vol_avg20']) else 0
-            volume_spike  = vol_avg20 > 0 and float(row.get('volume', 0)) >= vol_avg20 * 1.5
+            prev_volume   = float(row['prev_volume']) if 'prev_volume' in row.index and not pd.isna(row['prev_volume']) else 0
+            volume_spike  = vol_avg20 > 0 and prev_volume >= vol_avg20 * 1.5
 
             # Skip if today is a panic/circuit-down day (falling knife)
             prev_close_val = float(row['prev_close']) if not pd.isna(row.get('prev_close', float('nan'))) else row['close']
