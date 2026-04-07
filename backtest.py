@@ -775,15 +775,20 @@ def main():
                         help="Show interactive trade chart after backtest")
     parser.add_argument("--tune",           action="store_true",
                         help="Run all 8 momentum parameter combinations and print comparison table")
+    parser.add_argument("--data",           type=str,   default=None,
+                        help="Path to OHLCV CSV (default: chukul_data.csv, also accepts data.csv)")
 
     args = parser.parse_args()
 
-    if not os.path.exists("chukul_data.csv"):
-        print("Error: chukul_data.csv not found. Fetch historical data first.")
+    data_file = args.data or ("data.csv" if not os.path.exists("chukul_data.csv") and os.path.exists("data.csv") else "chukul_data.csv")
+    if not os.path.exists(data_file):
+        print(f"Error: {data_file} not found. Fetch historical data first.")
         sys.exit(1)
 
-    print("Loading OHLCV data...")
-    df = pd.read_csv("chukul_data.csv")
+    print(f"Loading OHLCV data from {data_file}...")
+    df = pd.read_csv(data_file)
+    # Normalize column names: data.csv uses Title case, chukul_data.csv uses lowercase
+    df.columns = [c.lower() for c in df.columns]
     if "date" in df.columns:
         df["date"] = pd.to_datetime(df["date"])
     if "symbol" not in df.columns and "stock" in df.columns:
