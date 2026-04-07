@@ -618,13 +618,16 @@ def run_momentum_backtest(df, initial_capital, buy_qty, take_profit_pct, use_mar
 
 def run_fortress_backtest(df, initial_capital, buy_qty, take_profit_pct=20.0,
                           use_market_filter=False, daily_buy_limit=2,
-                          rsi_min=45, rsi_max=65, adx_min=25):
+                          rsi_min=45, rsi_max=65, adx_min=25,
+                          min_hold_days=5, vol_surge_factor=1.5,
+                          ema_cross_confirm=2):
     """
     Fortress Signal Strategy (NEPSE positional adaptation)
     -------------------------------------------------------
     BUY  : EMA9 > EMA21 AND ADX > adx_min AND RSI in [rsi_min, rsi_max]
-           AND volume >= 1.5x 20-day avg AND price > EMA21
-    SELL : TP at +take_profit_pct% OR SL at -10% OR RSI > 75 OR EMA9 < EMA21
+           AND volume >= vol_surge_factor x 20-day avg AND price > EMA21
+    SELL : TP at +take_profit_pct% OR SL at -10% OR RSI > 75
+           OR EMA9 < EMA21 for ema_cross_confirm consecutive days (and hold_days >= min_hold_days)
     """
     print("Pre-calculating Fortress indicators (EMA9, EMA21, ADX, RSI, Volume)...")
     df = df.copy()
@@ -670,8 +673,6 @@ def run_fortress_backtest(df, initial_capital, buy_qty, take_profit_pct=20.0,
 
             ema9       = float(row['ema9'])       if not pd.isna(row['ema9'])       else 0
             ema21      = float(row['ema21'])      if not pd.isna(row['ema21'])      else 0
-            prev_ema9  = float(row['prev_ema9'])  if not pd.isna(row['prev_ema9'])  else 0
-            prev_ema21 = float(row['prev_ema21']) if not pd.isna(row['prev_ema21']) else 0
             adx        = float(row['adx'])        if not pd.isna(row['adx'])        else 0
             rsi        = float(row['rsi'])        if not pd.isna(row['rsi'])        else 50
             vol_avg20  = float(row['vol_avg20'])  if not pd.isna(row['vol_avg20'])  else 0
@@ -679,9 +680,9 @@ def run_fortress_backtest(df, initial_capital, buy_qty, take_profit_pct=20.0,
             prev_close = float(row['prev_close']) if not pd.isna(row['prev_close']) else last_close
             daily_return = (last_close - prev_close) / prev_close if prev_close > 0 else 0
 
-            volume_surge   = vol_avg20 > 0 and prev_vol >= vol_avg20 * 1.5
+            volume_surge   = vol_avg20 > 0 and prev_vol >= vol_avg20 * vol_surge_factor
             ema_bullish    = ema9 > ema21
-            ema_cross_down = prev_ema9 >= prev_ema21 and ema9 < ema21  # bearish crossover
+            ema_below      = ema9 < ema21  # EMA9 crossed below EMA21
 
             # ── Manage existing position ──────────────────────────────
             if symbol in holdings:
@@ -689,10 +690,18 @@ def run_fortress_backtest(df, initial_capital, buy_qty, take_profit_pct=20.0,
                 hold_days = (date - pos["buy_date"]).days
                 change    = (last_close - pos["avg_price"]) / pos["avg_price"] * 100
 
+                # Track consecutive days EMA9 is below EMA21
+                if ema_below:
+                    pos["ema_cross_days"] = pos.get("ema_cross_days", 0) + 1
+                else:
+                    pos["ema_cross_days"] = 0
+
                 take_profit = change >= take_profit_pct
                 stop_loss   = change <= -10
                 overbought  = rsi > 75
-                trend_exit  = ema_cross_down
+                # Only exit on EMA cross after min hold period AND confirmed for N days
+                trend_exit  = (hold_days >= min_hold_days and
+                               pos.get("ema_cross_days", 0) >= ema_cross_confirm)
 
                 if take_profit or stop_loss or overbought or trend_exit:
                     reason = ("TP({:+.1f}%)".format(change) if take_profit
@@ -961,6 +970,9 @@ def main():
                         help="Path to OHLCV CSV (default: chukul_data.csv)")
     parser.add_argument("--no-fundamental-filter", action="store_true",
                         help="Skip fundamental filter (EPS/ROE/NPL) and test all symbols")
+    parser.add_argument("--min-hold",    type=int,   default=5,   help="Fortress: min days to hold before EMA-cross exit (default: 5)")
+    parser.add_argument("--vol-factor",  type=float, default=1.5, help="Fortress: volume surge multiplier (default: 1.5)")
+    parser.add_argument("--ema-confirm", type=int,   default=2,   help="Fortress: consecutive EMA-cross days needed to exit (default: 2)")
 
     args = parser.parse_args()
 
@@ -1072,13 +1084,20 @@ def main():
             use_market_filter = args.market_filter,
         )
     elif args.strategy.lower() == "fortress":
-        print(f"Fortress params: EMA9>EMA21, ADX>25, RSI 45-65, Volume>=1.5x avg; exit: TP/{args.take_profit}%, SL-10%, RSI>75, EMA cross")
+        min_hold   = getattr(args, 'min_hold', 0)
+        vol_factor = getattr(args, 'vol_factor', 1.5)
+        ema_confirm = getattr(args, 'ema_confirm', 1)
+        print(f"Fortress params: EMA9>EMA21, ADX>25, RSI 45-65, Volume>={vol_factor}x avg; "
+              f"exit: TP/{args.take_profit}%, SL-10%, RSI>75, EMA cross (confirm={ema_confirm}, min_hold={min_hold}d)")
         final_capital, trades = run_fortress_backtest(
             df,
             initial_capital   = args.capital,
             buy_qty           = args.qty,
             take_profit_pct   = args.take_profit,
             use_market_filter = args.market_filter,
+            min_hold_days     = min_hold,
+            vol_surge_factor  = vol_factor,
+            ema_cross_confirm = ema_confirm,
         )
     else:
         print(f"Error: Unknown strategy '{args.strategy}'. Use 'mean_reversion', 'momentum', 'rsi_crossover', or 'fortress'.")
