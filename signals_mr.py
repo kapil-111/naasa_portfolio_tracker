@@ -76,20 +76,46 @@ def _calc_rsi(series, period=14):
     return 100 - (100 / (1 + rs))
 
 
+def _calc_ema(series, period):
+    return series.ewm(span=period, adjust=False).mean()
+
+
+def _calc_adx(high, low, close, period=14):
+    """Returns ADX series."""
+    prev_high  = high.shift(1)
+    prev_low   = low.shift(1)
+    prev_close = close.shift(1)
+    plus_dm  = (high - prev_high).clip(lower=0).where(
+                    (high - prev_high) > (prev_low - low), other=0)
+    minus_dm = (prev_low - low).clip(lower=0).where(
+                    (prev_low - low) > (high - prev_high), other=0)
+    tr = pd.concat([
+        high - low,
+        (high - prev_close).abs(),
+        (low  - prev_close).abs()
+    ], axis=1).max(axis=1)
+    atr      = tr.ewm(alpha=1/period, adjust=False).mean()
+    plus_di  = 100 * plus_dm.ewm(alpha=1/period, adjust=False).mean() / atr.replace(0, float('nan'))
+    minus_di = 100 * minus_dm.ewm(alpha=1/period, adjust=False).mean() / atr.replace(0, float('nan'))
+    dx       = (100 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, float('nan')))
+    adx      = dx.ewm(alpha=1/period, adjust=False).mean()
+    return adx
+
+
 def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
-    """Loads OHLCV data, adjusts for corporate actions, and calculates 52-week boundaries."""
-    print("Loading and preparing data for MR strategy...")
+    """Loads OHLCV data, adjusts for corporate actions, and calculates Fortress indicators."""
+    print("Loading and preparing data for Fortress strategy...")
     if not os.path.exists(ohlcv_file):
         print(f"Error: {ohlcv_file} not found.")
         return None
-    
+
     df = pd.read_csv(ohlcv_file)
     if "date" in df.columns:
         df["date"] = pd.to_datetime(df["date"])
     if "symbol" not in df.columns and "stock" in df.columns:
         df.rename(columns={"stock": "symbol"}, inplace=True)
     df.sort_values(["symbol", "date"], inplace=True)
-    
+
     df_adjusted = _adjust_prices(df.copy())
 
     # Fundamental filter: only trade quality stocks
@@ -105,19 +131,32 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
         df_adjusted = df_adjusted[df_adjusted["symbol"].isin(good | swing_target_syms)]
         print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols (incl. {len(swing_target_syms)} swing-target exits)")
 
-    print("Calculating 52-week highs/lows and 20-day avg volume...")
-    # Shift by 1 so metrics are based on confirmed previous-day data only,
-    # not today's partial intraday candle (avoids false signals from intraday dips).
-    df_adjusted['low52']      = df_adjusted.groupby('symbol')['low'].transform(lambda x: x.rolling(252, min_periods=126).min().shift(1))
-    df_adjusted['high52']     = df_adjusted.groupby('symbol')['high'].transform(lambda x: x.rolling(252, min_periods=126).max().shift(1))
-    df_adjusted['vol_avg20']  = df_adjusted.groupby('symbol')['volume'].transform(lambda x: x.rolling(20, min_periods=5).mean().shift(1))
-    df_adjusted['prev_volume'] = df_adjusted.groupby('symbol')['volume'].shift(1)
+    print("Calculating Fortress indicators (EMA9, EMA21, ADX, RSI, volume)...")
+    # All indicators shifted by 1 — based on confirmed previous-day data,
+    # not today's partial intraday candle.
+    df_adjusted['ema9']       = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_ema(x, 9))
+    df_adjusted['ema21']      = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_ema(x, 21))
+    df_adjusted['prev_ema9']  = df_adjusted.groupby('symbol')['ema9'].shift(1)
+    df_adjusted['prev_ema21'] = df_adjusted.groupby('symbol')['ema21'].shift(1)
     df_adjusted['rsi']        = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_rsi(x, 14))
+    df_adjusted['vol_avg20']  = df_adjusted.groupby('symbol')['volume'].transform(
+                                    lambda x: x.rolling(20, min_periods=5).mean().shift(1))
+    df_adjusted['prev_volume'] = df_adjusted.groupby('symbol')['volume'].shift(1)
     df_adjusted['prev_close'] = df_adjusted.groupby('symbol')['close'].shift(1)
-    df_adjusted.dropna(subset=['low52', 'high52'], inplace=True)
+
+    # ADX per symbol
+    adx_parts = []
+    for sym, grp in df_adjusted.groupby('symbol'):
+        adx_vals = _calc_adx(grp['high'], grp['low'], grp['close'])
+        adx_parts.append(pd.Series(adx_vals.values, index=grp.index, name='adx'))
+    df_adjusted['adx'] = pd.concat(adx_parts).reindex(df_adjusted.index)
+
     print("Data preparation complete.")
 
-    return df_adjusted.loc[df_adjusted.groupby('symbol')['date'].idxmax()].set_index('symbol')
+    # Return last 2 rows per symbol — needed to detect 2-day EMA cross confirmation on exits
+    latest2 = (df_adjusted.groupby('symbol', group_keys=False)
+                           .apply(lambda g: g.nlargest(2, 'date')))
+    return latest2
 
 # --- Portfolio column helpers ---
 
@@ -153,16 +192,33 @@ def _get_holding_rate(h):
     return None
 
 
+# Fortress Signal constants (match backtest defaults)
+FORTRESS_ADX_MIN      = 25
+FORTRESS_RSI_MIN      = 45
+FORTRESS_RSI_MAX      = 65
+FORTRESS_VOL_FACTOR   = 1.5
+FORTRESS_TP_PCT       = 20.0
+FORTRESS_SL_PCT       = -10.0
+FORTRESS_RSI_OB       = 75
+FORTRESS_MIN_HOLD     = 5    # min calendar days before EMA-cross exit allowed
+FORTRESS_EMA_CONFIRM  = 2    # consecutive days EMA9 < EMA21 needed to exit
+MIN_SELL_QTY          = 10
+
+
 # --- Core Signal Generation Logic ---
 
 def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_limit,
-                     daily_double_down_count=0, daily_double_down_limit=1):
+                     _daily_double_down_count=0, _daily_double_down_limit=1):
     """
-    Generates trading signals based on the Mean Reversion strategy.
-    Does NOT modify state; state changes are handled by the main loop after successful trades.
+    Generates trading signals based on the Fortress Signal strategy.
+    BUY  : EMA9 > EMA21 AND ADX > 25 AND RSI in [45,65] AND volume >= 1.5x avg
+           AND price > EMA21 AND not a panic day (daily return > -5%)
+    SELL : TP at +20% OR SL at -10% OR RSI > 75 OR EMA9 < EMA21 for 2 consecutive days
+           (EMA-cross exit only allowed after min 5 days held)
+           Special: cut-loss, swing target always apply regardless of hold period.
 
-    daily_buy_count / daily_buy_limit     — controls INITIAL buys only
-    daily_double_down_count / limit       — controls DOUBLE_DOWN buys separately (default max 1/day)
+    Does NOT modify state; state changes are handled by the main loop after successful trades.
+    daily_buy_count / daily_buy_limit  — controls INITIAL buys only (double-down removed)
     """
     signals = []
     swing_targets = _load_swing_targets()
@@ -172,151 +228,177 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         if sym:
             held_symbols[sym] = h
 
-    for symbol, row in latest_data.iterrows():
+    # Group latest_data by symbol — we need up to 2 rows per symbol for EMA cross confirmation
+    # latest_data may be a DataFrame with duplicate symbol index (2 rows each)
+    # Build a per-symbol dict: {symbol: [row_today, row_yesterday]} sorted descending by date
+    symbol_rows = {}
+    if 'date' in latest_data.columns:
+        for sym, grp in latest_data.groupby(latest_data.index):
+            rows = grp.sort_values('date', ascending=False)
+            symbol_rows[sym] = [rows.iloc[0], rows.iloc[1] if len(rows) > 1 else rows.iloc[0]]
+    else:
+        # fallback: single row per symbol
+        for sym, row in latest_data.iterrows():
+            symbol_rows[sym] = [row, row]
+
+    for symbol, (row, prev_row) in symbol_rows.items():
         state = states.get(symbol, {})
         is_in_live_portfolio = symbol in held_symbols
 
         # --- State Reconciliation ---
-        # Only reset state if we have actual portfolio data (non-empty held_symbols).
-        # If held_symbols is empty, portfolio scraping likely failed — do NOT wipe state.
         if state.get('in_position') and not is_in_live_portfolio and held_symbols:
-            print(f"[{symbol}] State conflict: In position by state, but not in live portfolio. Resetting state.")
+            print(f"[{symbol}] State conflict: in position by state but not in live portfolio. Resetting.")
             states[symbol] = {}
             state = {}
 
-        if row['close'] < 100:
+        if float(row['close']) < 100:
             continue
 
         # --- Orphan Position: held in portfolio but no bot state ---
-        # Auto-seed state so exit logic applies. Entry price from NAASA "Average Rate" column.
         if is_in_live_portfolio and not state.get('in_position') and symbol not in swing_targets:
             holding = held_symbols[symbol]
             avg_rate = _get_holding_rate(holding)
             if avg_rate is None:
                 avg_rate = float(row['close'])
-                print(f"[{symbol}] Orphan position: could not read average rate, using current price as entry.")
+                print(f"[{symbol}] Orphan: no average rate, using current price as entry.")
             state = {
-                'in_position': True,
-                'entry_date':  (pd.to_datetime('today') - pd.Timedelta(days=10)).strftime('%Y-%m-%d'),
-                'entry_price': avg_rate,
-                'initial_entry': avg_rate,
-                'half_sold':   False,
-                'position_count': 1,
+                'in_position':    True,
+                'entry_date':     (pd.to_datetime('today') - pd.Timedelta(days=10)).strftime('%Y-%m-%d'),
+                'entry_price':    avg_rate,
+                'initial_entry':  avg_rate,
+                'ema_cross_days': 0,
             }
             states[symbol] = state
             print(f"[{symbol}] Orphan position seeded: avg_rate={avg_rate}")
 
-        # --- Generate BUY Signals ---
+        # --- Read indicators ---
+        def _f(r, col, default=0.0):
+            v = r.get(col, float('nan')) if hasattr(r, 'get') else getattr(r, col, float('nan'))
+            return float(v) if not pd.isna(v) else default
+
+        close      = _f(row, 'close')
+        ema9       = _f(row, 'ema9')
+        ema21      = _f(row, 'ema21')
+        adx        = _f(row, 'adx')
+        rsi        = _f(row, 'rsi', 50.0)
+        vol_avg20  = _f(row, 'vol_avg20')
+        prev_vol   = _f(row, 'prev_volume')
+        prev_close = _f(row, 'prev_close', close)
+
+        prev_ema9  = _f(prev_row, 'ema9')
+        prev_ema21 = _f(prev_row, 'ema21')
+
+        ema_bullish   = ema9 > ema21
+        ema_below_now = ema9 < ema21
+        ema_below_prev = prev_ema9 < prev_ema21
+        volume_surge  = vol_avg20 > 0 and prev_vol >= vol_avg20 * FORTRESS_VOL_FACTOR
+        daily_return  = (close - prev_close) / prev_close if prev_close > 0 else 0
+
+        # --- Generate BUY Signal ---
         if not state.get('in_position'):
             if symbol in swing_targets:
-                continue  # Swing-target stocks are exit-only — never buy
+                continue
             if daily_buy_count >= daily_buy_limit:
-                continue # Skip new buys if daily limit is reached
-
-            vol_avg20     = float(row['vol_avg20']) if 'vol_avg20' in row.index and not pd.isna(row['vol_avg20']) else 0
-            prev_volume   = float(row['prev_volume']) if 'prev_volume' in row.index and not pd.isna(row['prev_volume']) else 0
-            volume_spike  = vol_avg20 > 0 and prev_volume >= vol_avg20 * 1.5
-
-            # Skip if today is a panic/circuit-down day (falling knife)
-            prev_close_val = float(row['prev_close']) if not pd.isna(row.get('prev_close', float('nan'))) else row['close']
-            daily_return   = (row['close'] - prev_close_val) / prev_close_val if prev_close_val > 0 else 0
-            if daily_return <= -0.05:
                 continue
 
-            buy_signal = row['close'] <= (row['low52'] * 1.05) and volume_spike
-            if state.get('last_exit_price', 0) > 0 and row['close'] <= (state['last_exit_price'] * 0.80) and volume_spike:
-                buy_signal = True
+            fortress_buy = (
+                ema_bullish                              and
+                adx > FORTRESS_ADX_MIN                  and
+                FORTRESS_RSI_MIN <= rsi <= FORTRESS_RSI_MAX and
+                volume_surge                             and
+                close > ema21                            and
+                daily_return > -0.05
+            )
 
-            if buy_signal:
-                print(f"[{symbol}] *** MR BUY (Initial) *** price={row['close']}")
+            if fortress_buy:
+                print(f"[{symbol}] *** FORTRESS BUY *** price={close:.2f} EMA9={ema9:.2f} EMA21={ema21:.2f} ADX={adx:.1f} RSI={rsi:.1f}")
                 signals.append({
-                    "side": "BUY", "symbol": symbol, "price": row['close'], "type": "INITIAL",
-                    "quantity": int(os.getenv("DEFAULT_BUY_QTY"))
+                    "side": "BUY", "symbol": symbol, "price": close, "type": "INITIAL",
+                    "quantity": int(os.getenv("DEFAULT_BUY_QTY", 20)),
                 })
-        
-        # --- Generate Position Management Signals (for existing positions) ---
+                daily_buy_count += 1
+
+        # --- Generate SELL Signals (existing positions) ---
         else:
-            days_held = (pd.to_datetime('today') - pd.to_datetime(state['entry_date'])).days
-            profit_pct = (row['close'] - state['entry_price']) / state['entry_price'] * 100
-            drop_from_start = (row['close'] - state['initial_entry']) / state['initial_entry'] * 100
+            days_held      = (pd.to_datetime('today') - pd.to_datetime(state['entry_date'])).days
+            profit_pct     = (close - state['entry_price']) / state['entry_price'] * 100
+            drop_from_start = (close - state['initial_entry']) / state['initial_entry'] * 100
+            current_qty    = _get_holding_qty(held_symbols.get(symbol, {}))
 
-            # Double-down BUY signal
-            if not state.get('half_sold') and drop_from_start <= -10 and state.get('position_count') == 1:
-                if daily_double_down_count < daily_double_down_limit:
-                    current_qty = _get_holding_qty(held_symbols.get(symbol, {}))
-                    if current_qty <= 0:
-                        print(f"[{symbol}] Skipping double-down: current_qty=0 (portfolio not loaded).")
-                    else:
-                        print(f"[{symbol}] *** MR BUY (Double Down) *** price={row['close']}, ordering={current_qty}")
-                        signals.append({
-                            "side": "BUY", "symbol": symbol, "price": row['close'], "type": "DOUBLE_DOWN",
-                            "quantity": current_qty,
-                            "drop_pct": round(drop_from_start, 1), "days_held": days_held,
-                        })
-                else:
-                    print(f"[{symbol}] Skipping double-down buy: daily double-down limit reached ({daily_double_down_count}/{daily_double_down_limit}).")
+            # Update EMA cross day counter in state (for confirmation logic)
+            if ema_below_now and ema_below_prev:
+                state['ema_cross_days'] = state.get('ema_cross_days', 0) + 1
+            else:
+                state['ema_cross_days'] = 0
 
-            # Exit signals (only after T+3)
-            if days_held >= 3:
-                current_qty = _get_holding_qty(held_symbols.get(symbol, {}))
-                print(f"[{symbol}] Exit check: current_qty={current_qty}, days_held={days_held}, profit={profit_pct:.1f}%")
+            # Exit signals only after T+3
+            if days_held < 3:
+                continue
 
-                # Cut-loss: position down >25% from initial entry after 20+ days held
-                if drop_from_start <= -25 and days_held >= 20:
-                    if current_qty >= MIN_SELL_QTY:
-                        print(f"[{symbol}] *** CUT LOSS *** drop={drop_from_start:.1f}% days={days_held}")
-                        signals.append({
-                            "side": "SELL", "symbol": symbol, "price": row['close'], "type": "CUT_LOSS",
-                            "quantity": current_qty,
-                            "profit_pct": round(profit_pct, 1), "days_held": days_held,
-                            "entry_price": state['entry_price'],
-                        })
-                        continue
+            _ctx = {"profit_pct": round(profit_pct, 1), "days_held": days_held, "entry_price": state['entry_price']}
 
-                # RSI overbought + price not rising → exit all
-                rsi        = float(row['rsi'])        if not pd.isna(row.get('rsi',        float('nan'))) else 50
-                prev_close = float(row['prev_close']) if not pd.isna(row.get('prev_close', float('nan'))) else row['close']
-                _ctx = {"profit_pct": round(profit_pct, 1), "days_held": days_held, "entry_price": state['entry_price']}
+            print(f"[{symbol}] Exit check: qty={current_qty}, days={days_held}, profit={profit_pct:.1f}%, "
+                  f"ADX={adx:.1f}, RSI={rsi:.1f}, EMA9={ema9:.2f} EMA21={ema21:.2f}")
 
-                if rsi > 80 and row['close'] <= prev_close:
-                    print(f"[{symbol}] *** RSI OVERBOUGHT EXIT *** rsi={rsi:.1f} price={row['close']}")
+            # 1. Cut-loss: >25% drop from initial entry after 20+ days (hard override)
+            if drop_from_start <= -25 and days_held >= 20:
+                if current_qty >= MIN_SELL_QTY:
+                    print(f"[{symbol}] *** CUT LOSS *** drop={drop_from_start:.1f}% days={days_held}")
                     signals.append({
-                        "side": "SELL", "symbol": symbol, "price": row['close'], "type": "RSI_OB",
-                        "quantity": current_qty, **_ctx
+                        "side": "SELL", "symbol": symbol, "price": close, "type": "CUT_LOSS",
+                        "quantity": current_qty, **_ctx,
                     })
                     continue
 
-                # Swing target exit — sell all when price hits manual resistance
-                if symbol in swing_targets and row['close'] >= swing_targets[symbol]:
-                    print(f"[{symbol}] *** SWING TARGET HIT *** price={row['close']} >= target={swing_targets[symbol]}")
+            # 2. Swing target (manual resistance level, always applies)
+            if symbol in swing_targets and close >= swing_targets[symbol]:
+                print(f"[{symbol}] *** SWING TARGET HIT *** price={close} >= target={swing_targets[symbol]}")
+                if current_qty >= MIN_SELL_QTY:
                     signals.append({
-                        "side": "SELL", "symbol": symbol, "price": row['close'], "type": "SWING_TARGET",
-                        "quantity": current_qty, **_ctx
+                        "side": "SELL", "symbol": symbol, "price": close, "type": "SWING_TARGET",
+                        "quantity": current_qty, **_ctx,
                     })
                     continue
 
-                MIN_SELL_QTY = 10
-                # Half-sell: need at least 20 shares so that half (>=10) meets minimum
-                half_sell_generated = False
-                if not state.get('half_sold') and profit_pct >= 10 and current_qty >= MIN_SELL_QTY * 2:
-                    sell_qty = current_qty // 2
-                    print(f"[{symbol}] *** MR SELL (Half) *** price={row['close']}")
+            # 3. Take profit at +20%
+            if profit_pct >= FORTRESS_TP_PCT:
+                if current_qty >= MIN_SELL_QTY:
+                    print(f"[{symbol}] *** FORTRESS TP *** profit={profit_pct:.1f}%")
                     signals.append({
-                        "side": "SELL", "symbol": symbol, "price": row['close'], "type": "HALF_SELL",
-                        "quantity": sell_qty, **_ctx
+                        "side": "SELL", "symbol": symbol, "price": close, "type": "FULL_EXIT",
+                        "quantity": current_qty, **_ctx,
                     })
-                    half_sell_generated = True
+                    continue
 
-                # Full-sell — skip if half-sell was generated this cycle
-                if not half_sell_generated and (
-                    (state.get('half_sold') and profit_pct >= 20) or (row['close'] >= (row['high52'] * 0.95))
-                ):
-                    if current_qty >= MIN_SELL_QTY:
-                        print(f"[{symbol}] *** MR SELL (Full) *** price={row['close']}")
-                        signals.append({
-                            "side": "SELL", "symbol": symbol, "price": row['close'], "type": "FULL_EXIT",
-                            "quantity": current_qty, **_ctx
-                        })
+            # 4. Stop loss at -10%
+            if profit_pct <= FORTRESS_SL_PCT:
+                if current_qty >= MIN_SELL_QTY:
+                    print(f"[{symbol}] *** FORTRESS SL *** profit={profit_pct:.1f}%")
+                    signals.append({
+                        "side": "SELL", "symbol": symbol, "price": close, "type": "FULL_EXIT",
+                        "quantity": current_qty, **_ctx,
+                    })
+                    continue
+
+            # 5. RSI overbought
+            if rsi > FORTRESS_RSI_OB:
+                if current_qty >= MIN_SELL_QTY:
+                    print(f"[{symbol}] *** FORTRESS RSI OB *** rsi={rsi:.1f}")
+                    signals.append({
+                        "side": "SELL", "symbol": symbol, "price": close, "type": "RSI_OB",
+                        "quantity": current_qty, **_ctx,
+                    })
+                    continue
+
+            # 6. EMA cross exit — only after min_hold_days, confirmed for 2 consecutive days
+            if (days_held >= FORTRESS_MIN_HOLD and
+                    state.get('ema_cross_days', 0) >= FORTRESS_EMA_CONFIRM):
+                if current_qty >= MIN_SELL_QTY:
+                    print(f"[{symbol}] *** FORTRESS EMA CROSS EXIT *** EMA9={ema9:.2f} < EMA21={ema21:.2f} for {state['ema_cross_days']}d")
+                    signals.append({
+                        "side": "SELL", "symbol": symbol, "price": close, "type": "FULL_EXIT",
+                        "quantity": current_qty, **_ctx,
+                    })
 
     return signals
 
