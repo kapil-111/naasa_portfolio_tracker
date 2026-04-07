@@ -154,8 +154,13 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
     print("Data preparation complete.")
 
     # Return last 2 rows per symbol — needed to detect 2-day EMA cross confirmation on exits
-    latest2 = (df_adjusted.groupby('symbol', group_keys=False)
-                           .apply(lambda g: g.nlargest(2, 'date')))
+    # Keep symbol as a column so generate_signals can group by it
+    parts = []
+    for sym, grp in df_adjusted.groupby('symbol'):
+        top2 = grp.nlargest(2, 'date').copy()
+        top2['symbol'] = sym
+        parts.append(top2)
+    latest2 = pd.concat(parts, ignore_index=True)
     return latest2
 
 # --- Portfolio column helpers ---
@@ -228,18 +233,11 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         if sym:
             held_symbols[sym] = h
 
-    # Group latest_data by symbol — we need up to 2 rows per symbol for EMA cross confirmation
-    # latest_data may be a DataFrame with duplicate symbol index (2 rows each)
-    # Build a per-symbol dict: {symbol: [row_today, row_yesterday]} sorted descending by date
+    # Build per-symbol dict: {symbol: (row_today, row_yesterday)} sorted descending by date
     symbol_rows = {}
-    if 'date' in latest_data.columns:
-        for sym, grp in latest_data.groupby(latest_data.index):
-            rows = grp.sort_values('date', ascending=False)
-            symbol_rows[sym] = [rows.iloc[0], rows.iloc[1] if len(rows) > 1 else rows.iloc[0]]
-    else:
-        # fallback: single row per symbol
-        for sym, row in latest_data.iterrows():
-            symbol_rows[sym] = [row, row]
+    for sym, grp in latest_data.groupby('symbol'):
+        rows = grp.sort_values('date', ascending=False)
+        symbol_rows[sym] = (rows.iloc[0], rows.iloc[1] if len(rows) > 1 else rows.iloc[0])
 
     for symbol, (row, prev_row) in symbol_rows.items():
         state = states.get(symbol, {})
