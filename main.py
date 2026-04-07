@@ -75,6 +75,52 @@ def load_placed_orders():
     return {"date": today_str, "orders": []}
 
 
+def _get_live_ltp(symbol):
+    """Return live LTP for symbol from live_market_data.csv, or None if unavailable."""
+    try:
+        if os.path.exists("live_market_data.csv"):
+            ldf = pd.read_csv("live_market_data.csv")
+            row = ldf[ldf["Symbol"] == symbol]
+            if not row.empty:
+                return float(str(row.iloc[0]["LTP"]).replace(",", ""))
+    except Exception:
+        pass
+    return None
+
+
+def _adjust_order_price(signal):
+    """
+    Adjust order price using live LTP before placement:
+    - BUY : live price falling (negative day) → place 1% below LTP for better fill
+    - SELL: live price rising (positive day)  → place 1% above LTP for better fill
+    Returns a copy of signal with adjusted price (original unchanged).
+    """
+    symbol    = signal['symbol']
+    side      = signal['side'].upper()
+    base_price = float(signal['price'])
+
+    ltp = _get_live_ltp(symbol)
+    if ltp is None or ltp <= 0:
+        return signal  # no live data — use signal price as-is
+
+    daily_chg = (ltp - base_price) / base_price if base_price > 0 else 0
+
+    if side == 'BUY' and daily_chg < 0:
+        # Price falling today — place order 1% below LTP to get a better entry
+        adjusted = round(ltp * 0.99, 2)
+        print(f"[PRICE ADJ] BUY {symbol}: LTP={ltp:.2f} (day {daily_chg:+.1%}) → order @ {adjusted:.2f}")
+    elif side == 'SELL' and daily_chg > 0:
+        # Price rising today — place order 1% above LTP to get a better exit
+        adjusted = round(ltp * 1.01, 2)
+        print(f"[PRICE ADJ] SELL {symbol}: LTP={ltp:.2f} (day {daily_chg:+.1%}) → order @ {adjusted:.2f}")
+    else:
+        return signal  # no favourable condition — keep original price
+
+    adjusted_signal = dict(signal)
+    adjusted_signal['price'] = adjusted
+    return adjusted_signal
+
+
 def save_placed_order(symbol, side, signal_type):
     """Saves a symbol and its side to the placed orders list."""
     filename = "placed_orders_today.json"
@@ -313,12 +359,14 @@ def main():
                             print(f"[SKIP] SELL {symbol} qty={qty} — below minimum sell threshold (10).")
                             continue
                         if side == 'BUY' and available_fund is not None:
-                            order_cost = signal['price'] * qty
+                            ltp_check = _get_live_ltp(symbol) or signal['price']
+                            order_cost = ltp_check * qty
                             if order_cost > available_fund:
                                 print(f"[SKIP] BUY {symbol} qty={qty} cost={order_cost:,.0f} > fund={available_fund:,.0f}.")
                                 continue
 
-                        success = trader.place_order(signal)
+                        order_signal = _adjust_order_price(signal)
+                        success = trader.place_order(order_signal)
                         if not success:
                             notify_error(f"place_order failed: {side} {symbol} ({signal_type})\n{trader.last_error}")
                         if success:
@@ -329,7 +377,7 @@ def main():
 
                             # --- UPDATE STATE on successful trade ---
                             symbol_state = states.get(symbol, {})
-                            new_symbol_state = update_state_for_trade(symbol_state, signal, signal['price'], signal['quantity'])
+                            new_symbol_state = update_state_for_trade(symbol_state, signal, order_signal['price'], signal['quantity'])
                             states[symbol] = new_symbol_state
 
                             placed_orders = load_placed_orders() # Refresh placed orders
