@@ -63,7 +63,7 @@ def update_state_for_trade(state, signal, current_price, quantity):
             new_state['half_sold'] = True
             # Note: P&L tracking is not part of state management for live trading.
             # We just record that the partial sale happened.
-        # This is a full sell
+        # This is a full sell (including cut-loss)
         else:
             print(f"[{signal['symbol']}] STATE: Exiting full position.")
             new_state['in_position'] = False

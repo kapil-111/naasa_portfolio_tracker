@@ -147,8 +147,9 @@ def _get(url, params=None):
         resp = requests.get(url, headers=HEADERS, params=params, timeout=15)
         if resp.status_code == 200:
             return resp.json()
-    except Exception:
-        pass
+        print(f"[chukul] GET {url} returned HTTP {resp.status_code}")
+    except Exception as e:
+        print(f"[chukul] GET {url} error: {e}")
     return None
 
 

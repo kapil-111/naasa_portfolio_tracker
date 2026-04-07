@@ -155,10 +155,14 @@ def _get_holding_rate(h):
 
 # --- Core Signal Generation Logic ---
 
-def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_limit):
+def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_limit,
+                     daily_double_down_count=0, daily_double_down_limit=1):
     """
     Generates trading signals based on the Mean Reversion strategy.
     Does NOT modify state; state changes are handled by the main loop after successful trades.
+
+    daily_buy_count / daily_buy_limit     — controls INITIAL buys only
+    daily_double_down_count / limit       — controls DOUBLE_DOWN buys separately (default max 1/day)
     """
     signals = []
     swing_targets = _load_swing_targets()
@@ -238,7 +242,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
 
             # Double-down BUY signal
             if not state.get('half_sold') and drop_from_start <= -10 and state.get('position_count') == 1:
-                if daily_buy_count < daily_buy_limit:
+                if daily_double_down_count < daily_double_down_limit:
                     current_qty = _get_holding_qty(held_symbols.get(symbol, {}))
                     if current_qty <= 0:
                         print(f"[{symbol}] Skipping double-down: current_qty=0 (portfolio not loaded).")
@@ -250,12 +254,24 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                             "drop_pct": round(drop_from_start, 1), "days_held": days_held,
                         })
                 else:
-                    print(f"[{symbol}] Skipping double-down buy due to daily limit.")
+                    print(f"[{symbol}] Skipping double-down buy: daily double-down limit reached ({daily_double_down_count}/{daily_double_down_limit}).")
 
             # Exit signals (only after T+3)
             if days_held >= 3:
                 current_qty = _get_holding_qty(held_symbols.get(symbol, {}))
                 print(f"[{symbol}] Exit check: current_qty={current_qty}, days_held={days_held}, profit={profit_pct:.1f}%")
+
+                # Cut-loss: position down >25% from initial entry after 20+ days held
+                if drop_from_start <= -25 and days_held >= 20:
+                    if current_qty >= MIN_SELL_QTY:
+                        print(f"[{symbol}] *** CUT LOSS *** drop={drop_from_start:.1f}% days={days_held}")
+                        signals.append({
+                            "side": "SELL", "symbol": symbol, "price": row['close'], "type": "CUT_LOSS",
+                            "quantity": current_qty,
+                            "profit_pct": round(profit_pct, 1), "days_held": days_held,
+                            "entry_price": state['entry_price'],
+                        })
+                        continue
 
                 # RSI overbought + price not rising → exit all
                 rsi        = float(row['rsi'])        if not pd.isna(row.get('rsi',        float('nan'))) else 50

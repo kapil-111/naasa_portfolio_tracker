@@ -272,9 +272,11 @@ def main():
                 latest_data = load_and_prepare_data()
                 if latest_data is not None:
                     placed_orders = load_placed_orders()
-                    buy_count = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY')
-                    
-                    signals = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS)
+                    buy_count        = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY' and o.get('type') == 'INITIAL')
+                    double_down_count = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY' and o.get('type') == 'DOUBLE_DOWN')
+
+                    signals = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS,
+                                                  daily_double_down_count=double_down_count, daily_double_down_limit=1)
                     print(f"Generated {len(signals)} signals.")
                     if signals:
                         notify_signals(signals)
