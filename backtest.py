@@ -12,7 +12,7 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-import requests # Need this for _load_nepse_index
+from chukul_client import _get as _chukul_get
 try:
     import plotly.graph_objects as go
     PLOTLY_AVAILABLE = True
@@ -147,9 +147,9 @@ def _adjust_prices(df, actions_file="chukul_corporate_actions.csv"):
 def _load_nepse_index():
     """Fetch NEPSE index history. Bullish = triple EMA alignment (EMA9 > EMA21 > EMA50)."""
     try:
-        r = requests.get("https://chukul.com/api/data/historydata/?symbol=NEPSE",
-                         headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
-        data = r.json()
+        data = _chukul_get("https://chukul.com/api/data/historydata/", params={"symbol": "NEPSE"})
+        if not data:
+            raise ValueError("Empty response from NEPSE API")
         df = pd.DataFrame(data)
         df["date"]  = pd.to_datetime(df["date"])
         df["close"] = pd.to_numeric(df["close"], errors="coerce")
@@ -169,48 +169,56 @@ def _load_nepse_index():
 
 def run_mean_reversion_backtest(df, initial_capital, buy_qty,
                                 take_profit_pct,
-                                use_market_filter):
+                                use_market_filter,
+                                daily_buy_limit=2):
     """
     Mean Reversion Strategy
     -----------------------
-    BUY      : Price within 5% of 52-week low. Max 2 stocks/day.
-               Re-entry allowed only if price is 20% below last sell price.
-    DOUBLE   : If price drops 10% from entry, buy 2x original qty (once per cycle).
-    HALF-SELL: Sell 50% of position at 10% profit (T+3 min).
-    FINAL-SELL: Sell remaining 50% at 20% profit OR price within 5% of 52-week high.
+    BUY       : Price within 5% of 52-week low. Max daily_buy_limit INITIAL buys/day.
+                Re-entry allowed only if price is 20% below last sell price.
+    DOUBLE    : If price drops 10% from entry, buy 2x original qty (once per cycle, max 1/day).
+    HALF-SELL : Sell 50% of position at 10% profit (T+3 min).
+    FINAL-SELL: Sell remaining 50% at take_profit_pct% OR price within 5% of 52-week high.
+    CUT-LOSS  : Exit all if down >25% from entry after 20+ days held.
     """
+    # NEPSE has ~240 trading days/year (Mon-Fri minus ~15 public holidays)
+    NEPSE_YEAR = 240
+
     dates = sorted(df["date"].unique())
     cash = float(initial_capital)
-    holdings = {}       # symbol -> position dict
-    last_sell_prices = {}  # symbol -> last final sell price (for re-entry gate)
+    holdings = {}
+    last_sell_prices = {}
     trades = []
     nepse_trend = _load_nepse_index() if use_market_filter else {}
 
     print("Pre-calculating 52-week highs and lows...")
-    df['low_52wk']  = df.groupby('symbol')['low'].transform(
-        lambda x: x.rolling(252, min_periods=126).min().shift(1))
-    df['high_52wk'] = df.groupby('symbol')['high'].transform(
-        lambda x: x.rolling(252, min_periods=126).max().shift(1))
-    df['vol_avg20'] = df.groupby('symbol')['volume'].transform(
+    df['low_52wk']   = df.groupby('symbol')['low'].transform(
+        lambda x: x.rolling(NEPSE_YEAR, min_periods=NEPSE_YEAR // 2).min().shift(1))
+    df['high_52wk']  = df.groupby('symbol')['high'].transform(
+        lambda x: x.rolling(NEPSE_YEAR, min_periods=NEPSE_YEAR // 2).max().shift(1))
+    df['vol_avg20']  = df.groupby('symbol')['volume'].transform(
         lambda x: x.rolling(20, min_periods=5).mean().shift(1))
     df['prev_volume'] = df.groupby('symbol')['volume'].shift(1)
-    df['rsi']        = df.groupby('symbol')['close'].transform(lambda x: calc_rsi(x, 14))
-    df['prev_close'] = df.groupby('symbol')['close'].shift(1)
+    df['rsi']         = df.groupby('symbol')['close'].transform(lambda x: calc_rsi(x, 14))
+    df['prev_close']  = df.groupby('symbol')['close'].shift(1)
     print("Pre-calculation complete.")
 
     for i, date in enumerate(dates):
-        if i < 126:
+        if i < NEPSE_YEAR // 2:
             continue
 
-        market_bullish = nepse_trend.get(date, True) if use_market_filter else True
-        daily_df = df[df["date"] == date].copy()
+        market_bullish    = nepse_trend.get(date, True) if use_market_filter else True
+        daily_df          = df[df["date"] == date].copy()
+        daily_buys        = 0   # INITIAL buys placed today
+        daily_double_buys = 0   # DOUBLE buys placed today
+
         for _, row in daily_df.iterrows():
             symbol      = row['symbol']
             last_close  = float(row['close'])
             low_52wk    = float(row['low_52wk'])
             high_52wk   = float(row['high_52wk'])
-            vol_avg20    = float(row['vol_avg20'])   if not pd.isna(row['vol_avg20'])   else 0
-            prev_volume  = float(row['prev_volume']) if not pd.isna(row['prev_volume']) else 0
+            vol_avg20   = float(row['vol_avg20'])   if not pd.isna(row['vol_avg20'])   else 0
+            prev_volume = float(row['prev_volume']) if not pd.isna(row['prev_volume']) else 0
 
             if pd.isna(low_52wk) or pd.isna(high_52wk):
                 continue
@@ -218,7 +226,7 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
                 continue
 
             volume_spike = vol_avg20 > 0 and prev_volume >= vol_avg20 * 1.5
-            buy_trigger  = low_52wk  * 1.05
+            buy_trigger  = low_52wk * 1.05
             near_52wk_hi = last_close >= high_52wk * 0.95
             rsi          = float(row['rsi'])        if not pd.isna(row['rsi'])        else 50
             prev_close   = float(row['prev_close']) if not pd.isna(row['prev_close']) else last_close
@@ -231,16 +239,17 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
                 change    = (last_close - pos["avg_price"]) / pos["avg_price"] * 100
                 entry_chg = (last_close - pos["entry_price"]) / pos["entry_price"] * 100
 
-                # Double-buy: price dropped 10% from entry, only once, no T+3 needed
-                if not pos["doubled"] and entry_chg <= -10:
+                # Double-buy: price dropped 10% from entry, only once, max 1/day
+                if not pos["doubled"] and entry_chg <= -10 and daily_double_buys < 1:
                     double_qty = 2 * pos["initial_qty"]
                     cost = double_qty * last_close
                     if cash >= cost:
                         cash -= cost
-                        new_qty     = pos["qty"] + double_qty
+                        new_qty          = pos["qty"] + double_qty
                         pos["avg_price"] = (pos["qty"] * pos["avg_price"] + double_qty * last_close) / new_qty
-                        pos["qty"]    = new_qty
-                        pos["doubled"] = True
+                        pos["qty"]       = new_qty
+                        pos["doubled"]   = True
+                        daily_double_buys += 1
                         trades.append({
                             "symbol": symbol, "side": "DOUBLE-BUY", "date": date,
                             "price": last_close, "qty": double_qty,
@@ -250,6 +259,21 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
 
                 # T+3 gate for all exits
                 if hold_days < 3:
+                    continue
+
+                # Cut-loss: down >25% from entry after 20+ days
+                if entry_chg <= -25 and hold_days >= 20:
+                    proceeds = pos["qty"] * last_close
+                    cash    += proceeds
+                    pnl      = proceeds - pos["qty"] * pos["avg_price"]
+                    last_sell_prices[symbol] = last_close
+                    holdings.pop(symbol)
+                    trades.append({
+                        "symbol": symbol, "side": "CUT-LOSS", "date": date,
+                        "price": last_close, "qty": pos["qty"], "pnl": pnl,
+                        "pnl_pct": pnl / (pos["qty"] * pos["avg_price"]) * 100,
+                        "hold_days": hold_days
+                    })
                     continue
 
                 # RSI overbought + price not rising → exit all
@@ -274,8 +298,8 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
                         proceeds = half_qty * last_close
                         cash    += proceeds
                         pnl      = proceeds - half_qty * pos["avg_price"]
-                        pos["qty"]       -= half_qty
-                        pos["half_sold"]  = True
+                        pos["qty"]      -= half_qty
+                        pos["half_sold"] = True
                         trades.append({
                             "symbol": symbol, "side": "HALF-SELL(10%)", "date": date,
                             "price": last_close, "qty": half_qty, "pnl": pnl,
@@ -284,7 +308,7 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
                         })
                     # fall through to check final sell on same day
 
-                # Final sell: 20% profit OR near 52-week high (after half sold)
+                # Final sell: take_profit_pct% OR near 52-week high (after half sold)
                 if pos["half_sold"] and (change >= take_profit_pct or near_52wk_hi):
                     reason   = "52WK-HIGH" if near_52wk_hi else f"FINAL-SELL({change:+.1f}%)"
                     proceeds = pos["qty"] * last_close
@@ -302,6 +326,9 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
                 continue  # done with this symbol for today
 
             # ── BUY signal ────────────────────────────────────────────────────
+            if daily_buys >= daily_buy_limit:
+                continue
+
             if last_close <= buy_trigger and market_bullish and volume_spike and daily_return > -0.05:
                 # Re-entry gate: price must be 20% below last sell price
                 if symbol in last_sell_prices and last_close > last_sell_prices[symbol] * 0.80:
@@ -311,6 +338,7 @@ def run_mean_reversion_backtest(df, initial_capital, buy_qty,
                 cost = qty * last_close
                 if cash >= cost:
                     cash -= cost
+                    daily_buys += 1
                     holdings[symbol] = {
                         "qty": qty, "initial_qty": qty,
                         "avg_price": last_close, "entry_price": last_close,
@@ -598,10 +626,7 @@ def run_rsi_crossover_backtest(df, initial_capital, buy_qty, buy_threshold=32, s
 
     for date in dates:
         daily_df      = df[df["date"] == date]
-        market_bullish = True
-        if use_market_filter and date in nepse_ema:
-            e = nepse_ema[date]
-            market_bullish = e["ema9"] > e["ema21"]
+        market_bullish = nepse_ema.get(date, True) if use_market_filter else True
 
         for _, row in daily_df.iterrows():
             symbol     = row["symbol"]
@@ -677,9 +702,9 @@ def run_rsi_crossover_backtest(df, initial_capital, buy_qty, buy_threshold=32, s
 
 def print_backtest_report(initial_capital, final_capital, trades):
     BUY_SIDES      = {"BUY", "DOUBLE-BUY"}
-    STRATEGY_SIDES = {"HALF-SELL(10%)", "52WK-HIGH", "FINAL-SELL"}  # completed exits
     buy_trades     = [t for t in trades if t["side"] in BUY_SIDES]
     double_buys    = [t for t in trades if t["side"] == "DOUBLE-BUY"]
+    cut_losses     = [t for t in trades if t["side"] == "CUT-LOSS"]
     strategy_exits = [t for t in trades if t["side"] not in BUY_SIDES and t["side"] != "SELL(end)"]
     open_ends      = [t for t in trades if t["side"] == "SELL(end)"]
     total_return     = final_capital - initial_capital
@@ -694,6 +719,7 @@ def print_backtest_report(initial_capital, final_capital, trades):
     print("-" * 60)
     print(f"  BUY signals          : {len(buy_trades)} ({len(double_buys)} double-buys)")
     print(f"  Strategy exits       : {len(strategy_exits)}  (completed cycles)")
+    print(f"  Cut-loss exits       : {len(cut_losses)}")
     print(f"  Open at end (SELL(end)): {len(open_ends)}  (position not yet closed by strategy)")
 
     # ── Completed cycles only ──────────────────────────────────────
@@ -775,19 +801,20 @@ def main():
                         help="Show interactive trade chart after backtest")
     parser.add_argument("--tune",           action="store_true",
                         help="Run all 8 momentum parameter combinations and print comparison table")
-    parser.add_argument("--data",           type=str,   default=None,
-                        help="Path to OHLCV CSV (default: chukul_data.csv, also accepts data.csv)")
+    parser.add_argument("--data",                type=str,   default="chukul_data.csv",
+                        help="Path to OHLCV CSV (default: chukul_data.csv)")
+    parser.add_argument("--no-fundamental-filter", action="store_true",
+                        help="Skip fundamental filter (EPS/ROE/NPL) and test all symbols")
 
     args = parser.parse_args()
 
-    data_file = args.data or ("data.csv" if not os.path.exists("chukul_data.csv") and os.path.exists("data.csv") else "chukul_data.csv")
-    if not os.path.exists(data_file):
-        print(f"Error: {data_file} not found. Fetch historical data first.")
+    if not os.path.exists(args.data):
+        print(f"Error: {args.data} not found. Fetch historical data first.")
         sys.exit(1)
 
-    print(f"Loading OHLCV data from {data_file}...")
-    df = pd.read_csv(data_file)
-    # Normalize column names: data.csv uses Title case, chukul_data.csv uses lowercase
+    print(f"Loading OHLCV data from {args.data}...")
+    df = pd.read_csv(args.data)
+    # Normalize column names to lowercase
     df.columns = [c.lower() for c in df.columns]
     if "date" in df.columns:
         df["date"] = pd.to_datetime(df["date"])
@@ -796,7 +823,7 @@ def main():
     df.sort_values(["symbol", "date"], inplace=True)
     df = _adjust_prices(df)
 
-    if os.path.exists("chukul_fundamental.csv"):
+    if not args.no_fundamental_filter and os.path.exists("chukul_fundamental.csv"):
         fund = pd.read_csv("chukul_fundamental.csv")
         before = df["symbol"].nunique()
         eps_ok  = fund[fund["eps"].notna()  & (fund["eps"]  > 0)]["symbol"]
@@ -806,6 +833,8 @@ def main():
         df = df[df["symbol"].isin(good)]
         print(f"Fundamental filter: {before} → {df['symbol'].nunique()} symbols "
               f"(EPS>0, ROE>5%, NPL<10%)")
+    elif args.no_fundamental_filter:
+        print(f"Fundamental filter: SKIPPED ({df['symbol'].nunique()} symbols)")
 
     if args.symbols:
         syms = [s.strip().upper() for s in args.symbols.split(",")]
