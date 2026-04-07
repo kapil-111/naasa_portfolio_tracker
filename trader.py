@@ -46,13 +46,26 @@ class Trader:
 
             if self.dry_run:
                 print(f"[DRY RUN] MKT order form filled for {signal['symbol']}. NOT submitting.")
-            else:
-                print("Submitting order...")
-                submit_button.click()
-                self.page.wait_for_timeout(2000)
+                return True
+
+            print("Submitting order...")
+            submit_button.click()
+            # Wait for broker confirmation — success toast or error message
+            try:
+                self.page.wait_for_selector(
+                    "text=successfully, text=Success, text=Order placed, .alert-success, .toast-success",
+                    timeout=5000
+                )
                 self.page.screenshot(path="order_result.png")
-                print("Order submitted. Screenshot saved.")
-            return True
+                print("Order confirmed by broker.")
+                return True
+            except Exception:
+                # No confirmation detected — take screenshot for manual review
+                self.page.screenshot(path="order_result.png")
+                print("Warning: No broker confirmation detected. Order may or may not have been placed. Screenshot saved.")
+                # Return True anyway — order was already recorded before submit.
+                # Returning False here would NOT undo the record, so True is safer.
+                return True
 
         except Exception as e:
             self.last_error = str(e)

@@ -366,11 +366,12 @@ def main():
                                 continue
 
                         order_signal = _adjust_order_price(signal)
+                        # Record BEFORE submitting — prevents retry on any failure/crash
+                        # (MKT orders: once submitted, broker executes regardless of our state)
+                        save_placed_order(symbol, side, signal_type)
                         success = trader.place_order(order_signal)
                         if not success:
                             notify_error(f"place_order failed: {side} {symbol} ({signal_type})\n{trader.last_error}")
-                        if success:
-                            save_placed_order(symbol, side, signal_type)
 
                             if signal_type == "SWING_TARGET":
                                 remove_swing_target(symbol)
