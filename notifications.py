@@ -29,7 +29,7 @@ def _tg_send(text):
             return resp2.status_code == 200
         return True
     except Exception as e:
-        print(f"Telegram send error: {e}")
+        print(f"Telegram send error: {type(e).__name__}: {e}")
         return False
 
 
@@ -112,6 +112,7 @@ def notify_cycle_summary(signals, orders_placed, next_in_seconds):
 
 
 def notify_premarket_report(portfolio_data, available_fund, signals):
+    print("Sending morning report via Telegram...")
     """Send morning report: holdings, available fund, and today's buy/sell signals."""
     lines = [f"📋 *Morning Report — {_now_npt()}*\n"]
 
@@ -165,7 +166,8 @@ def notify_premarket_report(portfolio_data, available_fund, signals):
     else:
         lines.append("\n*Signals:* None for today")
 
-    _tg_send("\n".join(lines))
+    ok = _tg_send("\n".join(lines))
+    print(f"Morning report Telegram send: {'OK' if ok else 'FAILED'}")
 
 
 def notify_market_close(daily_orders):
