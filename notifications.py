@@ -112,6 +112,12 @@ def notify_premarket_report(portfolio_data, available_fund, signals):
     lines = [f"📋 Morning Report — {_now_npt()}\n"]
 
     # Portfolio holdings
+    avg_prices = {}
+    if os.path.exists("avg_prices.json"):
+        import json as _json
+        with open("avg_prices.json") as _f:
+            avg_prices = _json.load(_f)
+
     BLACKLIST = {"NIBSF2"}
     holdings = [h for h in (portfolio_data.get("holdings", []) if portfolio_data else [])
                 if str(h.get("Symbol") or h.get("symbol") or h.get("Script") or h.get("Scrip") or "").strip() not in BLACKLIST]
@@ -120,7 +126,6 @@ def notify_premarket_report(portfolio_data, available_fund, signals):
         for h in holdings:
             sym = None
             qty = None
-            rate = None
             for k in ['Symbol', 'symbol', 'Stock Symbol', 'Script', 'Scrip']:
                 if h.get(k):
                     sym = str(h[k]).strip()
@@ -132,14 +137,8 @@ def notify_premarket_report(portfolio_data, available_fund, signals):
                         break
                     except (ValueError, TypeError):
                         pass
-            for k in ['Average Rate', 'Avg Rate', 'Average Cost', 'Cost Price', 'LTP']:
-                if h.get(k) is not None and str(h.get(k)).strip():
-                    try:
-                        rate = float(str(h[k]).replace(',', ''))
-                        break
-                    except (ValueError, TypeError):
-                        pass
             if sym:
+                rate = avg_prices.get(sym)
                 rate_str = f"  avg={rate:,.2f}" if rate else ""
                 lines.append(f"  • {sym} x{qty or '?'}{rate_str}")
     else:

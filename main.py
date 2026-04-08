@@ -9,7 +9,7 @@ from auth import login
 from scraper import scrape_portfolio, scrape_available_fund
 from storage import save_to_csv, save_to_json
 from trader import Trader
-from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals, remove_swing_target
+from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals, remove_swing_target, save_avg_price
 from state_manager import load_states, save_states, update_state_for_trade
 from fetch_live_data import fetch_live_data
 from fetch_chukul_history import update_chukul_data
@@ -318,11 +318,9 @@ def main():
                 latest_data = load_and_prepare_data()
                 if latest_data is not None:
                     placed_orders = load_placed_orders()
-                    buy_count        = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY' and o.get('type') == 'INITIAL')
-                    double_down_count = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY' and o.get('type') == 'DOUBLE_DOWN')
+                    buy_count = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY' and o.get('type') == 'INITIAL')
 
-                    signals = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS,
-                                                  daily_double_down_count=double_down_count, daily_double_down_limit=1)
+                    signals = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS)
                     print(f"Generated {len(signals)} signals.")
                     if signals:
                         notify_signals(signals)
@@ -372,7 +370,7 @@ def main():
                         success = trader.place_order(order_signal)
                         if not success:
                             notify_error(f"place_order failed: {side} {symbol} ({signal_type})\n{trader.last_error}")
-
+                        else:
                             if signal_type == "SWING_TARGET":
                                 remove_swing_target(symbol)
 
@@ -380,6 +378,16 @@ def main():
                             symbol_state = states.get(symbol, {})
                             new_symbol_state = update_state_for_trade(symbol_state, signal, order_signal['price'], signal['quantity'])
                             states[symbol] = new_symbol_state
+
+                            # --- UPDATE avg_prices.json on BUY ---
+                            if side == 'BUY':
+                                from signals_mr import _get_holding_qty, _get_holding_symbol
+                                existing_holding = next(
+                                    (h for h in portfolio_data.get('holdings', []) if _get_holding_symbol(h) == symbol),
+                                    {}
+                                )
+                                existing_qty = _get_holding_qty(existing_holding)
+                                save_avg_price(symbol, order_signal['price'], qty, existing_qty)
 
                             placed_orders = load_placed_orders() # Refresh placed orders
                             orders_placed_this_cycle += 1

@@ -172,6 +172,26 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
 _SYMBOL_KEYS = ['Symbol', 'symbol', 'Stock Symbol', 'Script', 'Scrip']
 _QTY_KEYS    = ['CDS Total\nBalance', 'NAASA\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']
 _RATE_KEYS   = ['Average Rate', 'Avg Rate', 'Average Cost', 'Cost Price', 'Close Price\nPrice', 'LTP']
+_AVG_PRICES_FILE = "avg_prices.json"
+
+def _load_avg_prices():
+    if os.path.exists(_AVG_PRICES_FILE):
+        with open(_AVG_PRICES_FILE) as f:
+            return json.load(f)
+    return {}
+
+def save_avg_price(symbol, new_price, new_qty, existing_qty=0, path=_AVG_PRICES_FILE):
+    prices = _load_avg_prices()
+    old_avg = prices.get(symbol)
+    if old_avg is not None and existing_qty > 0:
+        weighted = (old_avg * existing_qty + new_price * new_qty) / (existing_qty + new_qty)
+        prices[symbol] = round(weighted, 2)
+        print(f"[{symbol}] avg_prices.json weighted avg: ({old_avg:.2f}x{existing_qty} + {new_price:.2f}x{new_qty}) = {weighted:.2f}")
+    else:
+        prices[symbol] = round(float(new_price), 2)
+        print(f"[{symbol}] avg_prices.json set: {new_price:.2f}")
+    with open(path, 'w') as f:
+        json.dump(prices, f, indent=4, sort_keys=True)
 
 def _get_holding_symbol(h):
     for k in _SYMBOL_KEYS:
@@ -190,7 +210,10 @@ def _get_holding_qty(h):
                 pass
     return 0
 
-def _get_holding_rate(h):
+def _get_holding_rate(h, avg_prices=None):
+    symbol = _get_holding_symbol(h)
+    if symbol and avg_prices and symbol in avg_prices:
+        return float(avg_prices[symbol])
     for k in _RATE_KEYS:
         v = h.get(k)
         if v is not None and str(v).strip():
@@ -216,8 +239,7 @@ MIN_SELL_QTY          = 10
 
 # --- Core Signal Generation Logic ---
 
-def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_limit,
-                     _daily_double_down_count=0, _daily_double_down_limit=1):
+def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_limit):
     """
     Generates trading signals based on the Fortress Signal strategy.
     BUY  : EMA9 > EMA21 AND ADX > 25 AND RSI in [45,65] AND volume >= 1.5x avg
@@ -231,6 +253,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
     """
     signals = []
     swing_targets = _load_swing_targets()
+    avg_prices = _load_avg_prices()
     held_symbols = {}
     for h in portfolio.get('holdings', []):
         sym = _get_holding_symbol(h)
@@ -259,10 +282,10 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         # --- Orphan Position: held in portfolio but no bot state ---
         if is_in_live_portfolio and not state.get('in_position') and symbol not in swing_targets:
             holding = held_symbols[symbol]
-            avg_rate = _get_holding_rate(holding)
+            avg_rate = _get_holding_rate(holding, avg_prices)
             if avg_rate is None:
                 avg_rate = float(row['close'])
-                print(f"[{symbol}] Orphan: no average rate, using current price as entry.")
+                print(f"[{symbol}] Orphan: no avg_prices.json entry, using current price as entry.")
             state = {
                 'in_position':    True,
                 'entry_date':     (pd.to_datetime('today') - pd.Timedelta(days=10)).strftime('%Y-%m-%d'),
