@@ -87,20 +87,34 @@ def scrape_portfolio(page: Page):
             headers = [h.strip() for h in header_cells.all_inner_texts()]
             print(f"Found headers: {headers}")
 
-            rows = data_rows.all()
-            print(f"Found {len(rows)} rows.")
+            page_num = 1
+            while True:
+                print(f"Scraping page {page_num}...")
+                page.wait_for_timeout(1000)
+                rows = data_rows.all()
+                print(f"Found {len(rows)} rows on page {page_num}.")
 
-            for i, row in enumerate(rows):
-                cells      = row.locator("td").all_inner_texts()
-                clean_cells = [c.strip() for c in cells]
-                print(f"Row {i} cells: {clean_cells}")
+                for i, row in enumerate(rows):
+                    cells       = row.locator("td").all_inner_texts()
+                    clean_cells = [c.strip() for c in cells]
+                    print(f"Row {i} cells: {clean_cells}")
+                    if len(cells) == len(headers):
+                        if any(clean_cells):
+                            holding = dict(zip(headers, clean_cells))
+                            portfolio_data["holdings"].append(holding)
+                        else:
+                            print(f"Skipping empty row {i}")
 
-                if len(cells) == len(headers):
-                    if any(clean_cells):
-                        holding = dict(zip(headers, clean_cells))
-                        portfolio_data["holdings"].append(holding)
-                    else:
-                        print(f"Skipping empty row {i}")
+                # Check for active next-page button
+                next_btn = grid_div.locator(".e-nextpage:not(.e-disable)")
+                if next_btn.count() > 0:
+                    print(f"Going to page {page_num + 1}...")
+                    next_btn.first.click()
+                    page.wait_for_timeout(2000)
+                    page_num += 1
+                else:
+                    print("No more pages.")
+                    break
         else:
             print("Status: No table elements found in #GridDiv.")
             page.screenshot(path="holdings_no_table.png")
