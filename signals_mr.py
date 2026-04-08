@@ -118,15 +118,18 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
 
     df_adjusted = _adjust_prices(df.copy())
 
+    # Symbols permanently excluded from trading (never buy or sell signals)
+    BLACKLIST = {"NIBSF2"}
+
     # Fundamental filter: only trade quality stocks
     # Exception: always include symbols with a swing target set (for exit-only tracking)
-    swing_target_syms = set(_load_swing_targets().keys())
+    swing_target_syms = set(_load_swing_targets().keys()) - BLACKLIST
     if os.path.exists("chukul_fundamental.csv"):
         fund = pd.read_csv("chukul_fundamental.csv")
         eps_ok = fund[fund["eps"].notna() & (fund["eps"] > 0)]["symbol"]
         roe_ok = fund[fund["roe"].notna() & (fund["roe"] > 5)]["symbol"]
         npl_ok = fund[fund["npl"].isna() | (fund["npl"] < 10)]["symbol"]
-        good = set(eps_ok) & set(roe_ok) & set(npl_ok)
+        good = set(eps_ok) & set(roe_ok) & set(npl_ok) - BLACKLIST
         before = df_adjusted["symbol"].nunique()
         df_adjusted = df_adjusted[df_adjusted["symbol"].isin(good | swing_target_syms)]
         print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols (incl. {len(swing_target_syms)} swing-target exits)")

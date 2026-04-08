@@ -18,7 +18,16 @@ def _tg_send(text):
             json={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"},
             timeout=10
         )
-        return resp.status_code == 200
+        if resp.status_code != 200:
+            print(f"Telegram send failed: {resp.status_code} {resp.text}")
+            # Retry without Markdown in case of parse error
+            resp2 = requests.post(
+                f"https://api.telegram.org/bot{token}/sendMessage",
+                json={"chat_id": chat_id, "text": text},
+                timeout=10
+            )
+            return resp2.status_code == 200
+        return True
     except Exception as e:
         print(f"Telegram send error: {e}")
         return False
@@ -107,7 +116,9 @@ def notify_premarket_report(portfolio_data, available_fund, signals):
     lines = [f"📋 *Morning Report — {_now_npt()}*\n"]
 
     # Portfolio holdings
-    holdings = portfolio_data.get("holdings", []) if portfolio_data else []
+    BLACKLIST = {"NIBSF2"}
+    holdings = [h for h in (portfolio_data.get("holdings", []) if portfolio_data else [])
+                if str(h.get("Symbol") or h.get("symbol") or h.get("Script") or h.get("Scrip") or "").strip() not in BLACKLIST]
     if holdings:
         lines.append(f"*Holdings ({len(holdings)} stocks):*")
         for h in holdings:
