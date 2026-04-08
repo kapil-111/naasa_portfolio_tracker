@@ -121,11 +121,16 @@ def notify_premarket_report(portfolio_data, available_fund, signals):
     BLACKLIST = {"NIBSF2"}
     holdings = [h for h in (portfolio_data.get("holdings", []) if portfolio_data else [])
                 if str(h.get("Symbol") or h.get("symbol") or h.get("Script") or h.get("Scrip") or "").strip() not in BLACKLIST]
+
+    total_market_value = 0.0
+    total_cost = 0.0
+
     if holdings:
         lines.append(f"Holdings ({len(holdings)} stocks):")
         for h in holdings:
             sym = None
             qty = None
+            ltp = None
             for k in ['Symbol', 'symbol', 'Stock Symbol', 'Script', 'Scrip']:
                 if h.get(k):
                     sym = str(h[k]).strip()
@@ -137,16 +142,43 @@ def notify_premarket_report(portfolio_data, available_fund, signals):
                         break
                     except (ValueError, TypeError):
                         pass
+            for k in ['LTP', 'Close Price', 'Last Traded Price']:
+                if h.get(k) is not None and str(h.get(k)).strip():
+                    try:
+                        ltp = float(str(h[k]).replace(',', ''))
+                        break
+                    except (ValueError, TypeError):
+                        pass
             if sym:
-                rate = avg_prices.get(sym)
-                rate_str = f"  avg={rate:,.2f}" if rate else ""
-                lines.append(f"  • {sym} x{qty or '?'}{rate_str}")
+                avg = avg_prices.get(sym)
+                if avg and qty and ltp:
+                    market_val = ltp * qty
+                    cost_val   = avg * qty
+                    pnl_amt    = market_val - cost_val
+                    pnl_pct    = (pnl_amt / cost_val) * 100
+                    total_market_value += market_val
+                    total_cost         += cost_val
+                    pnl_str = f"  {pnl_pct:+.1f}%  NPR {pnl_amt:+,.0f}"
+                    lines.append(f"  • {sym} x{qty}  avg={avg:,.2f}  ltp={ltp:,.2f}{pnl_str}")
+                elif avg and qty:
+                    total_cost += avg * qty
+                    lines.append(f"  • {sym} x{qty}  avg={avg:,.2f}")
+                else:
+                    lines.append(f"  • {sym} x{qty or '?'}")
+
+        # Portfolio summary
+        if total_cost > 0:
+            total_pnl     = total_market_value - total_cost
+            total_pnl_pct = (total_pnl / total_cost) * 100
+            lines.append(f"\nPortfolio Value:  NPR {total_market_value:,.0f}")
+            lines.append(f"Total Invested:   NPR {total_cost:,.0f}")
+            lines.append(f"Total P&L:        NPR {total_pnl:+,.0f}  ({total_pnl_pct:+.1f}%)")
     else:
         lines.append("Holdings: None")
 
     # Available fund
     fund_str = f"NPR {available_fund:,.2f}" if available_fund is not None else "N/A"
-    lines.append(f"\nAvailable Fund: {fund_str}")
+    lines.append(f"Available Fund:   {fund_str}")
 
     # Signals
     buys  = [s for s in signals if s["side"] == "BUY"]
