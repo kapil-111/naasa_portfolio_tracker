@@ -1,6 +1,21 @@
 {
-    "date": "2026-03-22",
+    "date": "2026-04-09",
     "orders": [
+        {
+            "symbol": "DDBL",
+            "side": "SELL",
+            "type": "FULL_EXIT"
+        },
+        {
+            "symbol": "HDL",
+            "side": "SELL",
+            "type": "FULL_EXIT"
+        },
+        {
+            "symbol": "MSHL",
+            "side": "SELL",
+            "type": "FULL_EXIT"
+        },
         {
             "symbol": "NABIL",
             "side": "SELL",
@@ -8,21 +23,6 @@
         },
         {
             "symbol": "NLIC",
-            "side": "SELL",
-            "type": "HALF_SELL"
-        },
-        {
-            "symbol": "MSHL",
-            "side": "BUY",
-            "type": "INITIAL"
-        },
-        {
-            "symbol": "NLIC",
-            "side": "SELL",
-            "type": "FULL_EXIT"
-        },
-        {
-            "symbol": "NMB",
             "side": "SELL",
             "type": "FULL_EXIT"
         }
