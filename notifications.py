@@ -126,7 +126,7 @@ def notify_premarket_report(portfolio_data, available_fund, signals):
         with open("avg_prices.json") as _f:
             avg_prices = _json.load(_f)
 
-    BLACKLIST = {"NIBSF2"}
+    BLACKLIST = {"NIBSF2", "NEPSE"}
     holdings = [h for h in (portfolio_data.get("holdings", []) if portfolio_data else [])
                 if str(h.get("Symbol") or h.get("symbol") or h.get("Script") or h.get("Scrip") or "").strip() not in BLACKLIST]
 

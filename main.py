@@ -9,7 +9,7 @@ from auth import login
 from scraper import scrape_portfolio, scrape_available_fund
 from storage import save_to_csv, save_to_json
 from trader import Trader
-from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals, remove_swing_target, save_avg_price
+from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals, remove_swing_target, save_avg_price, get_nepse_regime
 from state_manager import load_states, save_states, update_state_for_trade
 from fetch_live_data import fetch_live_data
 from fetch_chukul_history import update_chukul_data
@@ -166,7 +166,10 @@ def _fetch_chukul_data():
         if not symbols:
             print("Warning: No symbol source available, skipping historical data update.")
             return
-    print(f"Updating historical data for {len(symbols)} symbols...")
+    # Always include NEPSE index for regime detection
+    if "NEPSE" not in symbols:
+        symbols = list(symbols) + ["NEPSE"]
+    print(f"Updating historical data for {len(symbols)} symbols (incl. NEPSE index)...")
     update_chukul_data(symbols=symbols, verbose=False)
 
     fund_file = "chukul_fundamental.csv"
@@ -262,7 +265,8 @@ def main():
                 latest_data = load_and_prepare_data()
                 if latest_data is not None:
                     states = load_states()
-                    signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99)
+                    regime = get_nepse_regime()
+                    signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
                     print(f"Generated {len(signals)} potential signals for next open.")
                     notify_premarket_report(portfolio_data, available_fund, signals)
             except Exception as e:
@@ -319,8 +323,9 @@ def main():
                 if latest_data is not None:
                     placed_orders = load_placed_orders()
                     buy_count = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY' and o.get('type') == 'INITIAL')
+                    regime = get_nepse_regime()
 
-                    signals = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS)
+                    signals = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS, regime=regime, available_fund=available_fund)
                     print(f"Generated {len(signals)} signals.")
                     if signals:
                         notify_signals(signals)

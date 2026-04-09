@@ -102,6 +102,37 @@ def _calc_adx(high, low, close, period=14):
     return adx
 
 
+def get_nepse_regime(ohlcv_file="chukul_data.csv"):
+    """
+    Detects NEPSE market regime using the NEPSE index (symbol 'NEPSE' or 'NEPSEI').
+    Returns: 'BULL' if index > EMA50, 'BEAR' otherwise.
+    If index data not available, returns 'UNKNOWN' (neutral — don't restrict buys).
+    """
+    if not os.path.exists(ohlcv_file):
+        return "UNKNOWN"
+    try:
+        df = pd.read_csv(ohlcv_file)
+        if "date" in df.columns:
+            df["date"] = pd.to_datetime(df["date"], format="mixed").dt.normalize()
+        if "symbol" not in df.columns and "stock" in df.columns:
+            df.rename(columns={"stock": "symbol"}, inplace=True)
+
+        # Try common NEPSE index symbols
+        for idx_sym in ["NEPSE", "NEPSEI", "nepse", "nepsei"]:
+            idx = df[df["symbol"] == idx_sym].sort_values("date")
+            if len(idx) >= 50:
+                idx = idx.copy()
+                idx["ema50"] = _calc_ema(idx["close"], 50)
+                last = idx.iloc[-1]
+                regime = "BULL" if last["close"] > last["ema50"] else "BEAR"
+                print(f"[REGIME] NEPSE index {last['close']:.0f} vs EMA50 {last['ema50']:.0f} → {regime}")
+                return regime
+    except Exception as e:
+        print(f"[REGIME] Could not determine regime: {e}")
+    print("[REGIME] NEPSE index not found in data — regime UNKNOWN (buys unrestricted).")
+    return "UNKNOWN"
+
+
 def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
     """Loads OHLCV data, adjusts for corporate actions, and calculates Fortress indicators."""
     print("Loading and preparing data for Fortress strategy...")
@@ -119,7 +150,7 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
     df_adjusted = _adjust_prices(df.copy())
 
     # Symbols permanently excluded from trading (never buy or sell signals)
-    BLACKLIST = {"NIBSF2"}
+    BLACKLIST = {"NIBSF2", "NEPSE"}
 
     # Fundamental filter: only trade quality stocks
     # Exception: always include symbols with a swing target set (for exit-only tracking)
@@ -239,29 +270,64 @@ FORTRESS_RSI_MAX      = 65
 FORTRESS_VOL_FACTOR   = 1.5
 FORTRESS_TP_PCT       = 20.0
 FORTRESS_SL_PCT       = -10.0
-FORTRESS_RSI_OB       = 75
+FORTRESS_RSI_OB       = 70
 FORTRESS_MIN_HOLD     = 5    # min calendar days before EMA-cross exit allowed
-FORTRESS_EMA_CONFIRM  = 2    # consecutive days EMA9 < EMA21 needed to exit
+FORTRESS_EMA_CONFIRM  = 4    # consecutive days EMA9 < EMA21 needed to exit
 MIN_SELL_QTY          = 10
+
+# Kelly position sizing
+# Based on backtest: win_rate=33%, avg_win=7.1%, avg_loss=5.9%
+# Kelly fraction = (win_rate * avg_win - loss_rate * avg_loss) / avg_win
+# Half-Kelly used for safety. Result clipped to [MIN_BUY_QTY, MAX_BUY_QTY].
+_KELLY_WIN_RATE  = 0.33
+_KELLY_AVG_WIN   = 0.071
+_KELLY_AVG_LOSS  = 0.059
+MIN_BUY_QTY      = 10
+MAX_BUY_QTY      = 50
+
+
+def kelly_qty(available_fund, price, default_qty=20):
+    """
+    Calculate buy quantity using Half-Kelly criterion.
+    Falls back to default_qty if fund/price data unavailable.
+    """
+    if not available_fund or not price or price <= 0:
+        return default_qty
+    try:
+        loss_rate  = 1.0 - _KELLY_WIN_RATE
+        kelly_full = (_KELLY_WIN_RATE * _KELLY_AVG_WIN - loss_rate * _KELLY_AVG_LOSS) / _KELLY_AVG_WIN
+        kelly_half = max(kelly_full / 2, 0.02)   # minimum 2% of fund
+        capital_to_deploy = available_fund * kelly_half
+        qty = int(capital_to_deploy / price)
+        qty = max(MIN_BUY_QTY, min(qty, MAX_BUY_QTY))
+        print(f"[KELLY] Kelly={kelly_full:.1%} HalfKelly={kelly_half:.1%} → deploy NPR {capital_to_deploy:,.0f} → qty={qty} @ {price:.2f}")
+        return qty
+    except Exception:
+        return default_qty
 
 
 # --- Core Signal Generation Logic ---
 
-def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_limit):
+def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_limit, regime="UNKNOWN", available_fund=None):
     """
     Generates trading signals based on the Fortress Signal strategy.
     BUY  : EMA9 > EMA21 AND ADX > 25 AND RSI in [45,65] AND volume >= 1.5x avg
            AND price > EMA21 AND not a panic day (daily return > -5%)
-    SELL : TP at +20% OR SL at -10% OR RSI > 75 OR EMA9 < EMA21 for 2 consecutive days
+           AND NEPSE regime is not BEAR
+    SELL : TP at +20% OR SL at -10% OR RSI > 70 OR EMA9 < EMA21 for 4 consecutive days
            (EMA-cross exit only allowed after min 5 days held)
            Special: cut-loss, swing target always apply regardless of hold period.
 
     Does NOT modify state; state changes are handled by the main loop after successful trades.
     daily_buy_count / daily_buy_limit  — controls INITIAL buys only (double-down removed)
+    regime — 'BULL', 'BEAR', or 'UNKNOWN'. BEAR blocks new buys (sells still execute).
     """
     signals = []
     swing_targets = _load_swing_targets()
     avg_prices = _load_avg_prices()
+
+    if regime == "BEAR":
+        print("[REGIME] BEAR market detected — new BUY signals blocked. Sells/exits still active.")
     held_symbols = {}
     for h in portfolio.get('holdings', []):
         sym = _get_holding_symbol(h)
@@ -290,12 +356,19 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         # --- Orphan Position: held in portfolio but no bot state ---
         # Skip re-seeding if sold within last 3 days (T+3 settlement — still shows in portfolio)
         _last_exit = state.get('last_exit_date')
-        _recently_sold = (
-            _last_exit is not None and
-            (pd.to_datetime('today') - pd.to_datetime(_last_exit)).days <= 3
+        # T+3: stock stays in portfolio 3 days after sell (settlement)
+        # Cooldown: no re-entry for 10 calendar days after exit (avoid revenge trading)
+        _days_since_exit = (
+            (pd.to_datetime('today') - pd.to_datetime(_last_exit)).days
+            if _last_exit is not None else 999
         )
-        if _recently_sold and is_in_live_portfolio:
-            print(f"[{symbol}] Skipping orphan re-seed — sold {_last_exit}, T+3 pending.")
+        _t3_pending   = _days_since_exit <= 3
+        _in_cooldown  = _days_since_exit <= 10
+        if _t3_pending and is_in_live_portfolio:
+            print(f"[{symbol}] Skipping orphan re-seed — sold {_last_exit}, T+3 pending ({_days_since_exit}d ago).")
+            continue
+        if _in_cooldown and not state.get('in_position'):
+            print(f"[{symbol}] Re-entry cooldown — sold {_last_exit}, {_days_since_exit}d ago (10d cooldown).")
             continue
         if is_in_live_portfolio and not state.get('in_position') and symbol not in swing_targets:
             holding = held_symbols[symbol]
@@ -330,6 +403,11 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         prev_ema9  = _f(prev_row, 'ema9')
         prev_ema21 = _f(prev_row, 'ema21')
 
+        # Skip entirely if volume data is missing or zero — prevents false signals
+        if prev_vol <= 0 or vol_avg20 <= 0:
+            print(f"[{symbol}] Skipping — zero/missing volume data (vol={prev_vol}, avg={vol_avg20:.0f}).")
+            continue
+
         ema_bullish   = ema9 > ema21
         ema_below_now = ema9 < ema21
         ema_below_prev = prev_ema9 < prev_ema21
@@ -339,6 +417,8 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         # --- Generate BUY Signal ---
         if not state.get('in_position'):
             if symbol in swing_targets:
+                continue
+            if regime == "BEAR":
                 continue
             if daily_buy_count >= daily_buy_limit:
                 continue
@@ -354,9 +434,11 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
 
             if fortress_buy:
                 print(f"[{symbol}] *** FORTRESS BUY *** price={close:.2f} EMA9={ema9:.2f} EMA21={ema21:.2f} ADX={adx:.1f} RSI={rsi:.1f}")
+                default_qty = int(os.getenv("DEFAULT_BUY_QTY", 20))
+                qty = kelly_qty(available_fund, close, default_qty)
                 signals.append({
                     "side": "BUY", "symbol": symbol, "price": close, "type": "INITIAL",
-                    "quantity": int(os.getenv("DEFAULT_BUY_QTY", 20)),
+                    "quantity": qty,
                     "reason": f"EMA9>{ema9:.0f} EMA21={ema21:.0f} ADX={adx:.1f} RSI={rsi:.1f} vol={prev_vol:.0f}",
                 })
                 daily_buy_count += 1
