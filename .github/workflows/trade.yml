@@ -1,9 +1,6 @@
 name: Auto Trade Runner
 
 on:
-  push:
-    branches:
-      - main
   schedule:
     # Morning report: 8:00 AM NPT (02:15 UTC), Sun–Thu
     - cron: '15 2 * * 0-4'
