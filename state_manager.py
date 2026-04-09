@@ -69,6 +69,7 @@ def update_state_for_trade(state, signal, current_price, quantity):
             new_state['in_position'] = False
             new_state['half_sold'] = False
             new_state['last_exit_price'] = current_price
+            new_state['last_exit_date'] = datetime.now().strftime('%Y-%m-%d')
             new_state['trades'] = new_state.get('trades', 0) + 1
             new_state['entry_date'] = None
             new_state['initial_entry'] = 0

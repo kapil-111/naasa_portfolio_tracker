@@ -280,6 +280,15 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             continue
 
         # --- Orphan Position: held in portfolio but no bot state ---
+        # Skip re-seeding if sold within last 3 days (T+3 settlement — still shows in portfolio)
+        _last_exit = state.get('last_exit_date')
+        _recently_sold = (
+            _last_exit is not None and
+            (pd.to_datetime('today') - pd.to_datetime(_last_exit)).days <= 3
+        )
+        if _recently_sold and is_in_live_portfolio:
+            print(f"[{symbol}] Skipping orphan re-seed — sold {_last_exit}, T+3 pending.")
+            continue
         if is_in_live_portfolio and not state.get('in_position') and symbol not in swing_targets:
             holding = held_symbols[symbol]
             avg_rate = _get_holding_rate(holding, avg_prices)
