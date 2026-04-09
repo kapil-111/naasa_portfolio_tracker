@@ -57,14 +57,16 @@ def notify_signals(signals):
 
     for s in buys:
         line = f"🟢 BUY {s['symbol']} ({s.get('type','?')})  @{s['price']:.2f}  qty={s.get('quantity','?')}"
-        if s.get('drop_pct') is not None:
-            line += f"\n    drop={s['drop_pct']:+.1f}%  held={s.get('days_held','?')}d"
+        if s.get('reason'):
+            line += f"\n    Reason: {s['reason']}"
         lines.append(line)
 
     for s in sells:
         line = f"🔴 SELL {s['symbol']} ({s.get('type','?')})  @{s['price']:.2f}  qty={s.get('quantity','?')}"
         if s.get('profit_pct') is not None:
             line += f"\n    P&L={s['profit_pct']:+.1f}%  entry={s.get('entry_price','?')}  held={s.get('days_held','?')}d"
+        if s.get('reason'):
+            line += f"\n    Reason: {s['reason']}"
         lines.append(line)
 
     _tg_send("\n".join(lines))
@@ -186,9 +188,15 @@ def notify_premarket_report(portfolio_data, available_fund, signals):
     if buys or sells:
         lines.append("\nSignals for today:")
         for s in buys:
-            lines.append(f"  🟢 BUY {s['symbol']} qty={s.get('quantity','?')} @{s['price']:.2f}")
+            line = f"  🟢 BUY {s['symbol']} qty={s.get('quantity','?')} @{s['price']:.2f}"
+            if s.get('reason'):
+                line += f"\n    Reason: {s['reason']}"
+            lines.append(line)
         for s in sells:
-            lines.append(f"  🔴 SELL {s['symbol']} ({s.get('type','?')}) qty={s.get('quantity','?')}  P&L={s.get('profit_pct',0):+.1f}%")
+            line = f"  🔴 SELL {s['symbol']} ({s.get('type','?')}) qty={s.get('quantity','?')}  P&L={s.get('profit_pct',0):+.1f}%"
+            if s.get('reason'):
+                line += f"\n    Reason: {s['reason']}"
+            lines.append(line)
     else:
         lines.append("\nSignals: None for today")
 

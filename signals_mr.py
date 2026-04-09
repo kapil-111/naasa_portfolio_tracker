@@ -340,6 +340,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                 signals.append({
                     "side": "BUY", "symbol": symbol, "price": close, "type": "INITIAL",
                     "quantity": int(os.getenv("DEFAULT_BUY_QTY", 20)),
+                    "reason": f"EMA9>{ema9:.0f} EMA21={ema21:.0f} ADX={adx:.1f} RSI={rsi:.1f} vol={prev_vol:.0f}",
                 })
                 daily_buy_count += 1
 
@@ -348,6 +349,9 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             days_held      = (pd.to_datetime('today') - pd.to_datetime(state['entry_date'])).days
             profit_pct     = (close - state['entry_price']) / state['entry_price'] * 100
             drop_from_start = (close - state['initial_entry']) / state['initial_entry'] * 100
+            # Use avg_prices.json for displayed P&L so it matches the portfolio report
+            _display_avg = avg_prices.get(symbol) or state['entry_price']
+            _display_profit_pct = (close - _display_avg) / _display_avg * 100
             current_qty    = _get_holding_qty(held_symbols.get(symbol, {}))
 
             # Update EMA cross day counter in state (for confirmation logic)
@@ -360,7 +364,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             if days_held < 3:
                 continue
 
-            _ctx = {"profit_pct": round(profit_pct, 1), "days_held": days_held, "entry_price": state['entry_price']}
+            _ctx = {"profit_pct": round(_display_profit_pct, 1), "days_held": days_held, "entry_price": _display_avg}
 
             print(f"[{symbol}] Exit check: qty={current_qty}, days={days_held}, profit={profit_pct:.1f}%, "
                   f"ADX={adx:.1f}, RSI={rsi:.1f}, EMA9={ema9:.2f} EMA21={ema21:.2f}")
@@ -372,6 +376,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": close, "type": "CUT_LOSS",
                         "quantity": current_qty, **_ctx,
+                        "reason": f"Cut-loss: drop={drop_from_start:.1f}% from entry after {days_held}d",
                     })
                     continue
 
@@ -382,6 +387,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": close, "type": "SWING_TARGET",
                         "quantity": current_qty, **_ctx,
+                        "reason": f"Swing target hit: price={close} >= target={swing_targets[symbol]}",
                     })
                     continue
 
@@ -392,6 +398,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": close, "type": "FULL_EXIT",
                         "quantity": current_qty, **_ctx,
+                        "reason": f"Take profit: +{profit_pct:.1f}% >= +{FORTRESS_TP_PCT:.0f}%",
                     })
                     continue
 
@@ -402,6 +409,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": close, "type": "FULL_EXIT",
                         "quantity": current_qty, **_ctx,
+                        "reason": f"Stop loss: {profit_pct:.1f}% <= {FORTRESS_SL_PCT:.0f}%",
                     })
                     continue
 
@@ -412,6 +420,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": close, "type": "RSI_OB",
                         "quantity": current_qty, **_ctx,
+                        "reason": f"RSI overbought: {rsi:.1f} > {FORTRESS_RSI_OB}",
                     })
                     continue
 
@@ -423,6 +432,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": close, "type": "FULL_EXIT",
                         "quantity": current_qty, **_ctx,
+                        "reason": f"EMA cross: EMA9={ema9:.0f} < EMA21={ema21:.0f} for {state['ema_cross_days']}d",
                     })
 
     return signals
