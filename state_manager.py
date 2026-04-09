@@ -20,6 +20,8 @@ def save_states(states):
     """Saves the strategy state to a JSON file."""
     with open(STATE_FILE, 'w') as f:
         json.dump(states, f, indent=4)
+        f.flush()
+        os.fsync(f.fileno())
     print(f"Strategy state saved to {STATE_FILE}.")
 
 def update_state_for_trade(state, signal, current_price, quantity=None):

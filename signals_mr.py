@@ -4,8 +4,11 @@ import pandas as pd
 
 def _load_swing_targets(path="swing_targets.json"):
     if os.path.exists(path):
-        with open(path) as f:
-            return json.load(f)
+        try:
+            with open(path) as f:
+                return json.load(f)
+        except (json.JSONDecodeError, OSError) as e:
+            print(f"Warning: could not load {path}: {e}. Using empty targets.")
     return {}
 
 def remove_swing_target(symbol, path="swing_targets.json"):
@@ -215,8 +218,11 @@ _AVG_PRICES_FILE = "avg_prices.json"
 
 def _load_avg_prices():
     if os.path.exists(_AVG_PRICES_FILE):
-        with open(_AVG_PRICES_FILE) as f:
-            return json.load(f)
+        try:
+            with open(_AVG_PRICES_FILE) as f:
+                return json.load(f)
+        except (json.JSONDecodeError, OSError) as e:
+            print(f"Warning: could not load {_AVG_PRICES_FILE}: {e}. Using empty avg prices.")
     return {}
 
 def save_avg_price(symbol, new_price, new_qty, existing_qty=0, path=_AVG_PRICES_FILE):
