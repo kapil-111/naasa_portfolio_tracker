@@ -404,7 +404,7 @@ def main():
                 print("Closing browser...")
                 browser.close()
 
-        notify_cycle_summary(signals, orders_placed_this_cycle, POLL_INTERVAL)
+        notify_cycle_summary(signals, orders_placed_this_cycle, POLL_INTERVAL, load_placed_orders().get("orders", []))
         if RUN_ONCE: break
         print(f"Cycle complete. Waiting {POLL_INTERVAL} seconds...")
         time.sleep(POLL_INTERVAL)

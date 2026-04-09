@@ -96,17 +96,22 @@ def notify_error(error_msg):
     )
 
 
-def notify_cycle_summary(signals, orders_placed, next_in_seconds):
+def notify_cycle_summary(signals, orders_placed, next_in_seconds, daily_orders=None):
     buys  = sum(1 for s in signals if s["side"] == "BUY")
     sells = sum(1 for s in signals if s["side"] == "SELL")
     mins  = next_in_seconds // 60
     next_str = f"{mins}m" if mins >= 2 else f"{next_in_seconds}s"
-    _tg_send(
-        f"🔄 Cycle Done — {_now_npt()}\n"
-        f"Signals: {buys} BUY · {sells} SELL\n"
-        f"Orders placed: {orders_placed}\n"
-        f"Next check in: {next_str}"
-    )
+    lines = [
+        f"🔄 Cycle Done — {_now_npt()}",
+        f"Signals: {buys} BUY · {sells} SELL",
+        f"Orders placed: {orders_placed}",
+        f"Next check in: {next_str}",
+    ]
+    if daily_orders:
+        lines.append(f"\n📋 Today's orders ({len(daily_orders)}):")
+        for o in daily_orders:
+            lines.append(f"  • {o.get('side')} {o.get('symbol')} [{o.get('type', '?')}]")
+    _tg_send("\n".join(lines))
 
 
 def notify_premarket_report(portfolio_data, available_fund, signals):
