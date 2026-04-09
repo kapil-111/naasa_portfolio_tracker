@@ -144,7 +144,7 @@ def fetch_all_symbols():
 def _get(url, params=None):
     """Unauthenticated GET with error handling."""
     try:
-        resp = requests.get(url, headers=HEADERS, params=params, timeout=15)
+        resp = requests.get(url, headers=HEADERS, params=params, timeout=5)
         if resp.status_code == 200:
             return resp.json()
         print(f"[chukul] GET {url} returned HTTP {resp.status_code}")

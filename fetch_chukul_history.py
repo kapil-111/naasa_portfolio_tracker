@@ -67,6 +67,8 @@ def update_chukul_data(symbols=None, input_file="live_market_data.csv",
 
     new_data = []
     max_workers = int(os.getenv("FETCH_MAX_WORKERS", "8"))
+    # Early-abort: if first PROBE_SIZE symbols all fail, chukul.com is unreachable
+    PROBE_SIZE = 5
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_symbol = {
             executor.submit(fetch_chukul_history, sym, latest_dates.get(sym)): sym
@@ -76,14 +78,25 @@ def update_chukul_data(symbols=None, input_file="live_market_data.csv",
         if verbose:
             iterable = tqdm(iterable, total=len(symbols))
 
+        consecutive_failures = 0
         for future in iterable:
             symbol = future_to_symbol[future]
             try:
                 df = future.result()
                 if df is not None:
                     new_data.append(df)
+                    consecutive_failures = 0
+                else:
+                    consecutive_failures += 1
             except Exception as exc:
                 print(f'{symbol} generated an exception: {exc}')
+                consecutive_failures += 1
+
+            if len(new_data) == 0 and consecutive_failures >= PROBE_SIZE:
+                print(f"Early abort: first {PROBE_SIZE} symbols all failed — chukul.com appears unreachable.")
+                for f in future_to_symbol:
+                    f.cancel()
+                break
 
     if not new_data and existing_df is not None:
         print("No new rows fetched — existing data is up to date.")
