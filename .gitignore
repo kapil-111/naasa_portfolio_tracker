@@ -19,3 +19,5 @@ env/
 *.csv
 # Exception: fundamental data is fetched weekly and must persist between Actions runs
 !chukul_fundamental.csv
+# Exception: historical OHLCV data — full refetch is slow, persist and update incrementally
+!chukul_data.csv

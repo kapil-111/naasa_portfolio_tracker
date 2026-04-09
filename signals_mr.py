@@ -159,11 +159,19 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
 
     # Return last 2 rows per symbol — needed to detect 2-day EMA cross confirmation on exits
     # Keep symbol as a column so generate_signals can group by it
+    # Require minimum 30 rows so EMA21 is meaningful; skip symbols with insufficient history
+    MIN_HISTORY = 30
     parts = []
+    skipped = []
     for sym, grp in df_adjusted.groupby('symbol'):
+        if len(grp) < MIN_HISTORY:
+            skipped.append(sym)
+            continue
         top2 = grp.nlargest(2, 'date').copy()
         top2['symbol'] = sym
         parts.append(top2)
+    if skipped:
+        print(f"Skipped {len(skipped)} symbols with < {MIN_HISTORY} rows: {skipped}")
     latest2 = pd.concat(parts, ignore_index=True)
     return latest2
 
