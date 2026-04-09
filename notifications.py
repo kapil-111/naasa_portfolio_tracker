@@ -78,15 +78,14 @@ def notify_order(signal, is_dry_run):
     symbol = signal.get("symbol", "?")
     qty    = signal.get("quantity", 0)
     price  = signal.get("price", 0)
-    score  = signal.get("score", 0)
 
     icon = "✅" if not is_dry_run else "🔔"
     tag  = "[DRY RUN]" if is_dry_run else "[LIVE]"
 
     _tg_send(
         f"{icon} {tag} Order {'Simulated' if is_dry_run else 'Placed'}\n"
-        f"{side} {symbol} x{qty} @ {price:.2f}\n"
-        f"Score: {score:+d}"
+        f"{side} {symbol} x{qty} @ MKT (ref: {price:.2f})\n"
+        f"Reason: {signal.get('reason', '?')}"
     )
 
 
