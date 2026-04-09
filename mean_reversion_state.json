@@ -24,7 +24,8 @@
         "initial_entry": 1527.8363,
         "half_sold": false,
         "position_count": 3,
-        "trades": 0
+        "trades": 0,
+        "ema_cross_days": 1
     },
     "MEN": {
         "in_position": true,
@@ -41,17 +42,15 @@
         "entry_price": 535.2,
         "initial_entry": 535.2,
         "half_sold": false,
-        "position_count": 1
+        "position_count": 1,
+        "ema_cross_days": 1
     },
     "NLIC": {
-        "in_position": false,
-        "entry_date": null,
-        "entry_price": 0,
-        "initial_entry": 0,
-        "half_sold": false,
-        "position_count": 0,
-        "trades": 1,
-        "last_exit_price": 847.0
+        "in_position": true,
+        "entry_date": "2026-03-30",
+        "entry_price": 755.7,
+        "initial_entry": 755.7,
+        "ema_cross_days": 1
     },
     "NMB": {
         "in_position": false,
@@ -72,14 +71,21 @@
         "position_count": 1,
         "trades": 0
     },
-    "SNLI": {},
+    "SNLI": {
+        "in_position": true,
+        "entry_date": "2026-03-30",
+        "entry_price": 412.95,
+        "initial_entry": 412.95,
+        "ema_cross_days": 1
+    },
     "DDBL": {
         "in_position": true,
         "entry_date": "2026-03-09",
         "entry_price": 870.1,
         "initial_entry": 870.1,
         "half_sold": false,
-        "position_count": 1
+        "position_count": 1,
+        "ema_cross_days": 1
     },
     "MSHL": {
         "in_position": true,
@@ -88,6 +94,7 @@
         "entry_price": 802.0,
         "entry_date": "2026-03-22",
         "position_count": 1,
-        "trades": 0
+        "trades": 0,
+        "ema_cross_days": 1
     }
 }
