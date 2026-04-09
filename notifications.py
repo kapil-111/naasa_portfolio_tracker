@@ -100,11 +100,13 @@ def notify_error(error_msg):
 def notify_cycle_summary(signals, orders_placed, next_in_seconds):
     buys  = sum(1 for s in signals if s["side"] == "BUY")
     sells = sum(1 for s in signals if s["side"] == "SELL")
+    mins  = next_in_seconds // 60
+    next_str = f"{mins}m" if mins >= 2 else f"{next_in_seconds}s"
     _tg_send(
         f"🔄 Cycle Done — {_now_npt()}\n"
         f"Signals: {buys} BUY · {sells} SELL\n"
         f"Orders placed: {orders_placed}\n"
-        f"Next check in: {next_in_seconds}s"
+        f"Next check in: {next_str}"
     )
 
 
