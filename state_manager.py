@@ -21,7 +21,7 @@ def save_states(states):
         json.dump(states, f, indent=4)
     print(f"Strategy state saved to {STATE_FILE}.")
 
-def update_state_for_trade(state, signal, current_price, quantity):
+def update_state_for_trade(state, signal, current_price, quantity=None):
     """
     Calculates the new state for a symbol after a successful trade.
     
