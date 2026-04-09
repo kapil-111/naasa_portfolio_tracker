@@ -90,10 +90,10 @@ def notify_order(signal, is_dry_run):
 
 
 def notify_error(error_msg):
-    _tg_send(
-        f"⚠️ Bot Error — {_now_npt()}\n"
-        f"{str(error_msg)[:300]}"
-    )
+    msg = str(error_msg)
+    if len(msg) > 300:
+        msg = msg[:297] + "..."
+    _tg_send(f"⚠️ Bot Error — {_now_npt()}\n{msg}")
 
 
 def notify_cycle_summary(signals, orders_placed, next_in_seconds, daily_orders=None):

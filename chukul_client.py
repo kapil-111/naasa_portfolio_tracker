@@ -161,6 +161,7 @@ def _session_get(url, params=None):
         resp = _session.get(url, params=params, timeout=15)
         if resp.status_code == 200:
             return resp.json()
-    except Exception:
-        pass
+        print(f"[chukul] session GET {url} returned HTTP {resp.status_code}")
+    except Exception as e:
+        print(f"[chukul] session GET {url} error: {e}")
     return None

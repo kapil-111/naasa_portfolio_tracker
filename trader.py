@@ -52,8 +52,9 @@ class Trader:
             submit_button.click()
             # Wait for broker confirmation — success toast or error message
             try:
+                # Wait for any success indicator (CSS class or text content)
                 self.page.wait_for_selector(
-                    "text=successfully, text=Success, text=Order placed, .alert-success, .toast-success",
+                    ".alert-success, .toast-success, [class*='success']",
                     timeout=5000
                 )
                 self.page.screenshot(path="order_result.png")

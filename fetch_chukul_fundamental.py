@@ -13,7 +13,6 @@ Outputs:
 
 import pandas as pd
 import os
-import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
@@ -134,14 +133,12 @@ def update_fundamental_data(symbols=None, input_file="live_market_data.csv",
     """
     if symbols is None:
         if not os.path.exists(input_file):
-            print(f"Error: {input_file} not found. Run fetch_live_data.py first.")
-            sys.exit(1)
+            raise FileNotFoundError(f"{input_file} not found. Run fetch_live_data.py first.")
         try:
             live_data = pd.read_csv(input_file)
             symbols = live_data["Symbol"].tolist()
         except Exception as e:
-            print(f"Error reading {input_file}: {e}")
-            sys.exit(1)
+            raise RuntimeError(f"Error reading {input_file}: {e}") from e
 
     print("Building symbol → ID map from chukul.com...")
     symbol_map = fetch_symbol_map()
