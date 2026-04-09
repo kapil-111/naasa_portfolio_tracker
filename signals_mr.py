@@ -111,7 +111,7 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
 
     df = pd.read_csv(ohlcv_file)
     if "date" in df.columns:
-        df["date"] = pd.to_datetime(df["date"])
+        df["date"] = pd.to_datetime(df["date"], format='mixed').dt.normalize()
     if "symbol" not in df.columns and "stock" in df.columns:
         df.rename(columns={"stock": "symbol"}, inplace=True)
     df.sort_values(["symbol", "date"], inplace=True)
