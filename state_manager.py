@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime
 
-STATE_FILE = "mean_reversion_state.json"
+STATE_FILE = "fortress_state.json"
 
 def load_states():
     """Loads the strategy state from a JSON file."""
