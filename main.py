@@ -135,7 +135,25 @@ def save_placed_order(symbol, side, signal_type):
 
     with open(filename, 'w') as f:
         json.dump(data, f, indent=4)
+        f.flush()
+        os.fsync(f.fileno())
     print(f"Recorded order for {side} {symbol} ({signal_type}) in state file.")
+
+
+def _clear_avg_price(symbol, path="avg_prices.json"):
+    """Remove a symbol's entry from avg_prices.json after a full exit."""
+    if not os.path.exists(path):
+        return
+    try:
+        with open(path) as f:
+            prices = json.load(f)
+        if symbol in prices:
+            del prices[symbol]
+            with open(path, 'w') as f:
+                json.dump(prices, f, indent=4, sort_keys=True)
+            print(f"[{symbol}] Cleared avg price from avg_prices.json after full exit.")
+    except Exception as e:
+        print(f"Warning: could not clear avg price for {symbol}: {e}")
 
 
 def _load_cached_portfolio():
@@ -363,9 +381,9 @@ def main():
                             continue
                         if side == 'BUY' and available_fund is not None:
                             ltp_check = _get_live_ltp(symbol) or signal['price']
-                            order_cost = ltp_check * qty
+                            order_cost = ltp_check * qty * 1.005  # include ~0.5% broker commission
                             if order_cost > available_fund:
-                                print(f"[SKIP] BUY {symbol} qty={qty} cost={order_cost:,.0f} > fund={available_fund:,.0f}.")
+                                print(f"[SKIP] BUY {symbol} qty={qty} cost={order_cost:,.0f} (incl. commission) > fund={available_fund:,.0f}.")
                                 continue
 
                         order_signal = _adjust_order_price(signal)
@@ -384,7 +402,7 @@ def main():
                             new_symbol_state = update_state_for_trade(symbol_state, signal, order_signal['price'], signal['quantity'])
                             states[symbol] = new_symbol_state
 
-                            # --- UPDATE avg_prices.json on BUY ---
+                            # --- UPDATE avg_prices.json on BUY / clear on full SELL ---
                             if side == 'BUY':
                                 from signals_mr import _get_holding_qty, _get_holding_symbol
                                 existing_holding = next(
@@ -393,6 +411,8 @@ def main():
                                 )
                                 existing_qty = _get_holding_qty(existing_holding)
                                 save_avg_price(symbol, order_signal['price'], qty, existing_qty)
+                            elif side == 'SELL' and signal_type in ('FULL_EXIT', 'CUT_LOSS', 'RSI_OB', 'SWING_TARGET'):
+                                _clear_avg_price(symbol)
 
                             placed_orders = load_placed_orders() # Refresh placed orders
                             orders_placed_this_cycle += 1

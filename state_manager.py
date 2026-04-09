@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 from datetime import datetime
@@ -34,17 +35,18 @@ def update_state_for_trade(state, signal, current_price, quantity=None):
     Returns:
         dict: The new, updated state for the symbol.
     """
-    new_state = state.copy()
+    new_state = copy.deepcopy(state)
     signal_type = signal.get("type", "FULL") # Default to FULL BUY/SELL
 
     if signal['side'] == 'BUY':
         # This is a double-down buy
         if new_state.get('in_position') and new_state.get('position_count') == 1:
             print(f"[{signal['symbol']}] STATE: Doubling down.")
-            # Calculate new average entry price. Assume the new buy is for 2 units.
-            # (initial_price * 1 + new_price * 2) / 3 total units
-            new_state['entry_price'] = (new_state['entry_price'] + 2 * current_price) / 3
-            new_state['position_count'] = 3
+            # Calculate new average entry price using actual quantity.
+            # Initial position counts as 1 unit; new buy is weighted by its quantity.
+            new_qty = quantity if quantity and quantity > 0 else 2
+            new_state['entry_price'] = (new_state['entry_price'] + new_qty * current_price) / (1 + new_qty)
+            new_state['position_count'] = 1 + new_qty
         # This is a fresh, initial buy
         else:
             print(f"[{signal['symbol']}] STATE: Initial entry.")

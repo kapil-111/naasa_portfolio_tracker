@@ -350,7 +350,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             states[symbol] = {}
             state = {}
 
-        if float(row['close']) < 100:
+        if pd.isna(row['close']) or float(row['close']) < 100:
             continue
 
         # --- Orphan Position: held in portfolio but no bot state ---
@@ -395,7 +395,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         ema9       = _f(row, 'ema9')
         ema21      = _f(row, 'ema21')
         adx        = _f(row, 'adx')
-        rsi        = _f(row, 'rsi', 50.0)
+        rsi        = _f(row, 'rsi', float('nan'))
         vol_avg20  = _f(row, 'vol_avg20')
         prev_vol   = _f(row, 'prev_volume')
         prev_close = _f(row, 'prev_close', close)
@@ -446,10 +446,15 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         # --- Generate SELL Signals (existing positions) ---
         else:
             days_held      = (pd.to_datetime('today') - pd.to_datetime(state['entry_date'])).days
-            profit_pct     = (close - state['entry_price']) / state['entry_price'] * 100
-            drop_from_start = (close - state['initial_entry']) / state['initial_entry'] * 100
+            entry_price    = state['entry_price']
+            initial_entry  = state.get('initial_entry', entry_price)
+            if entry_price <= 0 or initial_entry <= 0:
+                print(f"[{symbol}] Skipping exit check — entry_price={entry_price} or initial_entry={initial_entry} is invalid.")
+                continue
+            profit_pct     = (close - entry_price) / entry_price * 100
+            drop_from_start = (close - initial_entry) / initial_entry * 100
             # Use avg_prices.json for displayed P&L so it matches the portfolio report
-            _display_avg = avg_prices.get(symbol) or state['entry_price']
+            _display_avg = avg_prices.get(symbol) or entry_price
             _display_profit_pct = (close - _display_avg) / _display_avg * 100
             current_qty    = _get_holding_qty(held_symbols.get(symbol, {}))
 
@@ -465,8 +470,9 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
 
             _ctx = {"profit_pct": round(_display_profit_pct, 1), "days_held": days_held, "entry_price": _display_avg}
 
+            _rsi_str = f"{rsi:.1f}" if not pd.isna(rsi) else "NaN"
             print(f"[{symbol}] Exit check: qty={current_qty}, days={days_held}, profit={profit_pct:.1f}%, "
-                  f"ADX={adx:.1f}, RSI={rsi:.1f}, EMA9={ema9:.2f} EMA21={ema21:.2f}")
+                  f"ADX={adx:.1f}, RSI={_rsi_str}, EMA9={ema9:.2f} EMA21={ema21:.2f}")
 
             # 1. Cut-loss: >25% drop from initial entry after 20+ days (hard override)
             if drop_from_start <= -25 and days_held >= 20:
