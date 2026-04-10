@@ -2,12 +2,12 @@ name: Auto Trade Runner
 
 on:
   schedule:
-    # Morning report: 8:00 AM NPT (02:15 UTC), Sun–Thu
-    - cron: '15 2 * * 0-4'
-    # Pre-market report + data refresh: 10:30 AM NPT (04:45 UTC), Sun–Thu
-    - cron: '45 4 * * 0-4'
-    # Every hour during market hours: 11:00 AM–2:15 PM NPT (05:15–08:15 UTC), Sun–Thu
-    - cron: '15 5,6,7,8 * * 0-4'
+    # Morning report: 8:00 AM NPT (02:15 UTC), Mon-Fri
+    - cron: '15 2 * * 1-5'
+    # Pre-market report + data refresh: 10:30 AM NPT (04:45 UTC), Mon-Fri
+    - cron: '45 4 * * 1-5'
+    # Every hour during market hours: 11:00 AM–2:15 PM NPT (05:15–08:15 UTC), Mon-Fri
+    - cron: '15 5,6,7,8 * * 1-5'
   workflow_dispatch:
 
 jobs:
