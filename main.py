@@ -122,22 +122,24 @@ def _adjust_order_price(signal):
     return adjusted_signal
 
 
-def save_placed_order(symbol, side, signal_type):
-    """Saves a symbol and its side to the placed orders list."""
+def save_placed_order(symbol, side, signal_type, quantity=0):
+    """Saves a symbol, side, type, and quantity to the placed orders list."""
     filename = "placed_orders_today.json"
     data     = load_placed_orders()
 
-    # With the new strategy, we can have multiple actions for one symbol (e.g. half-sell, full-sell)
-    # The check for duplicates should be more specific, including the type.
-    new_order = {"symbol": symbol, "side": side, "type": signal_type}
-    if new_order not in data["orders"]:
+    # Dedup check excludes quantity so the same order isn't placed twice
+    new_order = {"symbol": symbol, "side": side, "type": signal_type, "quantity": quantity}
+    if not any(
+        o.get("symbol") == symbol and o.get("side") == side and o.get("type") == signal_type
+        for o in data["orders"]
+    ):
         data["orders"].append(new_order)
 
     with open(filename, 'w') as f:
         json.dump(data, f, indent=4)
         f.flush()
         os.fsync(f.fileno())
-    print(f"Recorded order for {side} {symbol} ({signal_type}) in state file.")
+    print(f"Recorded order for {side} {symbol} ({signal_type}) qty={quantity} in state file.")
 
 
 def _clear_avg_price(symbol, path="avg_prices.json"):
@@ -165,6 +167,72 @@ def _load_cached_portfolio():
         except Exception as e:
             print(f"Warning: Could not load cached portfolio: {e}")
     return {"holdings": [], "summary": {}}
+
+
+def _clean_portfolio(portfolio_data, states, placed_orders):
+    """
+    Remove or adjust holdings that are already settled/sold but still show in the
+    scraped portfolio due to T+3 settlement lag.
+
+    Two corrections:
+    1. Full exits: remove the holding entirely if state says in_position=False
+       and last_exit_date is within the last 3 days (T+3 pending).
+    2. Quantity adjustment: if a SELL order was placed today for a symbol that is
+       still in the portfolio, subtract the sold quantity so signals use the
+       correct remaining qty instead of the pre-sell total.
+    """
+    from signals_mr import _get_holding_symbol, _get_holding_qty
+
+    # Build a map of today's sell orders: symbol -> total qty sold today
+    sold_qty_today = {}
+    for o in placed_orders.get("orders", []):
+        if o.get("side") == "SELL":
+            sym = o.get("symbol")
+            qty = o.get("quantity", 0)
+            if sym:
+                sold_qty_today[sym] = sold_qty_today.get(sym, 0) + qty
+
+    cleaned = []
+    for h in portfolio_data.get("holdings", []):
+        sym = _get_holding_symbol(h)
+        if not sym:
+            cleaned.append(h)
+            continue
+
+        state = states.get(sym, {})
+        last_exit = state.get("last_exit_date")
+        days_since_exit = (
+            (pd.to_datetime("today") - pd.to_datetime(last_exit)).days
+            if last_exit else 999
+        )
+
+        # 1. Full exit — state says gone, T+3 still showing it
+        if not state.get("in_position") and days_since_exit <= 3:
+            print(f"[PORTFOLIO CLEAN] Removing {sym} — sold {last_exit} ({days_since_exit}d ago), T+3 pending.")
+            continue
+
+        # 2. Partial sell — adjust qty for same-day sells
+        if sym in sold_qty_today:
+            original_qty = _get_holding_qty(h)
+            adjusted_qty = max(0, original_qty - sold_qty_today[sym])
+            if adjusted_qty != original_qty:
+                h = dict(h)  # don't mutate the original
+                # Update whichever qty key the scraper used
+                from signals_mr import _QTY_KEYS
+                for k in _QTY_KEYS:
+                    if k in h and h[k] is not None and str(h[k]).strip():
+                        h[k] = adjusted_qty
+                        break
+                print(f"[PORTFOLIO CLEAN] {sym} qty adjusted {original_qty} → {adjusted_qty} (sold {sold_qty_today[sym]} today).")
+            if adjusted_qty == 0:
+                continue  # fully sold today, don't include
+
+        cleaned.append(h)
+
+    removed = len(portfolio_data.get("holdings", [])) - len(cleaned)
+    if removed:
+        print(f"[PORTFOLIO CLEAN] {removed} holding(s) removed/adjusted for T+3 lag.")
+    return {**portfolio_data, "holdings": cleaned}
 
 
 def _fetch_chukul_data(max_retries=3, retry_delay=30):
@@ -318,6 +386,8 @@ def main():
                 latest_data = load_and_prepare_data()
                 if latest_data is not None:
                     states = load_states()
+                    placed_orders = load_placed_orders()
+                    portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)
                     regime = get_nepse_regime()
                     signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
                     print(f"Generated {len(signals)} potential signals for next open.")
@@ -375,6 +445,7 @@ def main():
                 latest_data = load_and_prepare_data()
                 if latest_data is not None:
                     placed_orders = load_placed_orders()
+                    portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)
                     buy_count = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY' and o.get('type') == 'INITIAL')
                     regime = get_nepse_regime()
 
@@ -424,7 +495,7 @@ def main():
                         order_signal = _adjust_order_price(signal)
                         # Record BEFORE submitting — prevents retry on any failure/crash
                         # (MKT orders: once submitted, broker executes regardless of our state)
-                        save_placed_order(symbol, side, signal_type)
+                        save_placed_order(symbol, side, signal_type, quantity=qty)
                         success = trader.place_order(order_signal)
                         if not success:
                             notify_error(f"place_order failed: {side} {symbol} ({signal_type})\n{trader.last_error}")
