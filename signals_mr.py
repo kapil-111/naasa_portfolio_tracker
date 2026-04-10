@@ -484,31 +484,9 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                   f"ADX={adx:.1f}, RSI={_rsi_str}, EMA9={ema9:.2f} EMA21={ema21:.2f}")
 
             if is_ipo:
-                # IPO stocks: only exit via manual swing target or RSI overbought.
-                # Skip cut-loss, TP, SL, and EMA cross — cost basis of 100 makes
-                # those rules meaningless at current market prices.
-
-                # 1. Swing target (manual, always applies)
-                if symbol in swing_targets and close >= swing_targets[symbol]:
-                    print(f"[{symbol}] *** IPO SWING TARGET HIT *** price={close} >= target={swing_targets[symbol]}")
-                    if current_qty >= MIN_SELL_QTY:
-                        signals.append({
-                            "side": "SELL", "symbol": symbol, "price": close, "type": "SWING_TARGET",
-                            "quantity": current_qty, **_ctx,
-                            "reason": f"IPO swing target hit: price={close} >= target={swing_targets[symbol]}",
-                        })
-                    continue
-
-                # 2. RSI overbought
-                if rsi > FORTRESS_RSI_OB:
-                    if current_qty >= MIN_SELL_QTY:
-                        print(f"[{symbol}] *** IPO RSI OB *** rsi={rsi:.1f}")
-                        signals.append({
-                            "side": "SELL", "symbol": symbol, "price": close, "type": "RSI_OB",
-                            "quantity": current_qty, **_ctx,
-                            "reason": f"IPO RSI overbought: {rsi:.1f} > {FORTRESS_RSI_OB}",
-                        })
-                continue  # no other exit rules for IPO stocks
+                # IPO stocks: no automated exits — user decides when to sell.
+                print(f"[{symbol}] [IPO] Skipping all automated exit rules — manual sell only.")
+                continue
 
             # 1. Cut-loss: >25% drop from initial entry after 20+ days (hard override)
             if drop_from_start <= -25 and days_held >= 20:
