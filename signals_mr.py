@@ -474,11 +474,41 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             if days_held < 3:
                 continue
 
+            is_ipo = state.get('is_ipo', False)
+
             _ctx = {"profit_pct": round(_display_profit_pct, 1), "days_held": days_held, "entry_price": _display_avg}
 
             _rsi_str = f"{rsi:.1f}" if not pd.isna(rsi) else "NaN"
-            print(f"[{symbol}] Exit check: qty={current_qty}, days={days_held}, profit={profit_pct:.1f}%, "
+            _ipo_tag = " [IPO]" if is_ipo else ""
+            print(f"[{symbol}]{_ipo_tag} Exit check: qty={current_qty}, days={days_held}, profit={_display_profit_pct:.1f}%, "
                   f"ADX={adx:.1f}, RSI={_rsi_str}, EMA9={ema9:.2f} EMA21={ema21:.2f}")
+
+            if is_ipo:
+                # IPO stocks: only exit via manual swing target or RSI overbought.
+                # Skip cut-loss, TP, SL, and EMA cross — cost basis of 100 makes
+                # those rules meaningless at current market prices.
+
+                # 1. Swing target (manual, always applies)
+                if symbol in swing_targets and close >= swing_targets[symbol]:
+                    print(f"[{symbol}] *** IPO SWING TARGET HIT *** price={close} >= target={swing_targets[symbol]}")
+                    if current_qty >= MIN_SELL_QTY:
+                        signals.append({
+                            "side": "SELL", "symbol": symbol, "price": close, "type": "SWING_TARGET",
+                            "quantity": current_qty, **_ctx,
+                            "reason": f"IPO swing target hit: price={close} >= target={swing_targets[symbol]}",
+                        })
+                    continue
+
+                # 2. RSI overbought
+                if rsi > FORTRESS_RSI_OB:
+                    if current_qty >= MIN_SELL_QTY:
+                        print(f"[{symbol}] *** IPO RSI OB *** rsi={rsi:.1f}")
+                        signals.append({
+                            "side": "SELL", "symbol": symbol, "price": close, "type": "RSI_OB",
+                            "quantity": current_qty, **_ctx,
+                            "reason": f"IPO RSI overbought: {rsi:.1f} > {FORTRESS_RSI_OB}",
+                        })
+                continue  # no other exit rules for IPO stocks
 
             # 1. Cut-loss: >25% drop from initial entry after 20+ days (hard override)
             if drop_from_start <= -25 and days_held >= 20:

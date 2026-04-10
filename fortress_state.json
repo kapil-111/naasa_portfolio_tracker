@@ -111,5 +111,49 @@
         "ema_cross_days": 2,
         "last_exit_price": 775.0,
         "last_exit_date": "2026-04-09"
+    },
+    "PCIL": {
+        "in_position": true,
+        "entry_date": "2026-03-11",
+        "entry_price": 100.0,
+        "initial_entry": 100.0,
+        "ema_cross_days": 0,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0,
+        "is_ipo": true
+    },
+    "HFIN": {
+        "in_position": true,
+        "entry_date": "2026-03-11",
+        "entry_price": 100.0,
+        "initial_entry": 100.0,
+        "ema_cross_days": 0,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0,
+        "is_ipo": true
+    },
+    "RLEL": {
+        "in_position": true,
+        "entry_date": "2026-03-11",
+        "entry_price": 100.0,
+        "initial_entry": 100.0,
+        "ema_cross_days": 0,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0,
+        "is_ipo": true
+    },
+    "SOHL": {
+        "in_position": true,
+        "entry_date": "2026-03-11",
+        "entry_price": 100.0,
+        "initial_entry": 100.0,
+        "ema_cross_days": 0,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0,
+        "is_ipo": true
     }
 }
