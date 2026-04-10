@@ -167,34 +167,69 @@ def _load_cached_portfolio():
     return {"holdings": [], "summary": {}}
 
 
-def _fetch_chukul_data():
-    """Fetch historical OHLCV and (if stale) fundamental data for all NEPSE symbols."""
-    print("Fetching full NEPSE symbol list from Chukul...")
-    symbols = fetch_all_symbols()
-    if not symbols:
-        print("Warning: Could not fetch symbol list from Chukul API.")
-        if os.path.exists("chukul_data.csv"):
-            try:
-                existing = pd.read_csv("chukul_data.csv")
-                if "stock" in existing.columns:
-                    symbols = existing["stock"].unique().tolist()
-                    print(f"Falling back to {len(symbols)} symbols from existing chukul_data.csv.")
-            except Exception:
-                pass
+def _fetch_chukul_data(max_retries=3, retry_delay=30):
+    """Fetch historical OHLCV and (if stale) fundamental data for all NEPSE symbols.
+    Retries up to max_retries times with retry_delay seconds between attempts
+    so transient chukul.com outages at market open don't leave signals stale.
+    """
+    _CHUKUL_DATA_FILE = "chukul_data.csv"
+
+    for attempt in range(1, max_retries + 1):
+        print(f"Fetching full NEPSE symbol list from Chukul (attempt {attempt}/{max_retries})...")
+        symbols = fetch_all_symbols()
+
         if not symbols:
-            print("Warning: No symbol source available, skipping historical data update.")
-            return
-    # Always include NEPSE index for regime detection
-    if "NEPSE" not in symbols:
-        symbols = list(symbols) + ["NEPSE"]
-    print(f"Updating historical data for {len(symbols)} symbols (incl. NEPSE index)...")
-    update_chukul_data(symbols=symbols, verbose=False)
+            print("Warning: Could not fetch symbol list from Chukul API.")
+            if attempt < max_retries:
+                print(f"Retrying in {retry_delay}s...")
+                time.sleep(retry_delay)
+                continue
+            # All retries exhausted — fall back to symbols from existing file
+            if os.path.exists(_CHUKUL_DATA_FILE):
+                try:
+                    existing = pd.read_csv(_CHUKUL_DATA_FILE)
+                    col = "stock" if "stock" in existing.columns else (
+                          "symbol" if "symbol" in existing.columns else None)
+                    if col:
+                        symbols = existing[col].unique().tolist()
+                        print(f"Falling back to {len(symbols)} symbols from existing {_CHUKUL_DATA_FILE}.")
+                except Exception:
+                    pass
+            if not symbols:
+                print("Warning: No symbol source available, skipping historical data update.")
+                return
+            break  # use fallback symbols — no point retrying fetch
+
+        # Always include NEPSE index for regime detection
+        if "NEPSE" not in symbols:
+            symbols = list(symbols) + ["NEPSE"]
+        print(f"Updating historical data for {len(symbols)} symbols (incl. NEPSE index)...")
+        update_chukul_data(symbols=symbols, verbose=False)
+
+        # Check whether new data was actually written (latest date advanced)
+        try:
+            df_check = pd.read_csv(_CHUKUL_DATA_FILE)
+            date_col = "date" if "date" in df_check.columns else None
+            if date_col:
+                df_check[date_col] = pd.to_datetime(df_check[date_col], errors="coerce")
+                latest = df_check[date_col].max()
+                today  = pd.Timestamp.today().normalize()
+                age_days = (today - latest).days
+                if age_days > 1 and attempt < max_retries:
+                    print(f"[DATA CHECK] Latest bar is {age_days} day(s) old ({latest.date()}). "
+                          f"Retrying in {retry_delay}s to get fresher data...")
+                    time.sleep(retry_delay)
+                    continue
+                print(f"[DATA CHECK] chukul_data.csv latest bar: {latest.date()} ({age_days}d old). OK.")
+        except Exception:
+            pass
+        break  # success
 
     fund_file = "chukul_fundamental.csv"
     stale = True
     if os.path.exists(fund_file):
-        age_days = (datetime.now().timestamp() - os.path.getmtime(fund_file)) / 86400
-        stale = age_days > 7
+        age_days_fund = (datetime.now().timestamp() - os.path.getmtime(fund_file)) / 86400
+        stale = age_days_fund > 7
     if stale:
         print("Fetching fundamental data (file missing or >7 days old)...")
         update_fundamental_data(symbols=symbols, verbose=False)
@@ -231,7 +266,7 @@ def main():
     MAX_DAILY_BUYS        = int(_required["MAX_DAILY_BUYS"])
     MAX_PORTFOLIO_STOCKS  = int(_required["MAX_PORTFOLIO_STOCKS"])
 
-    print("--- Starting Portfolio Tracker Bot (Mean Reversion Strategy) ---")
+    print("--- Starting Portfolio Tracker Bot (Fortress Signal Strategy) ---")
     open_status, message = is_market_open()
     notify_bot_started(DRY_RUN, message)
 

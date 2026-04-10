@@ -78,22 +78,25 @@ def update_chukul_data(symbols=None, input_file="live_market_data.csv",
         if verbose:
             iterable = tqdm(iterable, total=len(symbols))
 
-        consecutive_failures = 0
+        consecutive_errors = 0   # only counts hard failures (exceptions / HTTP errors)
+        completed = 0
         for future in iterable:
             symbol = future_to_symbol[future]
+            completed += 1
             try:
                 df = future.result()
                 if df is not None:
                     new_data.append(df)
-                    consecutive_failures = 0
-                else:
-                    consecutive_failures += 1
+                    consecutive_errors = 0
+                # df is None → symbol up-to-date, not a failure — don't count it
             except Exception as exc:
                 print(f'{symbol} generated an exception: {exc}')
-                consecutive_failures += 1
+                consecutive_errors += 1
 
-            if len(new_data) == 0 and consecutive_failures >= PROBE_SIZE:
-                print(f"Early abort: first {PROBE_SIZE} symbols all failed — chukul.com appears unreachable.")
+            # Abort only if the first PROBE_SIZE completed futures ALL raised exceptions
+            # (None result = up-to-date, not an error)
+            if completed <= PROBE_SIZE and len(new_data) == 0 and consecutive_errors >= PROBE_SIZE:
+                print(f"Early abort: first {PROBE_SIZE} symbols all errored — chukul.com appears unreachable.")
                 for f in future_to_symbol:
                     f.cancel()
                 break
