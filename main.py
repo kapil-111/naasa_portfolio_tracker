@@ -25,6 +25,7 @@ from notifications import (
     notify_market_close,
     notify_premarket_report,
 )
+from telegram_commands import poll_and_handle
 
 from datetime import datetime, time as dt_time
 import pytz
@@ -392,6 +393,10 @@ def main():
                     signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
                     print(f"Generated {len(signals)} potential signals for next open.")
                     notify_premarket_report(portfolio_data, available_fund, signals)
+
+                # Poll Telegram for manual commands (market closed — no trading, status only)
+                trader_closed = Trader(page, dry_run=DRY_RUN)
+                poll_and_handle(page, trader_closed, states, portfolio_data, available_fund, DRY_RUN)
             except Exception as e:
                 print(f"Analysis cycle error: {e}")
                 notify_error(e)
@@ -530,6 +535,12 @@ def main():
                 print(f"An error occurred: {e}")
                 notify_error(e)
             finally:
+                # Poll Telegram for manual commands before closing browser
+                try:
+                    trader_cmd = Trader(page, dry_run=DRY_RUN)
+                    poll_and_handle(page, trader_cmd, states, portfolio_data, available_fund, DRY_RUN)
+                except Exception as e:
+                    print(f"Telegram command poll error: {e}")
                 # Save the final state at the end of the trading cycle
                 save_states(states)
                 print("Closing browser...")
