@@ -6,6 +6,7 @@ Update fallbacks here when the broker changes markup. UI last verified in-repo: 
 from __future__ import annotations
 
 import time
+from typing import Literal, Optional, Tuple
 
 from playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError
 
@@ -51,12 +52,13 @@ def dashboard_url_glob() -> str:
 
 
 # --- Order form ---
+# Prefer .sl_by (original NAASA order form) first so .first never grabs another "BUY"/"SELL" on the page.
 def order_side_buy(page: Page) -> Locator:
-    return page.get_by_role("link", name="BUY").or_(page.locator(".sl_by a:has-text('BUY')"))
+    return page.locator(".sl_by a:has-text('BUY')").or_(page.get_by_role("link", name="BUY"))
 
 
 def order_side_sell(page: Page) -> Locator:
-    return page.get_by_role("link", name="SELL").or_(page.locator(".sl_by a:has-text('SELL')"))
+    return page.locator(".sl_by a:has-text('SELL')").or_(page.get_by_role("link", name="SELL"))
 
 
 def order_symbol_input(page: Page) -> Locator:
@@ -64,6 +66,7 @@ def order_symbol_input(page: Page) -> Locator:
 
 
 def order_type_mkt(page: Page) -> Locator:
+    # Keep label first (original behavior); generic "MKT" text is fallback only.
     return page.locator("label:has-text('MKT')").or_(page.get_by_text("MKT", exact=True))
 
 
@@ -77,6 +80,52 @@ def order_submit_button(page: Page) -> Locator:
 
 def order_success_indicators(page: Page) -> Locator:
     return page.locator(".alert-success, .toast-success, [class*='success']")
+
+
+def order_error_indicators(page: Page) -> Locator:
+    """Visible broker error / rejection UI after submit (toasts, alerts, validation)."""
+    return page.locator(
+        ".alert-danger, .toast-error, .toast-danger, .invalid-feedback, .text-danger"
+    )
+
+
+def poll_order_submission_outcome(
+    page: Page, timeout_ms: float = 12_000
+) -> Tuple[Literal["success", "failure", "timeout"], Optional[str]]:
+    """
+    After clicking submit, poll until success toast, error UI, or timeout.
+    Returns (outcome, detail). On failure, detail is visible message text when available.
+    Error detection uses alert/toast CSS only (avoids matching static page copy).
+    """
+    deadline = time.time() + timeout_ms / 1000.0
+    success_loc = order_success_indicators(page)
+    error_loc = order_error_indicators(page)
+
+    def _safe_visible_first(loc: Locator) -> bool:
+        try:
+            if loc.count() == 0:
+                return False
+            return loc.first.is_visible()
+        except Exception:
+            return False
+
+    def _safe_inner(loc: Locator) -> str:
+        try:
+            if loc.count() == 0:
+                return ""
+            t = loc.first.inner_text(timeout=800).strip()
+            return t
+        except Exception:
+            return ""
+
+    while time.time() < deadline:
+        if _safe_visible_first(error_loc):
+            return ("failure", _safe_inner(error_loc) or "Broker reported an error.")
+        if _safe_visible_first(success_loc):
+            return ("success", None)
+        page.wait_for_timeout(150)
+
+    return ("timeout", None)
 
 
 # --- Wallet / collateral ---
