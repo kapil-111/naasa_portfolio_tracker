@@ -10,6 +10,7 @@ __pycache__/
 venv/
 env/
 .venv/
+.pytest_cache/
 
 # IDEs and OS files
 .DS_Store

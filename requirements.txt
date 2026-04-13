@@ -6,3 +6,4 @@ pandas
 numpy
 requests
 tqdm
+pytest

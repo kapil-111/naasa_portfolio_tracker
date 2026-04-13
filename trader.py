@@ -1,5 +1,20 @@
 from playwright.sync_api import Page
 
+from naasa_locators import (
+    naasa_order,
+    order_quantity_input,
+    order_side_buy,
+    order_side_sell,
+    order_submit_button,
+    order_success_indicators,
+    order_symbol_input,
+    order_type_mkt,
+    wait_after_side_select,
+    wait_after_symbol_entry,
+    wait_for_order_page,
+)
+
+
 class Trader:
     def __init__(self, page: Page, dry_run=True):
         self.page = page
@@ -10,39 +25,35 @@ class Trader:
         print(f"--- Placing Order: {signal['side']} {signal['symbol']} x {signal['quantity']} ---")
 
         try:
-            # Navigate to Order Page
             if "MarketOrder/Order" not in self.page.url:
                 print("Navigating to Order Page...")
-                self.page.goto("https://x.naasasecurities.com.np/MarketOrder/Order")
-                self.page.wait_for_load_state("networkidle")
+                self.page.goto(naasa_order())
+                wait_for_order_page(self.page)
 
-            # 1. Select BUY or SELL
-            if signal['side'].upper() == 'BUY':
+            side = signal["side"].upper()
+            if side == "BUY":
                 print("Selecting BUY...")
-                self.page.click(".sl_by a:has-text('BUY')")
+                order_side_buy(self.page).first.click()
             else:
                 print("Selecting SELL...")
-                self.page.click(".sl_by a:has-text('SELL')")
-            self.page.wait_for_timeout(500)
+                order_side_sell(self.page).first.click()
+            wait_after_side_select(self.page)
 
-            # 2. Enter Symbol + Enter to select from dropdown
             print(f"Entering symbol: {signal['symbol']}")
-            self.page.fill("#searchStock", signal['symbol'])
-            self.page.wait_for_timeout(1000)
-            self.page.press("#searchStock", "Enter")
-            self.page.wait_for_timeout(500)
+            sym = order_symbol_input(self.page)
+            sym.fill(signal["symbol"])
+            self.page.wait_for_timeout(400)
+            sym.press("Enter")
+            wait_after_symbol_entry(self.page)
 
-            # 3. Select MKT (market order) — avoids price range validation
             print("Selecting MKT order type...")
-            self.page.click("label:has-text('MKT')")
-            self.page.wait_for_timeout(500)
+            order_type_mkt(self.page).first.click()
+            self.page.wait_for_timeout(200)
 
-            # 4. Enter Quantity
             print(f"Entering quantity: {signal['quantity']}")
-            self.page.fill("#OrdertxtQty", str(signal['quantity']))
+            order_quantity_input(self.page).fill(str(signal["quantity"]))
 
-            # 5. Submit — button ID is always #btnBuy regardless of BUY/SELL mode
-            submit_button = self.page.locator("#btnBuy")
+            submit_button = order_submit_button(self.page)
 
             if self.dry_run:
                 print(f"[DRY RUN] MKT order form filled for {signal['symbol']}. NOT submitting.")
@@ -50,22 +61,14 @@ class Trader:
 
             print("Submitting order...")
             submit_button.click()
-            # Wait for broker confirmation — success toast or error message
             try:
-                # Wait for any success indicator (CSS class or text content)
-                self.page.wait_for_selector(
-                    ".alert-success, .toast-success, [class*='success']",
-                    timeout=5000
-                )
+                order_success_indicators(self.page).first.wait_for(state="visible", timeout=5000)
                 self.page.screenshot(path="order_result.png")
                 print("Order confirmed by broker.")
                 return True
             except Exception:
-                # No confirmation detected — take screenshot for manual review
                 self.page.screenshot(path="order_result.png")
                 print("Warning: No broker confirmation detected. Order may or may not have been placed. Screenshot saved.")
-                # Return True anyway — order was already recorded before submit.
-                # Returning False here would NOT undo the record, so True is safer.
                 return True
 
         except Exception as e:

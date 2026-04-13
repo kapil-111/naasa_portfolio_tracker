@@ -1,5 +1,18 @@
 from playwright.sync_api import Page
 
+from naasa_locators import (
+    holding_data_rows,
+    holding_grid_root,
+    holding_header_cells,
+    holding_next_page,
+    holding_no_data,
+    naasa_holding_report,
+    wallet_home,
+    wallet_total_collateral_label,
+    wallet_total_collateral_value,
+    wait_holding_grid_ready,
+)
+
 
 def scrape_available_fund(page: Page):
     """
@@ -7,16 +20,15 @@ def scrape_available_fund(page: Page):
     Returns float or None if not found.
     """
     print("Scraping available fund...")
-    page.goto("https://wallet.naasasecurities.com.np/")
+    page.goto(wallet_home())
     try:
-        page.wait_for_selector("text=Total Collateral", timeout=10000)
+        wallet_total_collateral_label(page).wait_for(state="visible", timeout=10000)
     except Exception:
         print("[FUND] Timed out waiting for wallet page.")
         return None
 
     try:
-        # "Total Collateral" label → next sibling div → first span (the value)
-        value_text = page.locator("xpath=//span[normalize-space()='Total Collateral']/following-sibling::div[1]/span[1]").inner_text(timeout=3000)
+        value_text = wallet_total_collateral_value(page).inner_text(timeout=3000)
         value = float(value_text.replace(",", "").replace("Rs.", "").strip())
         print(f"[FUND] Total Collateral: {value:,.2f}")
         return value
@@ -25,63 +37,28 @@ def scrape_available_fund(page: Page):
         return None
 
 
-def scrape_portfolio(page: Page):
+def parse_holding_grid(page: Page) -> list:
     """
-    Scrapes portfolio data from the dashboard.
-    Returns a dictionary containing summary and holdings data.
+    Parse holdings from the current Holding Report page (#GridDiv).
+    Assumes navigation to the holding report is already done.
     """
-    print("Scraping portfolio...")
-    portfolio_data = {
-        "summary": {},
-        "holdings": []
-    }
-
-    # Scrape Dashboard Summary — short timeout since we may not be on dashboard
-    print("--- Dashboard Summary ---")
-    try:
-        total_value    = page.locator(".TotalAmountasofCP").inner_text(timeout=5000)
-        total_holdings = page.locator(".TotalNoOfHoldings").inner_text(timeout=5000)
-        todays_gain    = page.locator("#TodaysGain").inner_text(timeout=5000)
-        portfolio_data["summary"] = {
-            "total_value":    total_value,
-            "total_holdings": total_holdings,
-            "todays_gain":    todays_gain
-        }
-    except Exception as e:
-        print(f"Warning: Could not scrape dashboard summary (not on dashboard page): {e}")
-        portfolio_data["summary"] = {}
-
-    # Navigate to Holding Report
-    print("Navigating to Holding Report...")
-    page.goto("https://x.naasasecurities.com.np/TradeBook?Report=HOLDINGDATA")
+    holdings: list = []
 
     try:
-        print("Waiting for data to load...")
-        try:
-            page.wait_for_selector("#GridDiv table", state="visible", timeout=15000)
-            print("Holdings table detected.")
-        except Exception:
-            print("Holdings table not detected within timeout.")
+        wait_holding_grid_ready(page, timeout=15000)
 
-        # Extra wait for Syncfusion grid to populate rows asynchronously
-        page.wait_for_timeout(3000)
-
-        # Check for "No data" message
-        if page.locator("#GridDiv:has-text('No data to display')").is_visible():
+        if holding_no_data(page).is_visible():
             print("Status: No holdings data available (Server returned 'No data').")
-            return portfolio_data
+            return holdings
 
-        grid_div = page.locator("#GridDiv")
+        grid_div = holding_grid_root(page)
+        header_cells = holding_header_cells(grid_div)
+        data_rows = holding_data_rows(grid_div)
 
-        # Strategy 1: Syncfusion specific classes
-        header_cells = grid_div.locator(".e-gridheader table thead th")
-        data_rows    = grid_div.locator(".e-gridcontent table tbody tr")
-
-        # Strategy 2: Generic fallback
         if header_cells.count() == 0:
             print("Syncfusion classes not found, trying generic tables...")
             header_cells = grid_div.locator("table thead th")
-            data_rows    = grid_div.locator("table tbody tr")
+            data_rows = grid_div.locator("table tbody tr")
 
         if header_cells.count() > 0:
             headers = [h.strip() for h in header_cells.all_inner_texts()]
@@ -90,27 +67,26 @@ def scrape_portfolio(page: Page):
             page_num = 1
             while True:
                 print(f"Scraping page {page_num}...")
-                page.wait_for_timeout(1000)
+                page.wait_for_timeout(500)
                 rows = data_rows.all()
                 print(f"Found {len(rows)} rows on page {page_num}.")
 
                 for i, row in enumerate(rows):
-                    cells       = row.locator("td").all_inner_texts()
+                    cells = row.locator("td").all_inner_texts()
                     clean_cells = [c.strip() for c in cells]
                     print(f"Row {i} cells: {clean_cells}")
                     if len(cells) == len(headers):
                         if any(clean_cells):
                             holding = dict(zip(headers, clean_cells))
-                            portfolio_data["holdings"].append(holding)
+                            holdings.append(holding)
                         else:
                             print(f"Skipping empty row {i}")
 
-                # Check for active next-page button
-                next_btn = grid_div.locator(".e-nextpage:not(.e-disable)")
+                next_btn = holding_next_page(grid_div)
                 if next_btn.count() > 0:
                     print(f"Going to page {page_num + 1}...")
                     next_btn.first.click()
-                    page.wait_for_timeout(2000)
+                    page.wait_for_timeout(1500)
                     page_num += 1
                 else:
                     print("No more pages.")
@@ -123,5 +99,37 @@ def scrape_portfolio(page: Page):
         print(f"Error scraping holding report: {e}")
         page.screenshot(path="holdings_error.png")
 
-    print(f"Scraped {len(portfolio_data['holdings'])} holdings.")
+    print(f"Scraped {len(holdings)} holdings.")
+    return holdings
+
+
+def scrape_portfolio(page: Page):
+    """
+    Scrapes portfolio data from the dashboard.
+    Returns a dictionary containing summary and holdings data.
+    """
+    print("Scraping portfolio...")
+    portfolio_data = {
+        "summary": {},
+        "holdings": [],
+    }
+
+    print("--- Dashboard Summary ---")
+    try:
+        total_value = page.locator(".TotalAmountasofCP").inner_text(timeout=5000)
+        total_holdings = page.locator(".TotalNoOfHoldings").inner_text(timeout=5000)
+        todays_gain = page.locator("#TodaysGain").inner_text(timeout=5000)
+        portfolio_data["summary"] = {
+            "total_value": total_value,
+            "total_holdings": total_holdings,
+            "todays_gain": todays_gain,
+        }
+    except Exception as e:
+        print(f"Warning: Could not scrape dashboard summary (not on dashboard page): {e}")
+        portfolio_data["summary"] = {}
+
+    print("Navigating to Holding Report...")
+    page.goto(naasa_holding_report())
+
+    portfolio_data["holdings"] = parse_holding_grid(page)
     return portfolio_data
