@@ -6,6 +6,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 from auth import login
+from session import SessionExpiredError, raise_if_login_page
 from scraper import scrape_portfolio, scrape_available_fund
 from storage import save_to_csv, save_to_json
 from trader import Trader
@@ -373,7 +374,9 @@ def main():
                     page = context.new_page()
                     login(page, username, password)
                     portfolio_data = scrape_portfolio(page)
+                    raise_if_login_page(page, "closed market: after holding report")
                     available_fund = scrape_available_fund(page)
+                    raise_if_login_page(page, "closed market: after wallet")
                     if portfolio_data and portfolio_data.get("holdings"):
                         save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
                     else:
@@ -397,6 +400,9 @@ def main():
                 # Poll Telegram for manual commands (market closed — no trading, status only)
                 trader_closed = Trader(page, dry_run=DRY_RUN)
                 poll_and_handle(page, trader_closed, states, portfolio_data, available_fund, DRY_RUN)
+            except SessionExpiredError as e:
+                print(f"Session / auth error (analysis cycle): {e}")
+                notify_error(e)
             except Exception as e:
                 print(f"Analysis cycle error: {e}")
                 notify_error(e)
@@ -433,8 +439,11 @@ def main():
             try:
                 login(page, username, password)
                 fetch_live_data(page)
+                raise_if_login_page(page, "open market: after market watch")
                 portfolio_data = scrape_portfolio(page)
+                raise_if_login_page(page, "open market: after holding report")
                 available_fund = scrape_available_fund(page)
+                raise_if_login_page(page, "open market: after wallet")
                 if available_fund is not None:
                     save_to_json({"available_fund": available_fund}, "available_fund.json")
                     print(f"Available fund: NPR {available_fund:,.2f}")
@@ -498,6 +507,7 @@ def main():
                                 continue
 
                         order_signal = _adjust_order_price(signal)
+                        raise_if_login_page(page, f"open market: before order {side} {symbol}")
                         # Record BEFORE submitting — prevents retry on any failure/crash
                         # (MKT orders: once submitted, broker executes regardless of our state)
                         save_placed_order(symbol, side, signal_type, quantity=qty)
@@ -531,6 +541,9 @@ def main():
                 else:
                     print("No trading signals generated.")
 
+            except SessionExpiredError as e:
+                print(f"Session / auth error (trading cycle): {e}")
+                notify_error(e)
             except Exception as e:
                 print(f"An error occurred: {e}")
                 notify_error(e)

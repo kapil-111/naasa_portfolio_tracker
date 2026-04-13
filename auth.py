@@ -8,6 +8,7 @@ from naasa_locators import (
     naasa_home,
     wait_for_login_form,
 )
+from session import raise_if_login_page
 
 
 def login(page: Page, username, password):
@@ -30,3 +31,4 @@ def login(page: Page, username, password):
     except Exception as e:
         print(f"Warning: Did not detect Dashboard URL immediately. Current URL: {page.url}")
         page.screenshot(path="login_debug.png")
+    raise_if_login_page(page, "login")
