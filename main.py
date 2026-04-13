@@ -200,6 +200,8 @@ def _clean_portfolio(portfolio_data, states, placed_orders):
         if not sym:
             cleaned.append(h)
             continue
+        if sym.lower().startswith("total"):
+            continue
 
         state = states.get(sym, {})
         last_exit = state.get("last_exit_date")

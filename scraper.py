@@ -1,3 +1,5 @@
+import re
+
 from playwright.sync_api import Page
 
 from naasa_locators import (
@@ -12,6 +14,38 @@ from naasa_locators import (
     wallet_total_collateral_value,
     wait_holding_grid_ready,
 )
+
+# Column names NAASA / Syncfusion may use for the scrip column
+_SYMBOL_HEADER_KEYS = (
+    "Symbol",
+    "symbol",
+    "Stock Symbol",
+    "Script",
+    "Scrip",
+)
+
+
+def _holding_row_symbol(headers: list, clean_cells: list) -> str:
+    row = dict(zip(headers, clean_cells))
+    for k in _SYMBOL_HEADER_KEYS:
+        v = row.get(k)
+        if v is not None and str(v).strip():
+            return str(v).strip()
+    if clean_cells:
+        return str(clean_cells[0]).strip()
+    return ""
+
+
+def _is_holding_page_total_row(headers: list, clean_cells: list) -> bool:
+    """
+    NAASA holding grid ends each page with a blue 'Total :' row (page subtotal), not a stock.
+    """
+    sym = _holding_row_symbol(headers, clean_cells).lower()
+    if not sym:
+        return False
+    if sym.startswith("total"):
+        return True
+    return re.match(r"^total\s*:?\s*$", sym) is not None
 
 
 def scrape_available_fund(page: Page):
@@ -77,6 +111,9 @@ def parse_holding_grid(page: Page) -> list:
                     print(f"Row {i} cells: {clean_cells}")
                     if len(cells) == len(headers):
                         if any(clean_cells):
+                            if _is_holding_page_total_row(headers, clean_cells):
+                                print(f"Skipping page total/footer row {i}: {clean_cells[:3]}...")
+                                continue
                             holding = dict(zip(headers, clean_cells))
                             holdings.append(holding)
                         else:

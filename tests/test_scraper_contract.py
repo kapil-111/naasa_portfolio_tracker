@@ -31,7 +31,7 @@ def chromium_page():
 def test_parse_holding_grid_syncfusion_fixture(chromium_page):
     chromium_page.goto(_file_url("holding_report.html"))
     rows = parse_holding_grid(chromium_page)
-    assert len(rows) == 2
+    assert len(rows) == 2  # excludes per-page "Total :" footer row
     assert rows[0]["Symbol"] == "ABC"
     assert rows[0]["Qty"] == "10"
     assert rows[1]["Symbol"] == "XYZ"

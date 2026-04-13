@@ -210,6 +210,8 @@ def _handle_status(portfolio_data, available_fund):
         total_val  = 0.0
         for h in holdings:
             sym = _get_holding_symbol(h)
+            if sym and sym.lower().startswith("total"):
+                continue
             qty = _get_holding_qty(h)
             avg = avg_prices.get(sym)
             ltp = None

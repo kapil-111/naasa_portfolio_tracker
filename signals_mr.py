@@ -337,8 +337,11 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
     held_symbols = {}
     for h in portfolio.get('holdings', []):
         sym = _get_holding_symbol(h)
-        if sym:
-            held_symbols[sym] = h
+        if not sym:
+            continue
+        if sym.lower().startswith("total"):
+            continue  # NAASA grid per-page "Total :" footer row (not a ticker)
+        held_symbols[sym] = h
 
     # Build per-symbol dict: {symbol: (row_today, row_yesterday)} sorted descending by date
     symbol_rows = {}
