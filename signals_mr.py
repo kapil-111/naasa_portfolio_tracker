@@ -496,8 +496,11 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                 continue
 
             # 1. Cut-loss: >25% drop from initial entry after 20+ days (hard override)
+            # Skipped in BULL regime — hold through drawdowns, exit when market turns BEAR
             if drop_from_start <= -25 and days_held >= 20:
-                if current_qty >= MIN_SELL_QTY:
+                if regime == "BULL":
+                    print(f"[{symbol}] Cut-loss suppressed — BULL regime (drop={drop_from_start:.1f}%)")
+                elif current_qty >= MIN_SELL_QTY:
                     print(f"[{symbol}] *** CUT LOSS *** drop={drop_from_start:.1f}% days={days_held}")
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": close, "type": "CUT_LOSS",
@@ -529,8 +532,11 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     continue
 
             # 4. Stop loss at -10%
+            # Skipped in BULL regime — hold through drawdowns, exit when market turns BEAR
             if profit_pct <= FORTRESS_SL_PCT:
-                if current_qty >= MIN_SELL_QTY:
+                if regime == "BULL":
+                    print(f"[{symbol}] SL suppressed — BULL regime (profit={profit_pct:.1f}%)")
+                elif current_qty >= MIN_SELL_QTY:
                     print(f"[{symbol}] *** FORTRESS SL *** profit={profit_pct:.1f}%")
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": close, "type": "FULL_EXIT",
@@ -551,8 +557,12 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     continue
 
             # 6. EMA cross exit — only after min_hold_days, confirmed for 2 consecutive days
+            # Skipped in BULL regime — hold through drawdowns, exit when market turns BEAR
             if (days_held >= FORTRESS_MIN_HOLD and
                     state.get('ema_cross_days', 0) >= FORTRESS_EMA_CONFIRM):
+                if regime == "BULL":
+                    print(f"[{symbol}] EMA cross exit suppressed — BULL regime ({state.get('ema_cross_days', 0)}d cross)")
+                    continue
                 if current_qty >= MIN_SELL_QTY:
                     print(f"[{symbol}] *** FORTRESS EMA CROSS EXIT *** EMA9={ema9:.2f} < EMA21={ema21:.2f} for {state['ema_cross_days']}d")
                     signals.append({
