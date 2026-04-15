@@ -346,6 +346,7 @@ def main():
     last_was_open = False
 
     while True:
+        cycle_start = time.monotonic()
         open_status, message = is_market_open()
         today_str = datetime.now().strftime("%Y-%m-%d")
 
@@ -410,7 +411,9 @@ def main():
                 notify_error(e)
 
             if RUN_ONCE: break
-            time.sleep(SLEEP_INTERVAL_CLOSED)
+            elapsed = time.monotonic() - cycle_start
+            wait = max(0, SLEEP_INTERVAL_CLOSED - elapsed)
+            time.sleep(wait)
             continue
 
         # --- Market OPEN: full trading cycle ---
@@ -567,8 +570,10 @@ def main():
 
         notify_cycle_summary(signals, orders_placed_this_cycle, POLL_INTERVAL, load_placed_orders().get("orders", []))
         if RUN_ONCE: break
-        print(f"Cycle complete. Waiting {POLL_INTERVAL} seconds...")
-        time.sleep(POLL_INTERVAL)
+        elapsed = time.monotonic() - cycle_start
+        wait = max(0, POLL_INTERVAL - elapsed)
+        print(f"Cycle complete in {elapsed:.0f}s. Waiting {wait:.0f}s...")
+        time.sleep(wait)
 
 
 if __name__ == "__main__":
