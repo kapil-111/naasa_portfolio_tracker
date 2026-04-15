@@ -423,6 +423,10 @@ def main():
         # Load strategy states at the start of the cycle
         states = load_states()
 
+        portfolio_data = _load_cached_portfolio()
+        available_fund = None
+        signals = []
+
         with sync_playwright() as p:
             browser = p.chromium.launch(
                 headless=True,
