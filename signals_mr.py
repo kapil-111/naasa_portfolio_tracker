@@ -490,6 +490,12 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             else:
                 state['ema_cross_days'] = 0
 
+            # Update peak_price (trailing high — only moves up)
+            peak_price = state.get('peak_price', close)
+            if close > peak_price:
+                peak_price = close
+            state['peak_price'] = peak_price
+
             # Exit signals only after T+3
             if days_held < 3:
                 continue
@@ -506,6 +512,23 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             if is_ipo:
                 # IPO stocks: no automated exits — user decides when to sell.
                 print(f"[{symbol}] [IPO] Skipping all automated exit rules — manual sell only.")
+                continue
+
+            # 0. Trailing Stop-Loss: 10% drop from peak → sell 50% if qty>19, else full exit
+            # Always active regardless of regime
+            tsl_trigger = peak_price * 0.90
+            drop_from_peak = (close - peak_price) / peak_price * 100
+            if close <= tsl_trigger and current_qty >= MIN_SELL_QTY:
+                if current_qty > 19:
+                    tsl_qty = max(10, int(current_qty * 0.50))
+                else:
+                    tsl_qty = current_qty
+                print(f"[{symbol}] *** TRAILING SL *** peak={peak_price:.0f} tsl={tsl_trigger:.0f} close={close:.0f} drop={drop_from_peak:.1f}% → SELL {tsl_qty}")
+                signals.append({
+                    "side": "SELL", "symbol": symbol, "price": close, "type": "TRAIL_SL",
+                    "quantity": tsl_qty, **_ctx,
+                    "reason": f"Trailing SL: {drop_from_peak:.1f}% drop from peak {peak_price:.0f} (tsl={tsl_trigger:.0f})",
+                })
                 continue
 
             # 1. Cut-loss: >25% drop from initial entry after 20+ days (hard override)

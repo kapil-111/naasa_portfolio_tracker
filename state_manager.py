@@ -61,12 +61,12 @@ def update_state_for_trade(state, signal, current_price, quantity=None):
             new_state['trades'] = new_state.get('trades', 0)
 
     elif signal['side'] == 'SELL':
-        # This is a partial sell (half of the position)
-        if signal_type == 'HALF_SELL':
-            print(f"[{signal['symbol']}] STATE: Half-selling position.")
+        # This is a partial sell (half of the position or trailing SL partial)
+        if signal_type in ('HALF_SELL', 'TRAIL_SL'):
+            print(f"[{signal['symbol']}] STATE: Partial sell ({signal_type}).")
             new_state['half_sold'] = True
-            # Note: P&L tracking is not part of state management for live trading.
-            # We just record that the partial sale happened.
+            # Reset peak_price so trail restarts from current price after partial exit
+            new_state['peak_price'] = current_price
         # This is a full sell (including cut-loss)
         else:
             print(f"[{signal['symbol']}] STATE: Exiting full position.")
