@@ -108,7 +108,10 @@ def _calc_adx(high, low, close, period=14):
 def get_nepse_regime(ohlcv_file="chukul_data.csv"):
     """
     Detects NEPSE market regime using the NEPSE index (symbol 'NEPSE' or 'NEPSEI').
-    Returns: 'BULL' if index > EMA50, 'BEAR' otherwise.
+    Uses EMA21 + ADX for faster regime detection (catches turns 2-3 weeks earlier than EMA50):
+      BULL     — index > EMA21 AND ADX > 20 (trending up)
+      BEAR     — index < EMA21 AND ADX > 20 (trending down)
+      SIDEWAYS — ADX <= 20 (no clear trend regardless of EMA position)
     If index data not available, returns 'UNKNOWN' (neutral — don't restrict buys).
     """
     if not os.path.exists(ohlcv_file):
@@ -123,18 +126,22 @@ def get_nepse_regime(ohlcv_file="chukul_data.csv"):
         # Try common NEPSE index symbols
         for idx_sym in ["NEPSE", "NEPSEI", "nepse", "nepsei"]:
             idx = df[df["symbol"] == idx_sym].sort_values("date")
-            if len(idx) >= 50:
+            if len(idx) >= 21:
                 idx = idx.copy()
-                idx["ema50"] = _calc_ema(idx["close"], 50)
+                idx["ema21"] = _calc_ema(idx["close"], 21)
+                adx_vals = _calc_adx(idx["high"], idx["low"], idx["close"], period=14)
+                idx["adx"] = adx_vals
                 last = idx.iloc[-1]
-                diff_pct = (last["close"] - last["ema50"]) / last["ema50"] * 100
-                if diff_pct > 2:
+                above_ema21 = last["close"] > last["ema21"]
+                adx = float(last["adx"]) if not pd.isna(last["adx"]) else 0
+                trending = adx > 20
+                if trending and above_ema21:
                     regime = "BULL"
-                elif diff_pct < -2:
+                elif trending and not above_ema21:
                     regime = "BEAR"
                 else:
                     regime = "SIDEWAYS"
-                print(f"[REGIME] NEPSE index {last['close']:.0f} vs EMA50 {last['ema50']:.0f} ({diff_pct:+.1f}%) → {regime}")
+                print(f"[REGIME] NEPSE index {last['close']:.0f} vs EMA21 {last['ema21']:.0f} | ADX={adx:.1f} → {regime}")
                 return regime
     except Exception as e:
         print(f"[REGIME] Could not determine regime: {e}")
