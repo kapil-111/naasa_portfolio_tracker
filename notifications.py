@@ -114,10 +114,12 @@ def notify_cycle_summary(signals, orders_placed, next_in_seconds, daily_orders=N
     _tg_send("\n".join(lines))
 
 
-def notify_premarket_report(portfolio_data, available_fund, signals):
+def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNKNOWN"):
     """Send morning report: holdings, available fund, and today's buy/sell signals."""
     print("Sending morning report via Telegram...")
-    lines = [f"📋 Morning Report — {_now_npt()}\n"]
+    regime_emoji = {"BULL": "🟢", "BEAR": "🔴", "SIDEWAYS": "🟡"}.get(regime, "⚪")
+    lines = [f"📋 Morning Report — {_now_npt()}\n",
+             f"Market Trend: {regime_emoji} {regime}\n"]
 
     # Portfolio holdings
     avg_prices = {}

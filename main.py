@@ -398,7 +398,7 @@ def main():
                     regime = get_nepse_regime()
                     signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
                     print(f"Generated {len(signals)} potential signals for next open.")
-                    notify_premarket_report(portfolio_data, available_fund, signals)
+                    notify_premarket_report(portfolio_data, available_fund, signals, regime=regime)
 
                 # Poll Telegram for manual commands (market closed — no trading, status only)
                 trader_closed = Trader(page, dry_run=DRY_RUN)

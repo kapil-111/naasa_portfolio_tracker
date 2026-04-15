@@ -127,8 +127,14 @@ def get_nepse_regime(ohlcv_file="chukul_data.csv"):
                 idx = idx.copy()
                 idx["ema50"] = _calc_ema(idx["close"], 50)
                 last = idx.iloc[-1]
-                regime = "BULL" if last["close"] > last["ema50"] else "BEAR"
-                print(f"[REGIME] NEPSE index {last['close']:.0f} vs EMA50 {last['ema50']:.0f} → {regime}")
+                diff_pct = (last["close"] - last["ema50"]) / last["ema50"] * 100
+                if diff_pct > 2:
+                    regime = "BULL"
+                elif diff_pct < -2:
+                    regime = "BEAR"
+                else:
+                    regime = "SIDEWAYS"
+                print(f"[REGIME] NEPSE index {last['close']:.0f} vs EMA50 {last['ema50']:.0f} ({diff_pct:+.1f}%) → {regime}")
                 return regime
     except Exception as e:
         print(f"[REGIME] Could not determine regime: {e}")
