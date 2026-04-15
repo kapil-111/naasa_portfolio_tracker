@@ -84,7 +84,7 @@
     "SNLI": {
         "in_position": true,
         "entry_date": "2026-03-30",
-        "entry_price": 412.95,
+        "entry_price": 440.33,
         "initial_entry": 412.95,
         "ema_cross_days": 12
     },
@@ -155,5 +155,12 @@
         "position_count": 1,
         "trades": 0,
         "is_ipo": true
+    },
+    "SMATA": {
+        "in_position": true,
+        "entry_date": "2026-04-15",
+        "entry_price": 879.42,
+        "initial_entry": 879.42,
+        "ema_cross_days": 0
     }
 }
