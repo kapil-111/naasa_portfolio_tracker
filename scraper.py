@@ -3,6 +3,7 @@ import re
 from playwright.sync_api import Page
 
 from naasa_locators import (
+    goto_broker_page,
     holding_data_rows,
     holding_grid_root,
     holding_header_cells,
@@ -54,7 +55,7 @@ def scrape_available_fund(page: Page):
     Returns float or None if not found.
     """
     print("Scraping available fund...")
-    page.goto(wallet_home())
+    goto_broker_page(page, wallet_home())
     try:
         wallet_total_collateral_label(page).wait_for(state="visible", timeout=10000)
     except Exception:
@@ -166,7 +167,7 @@ def scrape_portfolio(page: Page):
         portfolio_data["summary"] = {}
 
     print("Navigating to Holding Report...")
-    page.goto(naasa_holding_report())
+    goto_broker_page(page, naasa_holding_report())
 
     portfolio_data["holdings"] = parse_holding_grid(page)
     return portfolio_data

@@ -1,6 +1,7 @@
 from playwright.sync_api import Page
 
 from naasa_locators import (
+    goto_broker_page,
     naasa_order,
     order_quantity_input,
     order_side_buy,
@@ -31,7 +32,7 @@ class Trader:
         try:
             if "MarketOrder/Order" not in self.page.url:
                 print("Navigating to Order Page...")
-                self.page.goto(naasa_order())
+                goto_broker_page(self.page, naasa_order())
                 wait_for_order_page(self.page)
 
             side = signal["side"].upper()

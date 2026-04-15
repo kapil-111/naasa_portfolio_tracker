@@ -2,6 +2,7 @@ from playwright.sync_api import Page
 
 from naasa_locators import (
     dashboard_url_glob,
+    goto_broker_page,
     login_password,
     login_submit,
     login_username,
@@ -16,7 +17,7 @@ def login(page: Page, username, password):
     Logs into Naasa Securities using the provided credentials.
     """
     print("Navigating to login page...")
-    page.goto(naasa_home())
+    goto_broker_page(page, naasa_home())
     print("Waiting for login form...")
     wait_for_login_form(page)
     print("Entering credentials...")

@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 from auth import login
 from naasa_locators import (
+    goto_broker_page,
     market_row_ltp_cell,
     market_row_ticker_cell,
     market_watch_rows,
@@ -28,7 +29,7 @@ def fetch_live_data(page=None):
                 login(p, username, password)
 
             print("Navigating to Market Watch...")
-            p.goto(naasa_market_watch())
+            goto_broker_page(p, naasa_market_watch())
 
             print("Waiting for market data table...")
             wait_market_watch_rows_ready(p, timeout=30000)

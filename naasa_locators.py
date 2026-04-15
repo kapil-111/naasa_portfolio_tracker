@@ -190,9 +190,24 @@ def wait_for_login_form(page: Page, timeout: float = 15_000) -> None:
     login_username(page).wait_for(state="visible", timeout=timeout)
 
 
+def goto_broker_page(page: Page, url: str, timeout: float = 30_000) -> None:
+    """
+    Navigate without waiting for the full window `load` event.
+
+    The broker pages are often interactive before every asset finishes loading,
+    and some sessions appear to keep requests open long enough for Playwright's
+    default `wait_until="load"` to timeout. Callers should wait for the specific
+    element they need after navigation.
+    """
+    try:
+        page.goto(url, wait_until="domcontentloaded", timeout=timeout)
+    except PlaywrightTimeoutError:
+        # Last-resort fallback for pages that never reach DOMContentLoaded cleanly.
+        page.goto(url, wait_until="commit", timeout=10_000)
+
+
 def wait_for_order_page(page: Page, timeout: float = 30_000) -> None:
-    page.wait_for_load_state("networkidle", timeout=timeout)
-    order_symbol_input(page).wait_for(state="visible", timeout=10_000)
+    order_symbol_input(page).wait_for(state="visible", timeout=timeout)
 
 
 def wait_after_side_select(page: Page) -> None:
