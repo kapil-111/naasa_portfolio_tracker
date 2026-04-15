@@ -466,6 +466,10 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             _display_avg = avg_prices.get(symbol) or entry_price
             _display_profit_pct = (close - _display_avg) / _display_avg * 100
             current_qty    = _get_holding_qty(held_symbols.get(symbol, {}))
+            if current_qty > 0:
+                state['last_known_qty'] = current_qty  # persist for fallback when scrape unavailable
+            else:
+                current_qty = state.get('last_known_qty', 0)
 
             # Update EMA cross day counter in state (for confirmation logic)
             if ema_below_now and ema_below_prev:
