@@ -1,59 +1,23 @@
 {
-    "date": "2026-04-16",
+    "date": "2026-04-17",
     "orders": [
         {
-            "symbol": "HATHY",
+            "symbol": "BNHC",
             "side": "SELL",
-            "type": "CUT_LOSS",
-            "quantity": 36
+            "type": "CUT_LOSS_HALF",
+            "quantity": 10
         },
         {
-            "symbol": "IGI",
+            "symbol": "CHCL",
             "side": "SELL",
-            "type": "FULL_EXIT",
+            "type": "SL_HALF",
             "quantity": 20
         },
         {
-            "symbol": "KDL",
-            "side": "SELL",
-            "type": "CUT_LOSS",
-            "quantity": 31
-        },
-        {
-            "symbol": "NFS",
-            "side": "SELL",
-            "type": "CUT_LOSS",
-            "quantity": 72
-        },
-        {
-            "symbol": "NMLBBL",
+            "symbol": "SAHAS",
             "side": "SELL",
             "type": "FULL_EXIT",
-            "quantity": 30
-        },
-        {
-            "symbol": "PMLI",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 86
-        },
-        {
-            "symbol": "PROFL",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 50
-        },
-        {
-            "symbol": "SWBBL",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 37
-        },
-        {
-            "symbol": "UAIL",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 80
+            "quantity": 10
         }
     ]
 }

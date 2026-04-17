@@ -7,7 +7,9 @@
         "half_sold": false,
         "position_count": 3,
         "trades": 0,
-        "last_known_qty": 2
+        "last_known_qty": 20,
+        "ema_cross_days": 1,
+        "peak_price": 341.6
     },
     "CHCL": {
         "in_position": true,
@@ -17,7 +19,9 @@
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
-        "last_known_qty": 40
+        "last_known_qty": 40,
+        "ema_cross_days": 1,
+        "peak_price": 493.0
     },
     "HDL": {
         "in_position": false,
@@ -39,7 +43,9 @@
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
-        "last_known_qty": 60
+        "last_known_qty": 60,
+        "ema_cross_days": 1,
+        "peak_price": 596.0
     },
     "NABIL": {
         "in_position": false,
@@ -83,16 +89,18 @@
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
-        "last_known_qty": 10
+        "last_known_qty": 10,
+        "ema_cross_days": 0,
+        "peak_price": 625.0
     },
     "SNLI": {
         "in_position": true,
         "entry_date": "2026-03-30",
         "entry_price": 440.33,
         "initial_entry": 412.95,
-        "ema_cross_days": 14,
+        "ema_cross_days": 15,
         "last_known_qty": 9,
-        "peak_price": 458.5
+        "peak_price": 460.1
     },
     "DDBL": {
         "in_position": false,
@@ -171,7 +179,7 @@
         "entry_date": "2026-04-15",
         "entry_price": 879.42,
         "initial_entry": 879.42,
-        "ema_cross_days": 2,
+        "ema_cross_days": 3,
         "last_known_qty": 11,
         "peak_price": 791.2
     },
