@@ -1,27 +1,35 @@
 {
     "BNHC": {
-        "in_position": true,
-        "entry_date": "2026-03-05",
-        "entry_price": 462.46729999999997,
-        "initial_entry": 645.4019,
+        "in_position": false,
+        "entry_date": null,
+        "entry_price": 0,
+        "initial_entry": 0,
         "half_sold": false,
-        "position_count": 3,
-        "trades": 0,
+        "position_count": 0,
+        "trades": 1,
         "last_known_qty": 20,
         "ema_cross_days": 1,
-        "peak_price": 341.6
+        "peak_price": 346.0,
+        "last_exit_price": 346.0,
+        "last_exit_date": "2026-04-17",
+        "sideways_half_sold": true,
+        "sideways_sold_qty": 10
     },
     "CHCL": {
-        "in_position": true,
-        "entry_date": "2026-03-05",
-        "entry_price": 553.6913,
-        "initial_entry": 553.6913,
+        "in_position": false,
+        "entry_date": null,
+        "entry_price": 0,
+        "initial_entry": 0,
         "half_sold": false,
-        "position_count": 1,
-        "trades": 0,
+        "position_count": 0,
+        "trades": 1,
         "last_known_qty": 40,
         "ema_cross_days": 1,
-        "peak_price": 493.0
+        "peak_price": 497.9,
+        "last_exit_price": 497.9,
+        "last_exit_date": "2026-04-17",
+        "sideways_half_sold": true,
+        "sideways_sold_qty": 20
     },
     "HDL": {
         "in_position": false,
@@ -36,16 +44,20 @@
         "last_exit_date": "2026-04-09"
     },
     "MEN": {
-        "in_position": true,
-        "entry_date": "2026-03-05",
-        "entry_price": 603.2519,
-        "initial_entry": 603.2519,
+        "in_position": false,
+        "entry_date": null,
+        "entry_price": 0,
+        "initial_entry": 0,
         "half_sold": false,
-        "position_count": 1,
-        "trades": 0,
+        "position_count": 0,
+        "trades": 1,
         "last_known_qty": 60,
-        "ema_cross_days": 1,
-        "peak_price": 596.0
+        "ema_cross_days": 5,
+        "peak_price": 595.1,
+        "last_exit_price": 595.1,
+        "last_exit_date": "2026-04-17",
+        "sideways_half_sold": true,
+        "sideways_sold_qty": 30
     },
     "NABIL": {
         "in_position": false,
@@ -82,25 +94,27 @@
         "last_exit_price": 270.1
     },
     "SAHAS": {
-        "in_position": true,
-        "entry_date": "2026-03-05",
-        "entry_price": 100.0,
-        "initial_entry": 100.0,
+        "in_position": false,
+        "entry_date": null,
+        "entry_price": 0,
+        "initial_entry": 0,
         "half_sold": false,
-        "position_count": 1,
-        "trades": 0,
+        "position_count": 0,
+        "trades": 1,
         "last_known_qty": 10,
         "ema_cross_days": 0,
-        "peak_price": 625.0
+        "peak_price": 625.3,
+        "last_exit_price": 625.3,
+        "last_exit_date": "2026-04-17"
     },
     "SNLI": {
         "in_position": true,
-        "entry_date": "2026-03-30",
+        "entry_date": "2026-04-07",
         "entry_price": 440.33,
-        "initial_entry": 412.95,
-        "ema_cross_days": 15,
+        "initial_entry": 440.33,
+        "ema_cross_days": 1,
         "last_known_qty": 9,
-        "peak_price": 460.1
+        "peak_price": 461.0
     },
     "DDBL": {
         "in_position": false,
@@ -174,15 +188,7 @@
         "is_ipo": true,
         "last_known_qty": 10
     },
-    "SMATA": {
-        "in_position": true,
-        "entry_date": "2026-04-15",
-        "entry_price": 879.42,
-        "initial_entry": 879.42,
-        "ema_cross_days": 3,
-        "last_known_qty": 11,
-        "peak_price": 791.2
-    },
+    "SMATA": {},
     "HATHY": {},
     "IGI": {},
     "KDL": {},

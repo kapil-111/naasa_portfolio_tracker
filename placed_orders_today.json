@@ -18,6 +18,12 @@
             "side": "SELL",
             "type": "FULL_EXIT",
             "quantity": 10
+        },
+        {
+            "symbol": "MEN",
+            "side": "SELL",
+            "type": "EMA_CROSS_HALF",
+            "quantity": 30
         }
     ]
 }
