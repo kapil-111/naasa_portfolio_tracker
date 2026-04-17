@@ -112,7 +112,7 @@
         "entry_date": "2026-04-07",
         "entry_price": 440.33,
         "initial_entry": 440.33,
-        "ema_cross_days": 1,
+        "ema_cross_days": 2,
         "last_known_qty": 9,
         "peak_price": 461.0
     },
