@@ -125,10 +125,6 @@ def dismiss_any_confirmation(page: Page, timeout_ms: int = 3_000) -> bool:
     return False
 
 
-def order_success_indicators(page: Page) -> Locator:
-    return page.locator(".alert-success, .toast-success, [class*='success']")
-
-
 def order_error_indicators(page: Page) -> Locator:
     """Visible broker error / rejection UI after submit (toasts, alerts, validation)."""
     return page.locator(
@@ -140,13 +136,13 @@ def poll_order_submission_outcome(
     page: Page, timeout_ms: float = 12_000
 ) -> Tuple[Literal["success", "failure", "timeout"], Optional[str]]:
     """
-    After clicking submit, poll until success toast, error UI, or timeout.
-    Returns (outcome, detail). On failure, detail is visible message text when available.
-    Error detection uses alert/toast CSS only (avoids matching static page copy).
+    NAASA X shows no toast on success — the form simply resets (qty field clears).
+    Detect success by watching #OrdertxtQty become empty after submit.
+    Error detection uses visible alert/validation CSS.
     """
     deadline = time.time() + timeout_ms / 1000.0
-    success_loc = order_success_indicators(page)
     error_loc = order_error_indicators(page)
+    qty_input = page.locator("#OrdertxtQty")
 
     def _safe_visible_first(loc: Locator) -> bool:
         try:
@@ -165,10 +161,17 @@ def poll_order_submission_outcome(
         except Exception:
             return ""
 
+    def _qty_cleared() -> bool:
+        try:
+            val = qty_input.input_value(timeout=300)
+            return val.strip() == ""
+        except Exception:
+            return False
+
     while time.time() < deadline:
         if _safe_visible_first(error_loc):
             return ("failure", _safe_inner(error_loc) or "Broker reported an error.")
-        if _safe_visible_first(success_loc):
+        if _qty_cleared():
             return ("success", None)
         page.wait_for_timeout(150)
 
