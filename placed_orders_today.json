@@ -1,29 +1,4 @@
 {
     "date": "2026-04-17",
-    "orders": [
-        {
-            "symbol": "BNHC",
-            "side": "SELL",
-            "type": "CUT_LOSS_HALF",
-            "quantity": 10
-        },
-        {
-            "symbol": "CHCL",
-            "side": "SELL",
-            "type": "SL_HALF",
-            "quantity": 20
-        },
-        {
-            "symbol": "SAHAS",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 10
-        },
-        {
-            "symbol": "MEN",
-            "side": "SELL",
-            "type": "EMA_CROSS_HALF",
-            "quantity": 30
-        }
-    ]
+    "orders": []
 }
