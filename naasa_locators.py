@@ -78,6 +78,53 @@ def order_submit_button(page: Page) -> Locator:
     return page.locator("#btnBuy")
 
 
+def dismiss_any_confirmation(page: Page, timeout_ms: int = 3_000) -> bool:
+    """
+    Generic confirmation handler — works regardless of NAASA UI changes.
+    Looks for any visible modal/dialog overlay and clicks the most affirmative button.
+    Returns True if a confirmation was clicked, False if none found.
+    """
+    # Broad selector: any visible modal/dialog/overlay element
+    dialog_roots = [
+        "div[role='dialog']",
+        "div[role='alertdialog']",
+        ".modal",
+        "[class*='modal']",
+        "[class*='dialog']",
+        "[class*='confirm']",
+        "[class*='popup']",
+        "[class*='overlay']",
+    ]
+    # Priority order for confirm button text
+    confirm_texts = ["Yes", "Confirm", "OK", "Proceed", "Accept", "Place Order", "Submit"]
+
+    deadline = time.time() + timeout_ms / 1000.0
+    while time.time() < deadline:
+        for root_sel in dialog_roots:
+            try:
+                roots = page.locator(root_sel)
+                if roots.count() == 0:
+                    continue
+                for i in range(roots.count()):
+                    root = roots.nth(i)
+                    if not root.is_visible():
+                        continue
+                    # Try each confirm text in priority order
+                    for text in confirm_texts:
+                        try:
+                            btn = root.get_by_role("button", name=text, exact=False)
+                            if btn.count() > 0 and btn.first.is_visible():
+                                print(f"[CONFIRM] Detected dialog '{root_sel}' — clicking '{text}' button")
+                                btn.first.click()
+                                return True
+                        except Exception:
+                            continue
+            except Exception:
+                continue
+        page.wait_for_timeout(150)
+    return False
+
+
 def order_success_indicators(page: Page) -> Locator:
     return page.locator(".alert-success, .toast-success, [class*='success']")
 

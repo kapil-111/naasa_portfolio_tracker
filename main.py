@@ -144,6 +144,23 @@ def save_placed_order(symbol, side, signal_type, quantity=0):
     print(f"Recorded order for {side} {symbol} ({signal_type}) qty={quantity} in state file.")
 
 
+def remove_placed_order(symbol, side, signal_type):
+    """Removes a previously recorded order — used when order definitively failed (not unconfirmed)."""
+    filename = "placed_orders_today.json"
+    data = load_placed_orders()
+    before = len(data["orders"])
+    data["orders"] = [
+        o for o in data["orders"]
+        if not (o.get("symbol") == symbol and o.get("side") == side and o.get("type") == signal_type)
+    ]
+    if len(data["orders"]) < before:
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=4)
+            f.flush()
+            os.fsync(f.fileno())
+        print(f"Removed failed order for {side} {symbol} ({signal_type}) — will retry next cycle.")
+
+
 def _clear_avg_price(symbol, path="avg_prices.json"):
     """Remove a symbol's entry from avg_prices.json after a full exit."""
     if not os.path.exists(path):
@@ -522,7 +539,14 @@ def main():
                         save_placed_order(symbol, side, signal_type, quantity=qty)
                         success = trader.place_order(order_signal)
                         if not success:
-                            notify_error(f"place_order failed: {side} {symbol} ({signal_type})\n{trader.last_error}")
+                            if trader.last_outcome == "unconfirmed":
+                                # Order was submitted but UI gave no confirmation — could have executed.
+                                # Keep in placed_orders to avoid double-execution. Manual check required.
+                                notify_error(f"place_order failed: {side} {symbol} ({signal_type})\n{trader.last_error}")
+                            else:
+                                # Order definitively failed before reaching broker — safe to retry next cycle.
+                                remove_placed_order(symbol, side, signal_type)
+                                notify_error(f"place_order failed: {side} {symbol} ({signal_type})\n{trader.last_error}")
                         else:
                             if signal_type == "SWING_TARGET":
                                 remove_swing_target(symbol)
@@ -530,6 +554,14 @@ def main():
                             # --- UPDATE STATE on successful trade ---
                             symbol_state = states.get(symbol, {})
                             new_symbol_state = update_state_for_trade(symbol_state, signal, order_signal['price'], signal['quantity'])
+                            # Persist sideways half-sell flag so BEAR can finish the exit
+                            if signal.get('sideways_half_sold'):
+                                new_symbol_state['sideways_half_sold'] = True
+                                new_symbol_state['sideways_sold_qty'] = signal.get('sideways_sold_qty', 0)
+                            # Clear sideways flag on full exit or successful re-buy
+                            if signal_type in ('FULL_EXIT', 'CUT_LOSS', 'RSI_OB', 'SWING_TARGET', 'TRAIL_SL'):
+                                new_symbol_state.pop('sideways_half_sold', None)
+                                new_symbol_state.pop('sideways_sold_qty', None)
                             states[symbol] = new_symbol_state
 
                             # --- UPDATE avg_prices.json on BUY / clear on full SELL ---

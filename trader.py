@@ -1,6 +1,7 @@
 from playwright.sync_api import Page
 
 from naasa_locators import (
+    dismiss_any_confirmation,
     goto_broker_page,
     naasa_order,
     order_quantity_input,
@@ -65,8 +66,15 @@ class Trader:
                 self.last_outcome = None
                 return True
 
+            # Auto-accept browser-native confirm() dialogs (window.confirm, window.alert)
+            self.page.on("dialog", lambda d: d.accept())
+
             print("Submitting order...")
             submit_button.click()
+
+            # Auto-dismiss any HTML modal/overlay confirmation dialog
+            dismiss_any_confirmation(self.page, timeout_ms=3_000)
+
             outcome, detail = poll_order_submission_outcome(self.page)
             self.page.screenshot(path="order_result.png")
 

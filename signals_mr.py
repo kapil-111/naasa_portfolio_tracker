@@ -347,6 +347,8 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
 
     if regime == "BEAR":
         print("[REGIME] BEAR market detected — new BUY signals blocked. Sells/exits still active.")
+    elif regime == "SIDEWAYS":
+        print("[REGIME] SIDEWAYS market — exits will sell HALF position only. Waiting for BEAR to sell remainder.")
     held_symbols = {}
     for h in portfolio.get('holdings', []):
         sym = _get_holding_symbol(h)
@@ -465,6 +467,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                 })
                 daily_buy_count += 1
 
+
         # --- Generate SELL Signals (existing positions) ---
         else:
             days_held      = (pd.to_datetime('today') - pd.to_datetime(state['entry_date'])).days
@@ -532,10 +535,21 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                 continue
 
             # 1. Cut-loss: >25% drop from initial entry after 20+ days (hard override)
-            # Skipped in BULL regime — hold through drawdowns, exit when market turns BEAR
+            # BULL: suppressed. SIDEWAYS: sell half. BEAR: sell all (or remainder).
             if drop_from_start <= -25 and days_held >= 20:
                 if regime == "BULL":
                     print(f"[{symbol}] Cut-loss suppressed — BULL regime (drop={drop_from_start:.1f}%)")
+                elif regime == "SIDEWAYS" and not state.get('sideways_half_sold'):
+                    half_qty = max(1, current_qty // 2)
+                    if half_qty >= MIN_SELL_QTY:
+                        print(f"[{symbol}] *** CUT LOSS (HALF) *** SIDEWAYS regime drop={drop_from_start:.1f}% → SELL {half_qty}/{current_qty}")
+                        signals.append({
+                            "side": "SELL", "symbol": symbol, "price": close, "type": "CUT_LOSS_HALF",
+                            "quantity": half_qty, **_ctx,
+                            "reason": f"Cut-loss half: SIDEWAYS regime, drop={drop_from_start:.1f}% after {days_held}d",
+                            "sideways_half_sold": True, "sideways_sold_qty": half_qty,
+                        })
+                        continue
                 elif current_qty >= MIN_SELL_QTY:
                     print(f"[{symbol}] *** CUT LOSS *** drop={drop_from_start:.1f}% days={days_held}")
                     signals.append({
@@ -568,10 +582,21 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     continue
 
             # 4. Stop loss at -10%
-            # Skipped in BULL regime — hold through drawdowns, exit when market turns BEAR
+            # BULL: suppressed. SIDEWAYS: sell half. BEAR: sell all (or remainder).
             if profit_pct <= FORTRESS_SL_PCT:
                 if regime == "BULL":
                     print(f"[{symbol}] SL suppressed — BULL regime (profit={profit_pct:.1f}%)")
+                elif regime == "SIDEWAYS" and not state.get('sideways_half_sold'):
+                    half_qty = max(1, current_qty // 2)
+                    if half_qty >= MIN_SELL_QTY:
+                        print(f"[{symbol}] *** FORTRESS SL (HALF) *** SIDEWAYS regime profit={profit_pct:.1f}% → SELL {half_qty}/{current_qty}")
+                        signals.append({
+                            "side": "SELL", "symbol": symbol, "price": close, "type": "SL_HALF",
+                            "quantity": half_qty, **_ctx,
+                            "reason": f"Stop loss half: SIDEWAYS regime, profit={profit_pct:.1f}%",
+                            "sideways_half_sold": True, "sideways_sold_qty": half_qty,
+                        })
+                        continue
                 elif current_qty >= MIN_SELL_QTY:
                     print(f"[{symbol}] *** FORTRESS SL *** profit={profit_pct:.1f}%")
                     signals.append({
@@ -593,13 +618,23 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     continue
 
             # 6. EMA cross exit — only after min_hold_days, confirmed for 2 consecutive days
-            # Skipped in BULL regime — hold through drawdowns, exit when market turns BEAR
+            # BULL: suppressed. SIDEWAYS: sell half. BEAR: sell all (or remainder).
             if (days_held >= FORTRESS_MIN_HOLD and
                     state.get('ema_cross_days', 0) >= FORTRESS_EMA_CONFIRM):
                 if regime == "BULL":
                     print(f"[{symbol}] EMA cross exit suppressed — BULL regime ({state.get('ema_cross_days', 0)}d cross)")
                     continue
-                if current_qty >= MIN_SELL_QTY:
+                elif regime == "SIDEWAYS" and not state.get('sideways_half_sold'):
+                    half_qty = max(1, current_qty // 2)
+                    if half_qty >= MIN_SELL_QTY:
+                        print(f"[{symbol}] *** EMA CROSS (HALF) *** SIDEWAYS regime EMA9={ema9:.2f} < EMA21={ema21:.2f} for {state['ema_cross_days']}d → SELL {half_qty}/{current_qty}")
+                        signals.append({
+                            "side": "SELL", "symbol": symbol, "price": close, "type": "EMA_CROSS_HALF",
+                            "quantity": half_qty, **_ctx,
+                            "reason": f"EMA cross half: SIDEWAYS, EMA9={ema9:.0f} < EMA21={ema21:.0f} for {state['ema_cross_days']}d",
+                            "sideways_half_sold": True, "sideways_sold_qty": half_qty,
+                        })
+                elif current_qty >= MIN_SELL_QTY:
                     print(f"[{symbol}] *** FORTRESS EMA CROSS EXIT *** EMA9={ema9:.2f} < EMA21={ema21:.2f} for {state['ema_cross_days']}d")
                     signals.append({
                         "side": "SELL", "symbol": symbol, "price": close, "type": "FULL_EXIT",
