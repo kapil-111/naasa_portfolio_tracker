@@ -1,4 +1,11 @@
 {
-    "date": "2026-04-17",
-    "orders": []
+    "date": "2026-04-20",
+    "orders": [
+        {
+            "symbol": "SNLI",
+            "side": "SELL",
+            "type": "EMA_CROSS_HALF",
+            "quantity": 10
+        }
+    ]
 }
