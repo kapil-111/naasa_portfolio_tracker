@@ -15,6 +15,7 @@ from naasa_locators import (
     wait_after_symbol_entry,
     wait_for_order_page,
 )
+from notifications import notify_order_screenshot
 
 
 class Trader:
@@ -69,6 +70,9 @@ class Trader:
             # Auto-accept browser-native confirm() dialogs (window.confirm, window.alert)
             self.page.on("dialog", lambda d: d.accept())
 
+            self.page.screenshot(path="order_before.png")
+            notify_order_screenshot("order_before.png", "📋 Before Submit", signal["symbol"], side)
+
             print("Submitting order...")
             submit_button.click()
 
@@ -77,6 +81,7 @@ class Trader:
 
             outcome, detail = poll_order_submission_outcome(self.page)
             self.page.screenshot(path="order_result.png")
+            notify_order_screenshot("order_result.png", "📸 After Submit", signal["symbol"], side)
 
             if outcome == "success":
                 self.last_outcome = "success"
@@ -91,11 +96,11 @@ class Trader:
 
             self.last_outcome = "unconfirmed"
             self.last_error = (
-                "UNCONFIRMED: no success or error UI detected after submit within timeout. "
-                "Order may still have executed — verify in broker portal. Screenshot: order_result.png"
+                "UNCONFIRMED: qty field did not reset and no error appeared after submit. "
+                "Order may or may not have executed — verify in broker portal. Screenshot: order_result.png"
             )
             print(
-                "Warning: Order outcome unclear (no matching toast/alert). "
+                "Warning: Order outcome unclear — qty field never reset (possible non-submission). "
                 "Not treating as success — verify manually. Screenshot saved."
             )
             return False

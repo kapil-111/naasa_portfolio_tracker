@@ -28,6 +28,39 @@ def _tg_send(text):
         return False
 
 
+def _tg_send_photo(path: str, caption: str = "") -> bool:
+    """Send a photo file via Telegram. Returns True on success."""
+    token   = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    if not token or not chat_id:
+        return False
+    if not os.path.exists(path):
+        print(f"Telegram photo: file not found: {path}")
+        return False
+    try:
+        with open(path, "rb") as f:
+            resp = requests.post(
+                f"https://api.telegram.org/bot{token}/sendPhoto",
+                data={"chat_id": chat_id, "caption": caption},
+                files={"photo": f},
+                timeout=20,
+            )
+        if resp.status_code != 200:
+            print(f"Telegram photo send failed: {resp.status_code} {resp.text}")
+            return False
+        return True
+    except Exception as e:
+        print(f"Telegram photo send error: {type(e).__name__}: {e}")
+        return False
+
+
+def notify_order_screenshot(path: str, label: str, symbol: str, side: str) -> None:
+    """Send an order form screenshot to Telegram with a descriptive caption."""
+    caption = f"{label}\n{side} {symbol} — {_now_npt()}"
+    ok = _tg_send_photo(path, caption=caption)
+    print(f"Order screenshot ({label}) Telegram send: {'OK' if ok else 'FAILED'}")
+
+
 def notify_bot_started(dry_run, market_status):
     mode = "DRY RUN" if dry_run else "LIVE"
     _tg_send(

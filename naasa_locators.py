@@ -133,14 +133,18 @@ def order_error_indicators(page: Page) -> Locator:
 
 
 def poll_order_submission_outcome(
-    page: Page, timeout_ms: float = 4_000
+    page: Page, timeout_ms: float = 8_000
 ) -> Tuple[Literal["success", "failure", "timeout"], Optional[str]]:
     """
-    NAASA X shows no UI on success — form silently resets.
-    Strategy: wait for any visible error; if none appears within timeout, treat as success.
+    NAASA X shows no UI on success — the qty field silently resets to empty.
+    Strategy:
+      1. Watch for a visible error indicator → failure.
+      2. Watch for qty field to clear (value becomes empty) → success.
+      3. If neither happens within timeout → unconfirmed (caller treats as unknown).
     """
     deadline = time.time() + timeout_ms / 1000.0
     error_loc = order_error_indicators(page)
+    qty_loc = order_quantity_input(page)
 
     def _safe_visible_first(loc: Locator) -> bool:
         try:
@@ -159,12 +163,26 @@ def poll_order_submission_outcome(
         except Exception:
             return ""
 
+    price_loc = page.locator("#OrdertxtPrice")
+
+    def _form_reset() -> bool:
+        """Both qty and price fields clear simultaneously on ErrorCode == 0."""
+        try:
+            qty_val = qty_loc.first.input_value(timeout=500).strip() if qty_loc.count() > 0 else None
+            price_val = price_loc.first.input_value(timeout=500).strip() if price_loc.count() > 0 else None
+            # Either field clearing alone is enough — MKT orders may not use price
+            return qty_val == "" or price_val == ""
+        except Exception:
+            return False
+
     while time.time() < deadline:
         if _safe_visible_first(error_loc):
             return ("failure", _safe_inner(error_loc) or "Broker reported an error.")
+        if _form_reset():
+            return ("success", None)
         page.wait_for_timeout(150)
 
-    return ("success", None)
+    return ("timeout", None)
 
 
 # --- Wallet / collateral ---
