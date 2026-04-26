@@ -415,6 +415,14 @@ def main():
                             trader_test = Trader(page, dry_run=False)
                             trader_test.place_order(test_signal)
 
+                    # Poll Telegram for manual commands before closing browser
+                    try:
+                        _states_for_poll = load_states()
+                        trader_closed = Trader(page, dry_run=DRY_RUN)
+                        poll_and_handle(page, trader_closed, _states_for_poll, portfolio_data, available_fund, DRY_RUN)
+                    except Exception as e:
+                        print(f"Telegram command poll error: {e}")
+
                     browser.close()
 
                 holdings_count = len(portfolio_data.get("holdings", []))
@@ -430,10 +438,6 @@ def main():
                     signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
                     print(f"Generated {len(signals)} potential signals for next open.")
                     notify_premarket_report(portfolio_data, available_fund, signals, regime=regime)
-
-                # Poll Telegram for manual commands (market closed — no trading, status only)
-                trader_closed = Trader(page, dry_run=DRY_RUN)
-                poll_and_handle(page, trader_closed, states, portfolio_data, available_fund, DRY_RUN)
             except SessionExpiredError as e:
                 print(f"Session / auth error (analysis cycle): {e}")
                 notify_error(e)
