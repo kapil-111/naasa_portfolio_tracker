@@ -9,7 +9,6 @@ from naasa_locators import (
     order_side_sell,
     order_submit_button,
     order_symbol_input,
-    order_type_mkt,
     poll_order_submission_outcome,
     wait_after_side_select,
     wait_after_symbol_entry,
@@ -54,11 +53,35 @@ class Trader:
             wait_after_symbol_entry(self.page)
 
             print("Selecting MKT order type...")
-            order_type_mkt(self.page).first.click()
-            self.page.wait_for_timeout(200)
+            # Check the MKT radio and call the page's own ClickOrderType() handler
+            self.page.evaluate("""() => {
+                const r = document.querySelector('#chkOrderTypeMKT');
+                if (r) {
+                    r.checked = true;
+                    if (typeof ClickOrderType === 'function') ClickOrderType();
+                }
+            }""")
+            self.page.wait_for_timeout(300)
 
             print(f"Entering quantity: {signal['quantity']}")
-            order_quantity_input(self.page).fill(str(signal["quantity"]))
+            qty_input = order_quantity_input(self.page)
+            qty_input.click()
+            qty_input.fill("")
+            self.page.wait_for_timeout(100)
+            qty_input.type(str(signal["quantity"]))
+            # Force the framework to recognise the value via JS events
+            self.page.evaluate(
+                """(val) => {
+                    const el = document.querySelector('#OrdertxtQty');
+                    if (!el) return;
+                    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                    nativeInputValueSetter.call(el, val);
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                }""",
+                str(signal["quantity"])
+            )
+            self.page.wait_for_timeout(400)
 
             submit_button = order_submit_button(self.page)
 
