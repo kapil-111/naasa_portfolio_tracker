@@ -491,6 +491,17 @@ def main():
 
                     signals = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS, regime=regime, available_fund=available_fund)
                     print(f"Generated {len(signals)} signals.")
+
+                    # TEST MODE: inject a forced signal to verify order placement end-to-end
+                    test_order = os.getenv("TEST_ORDER")  # e.g. "SELL:SNLI:1" or "BUY:SNLI:1"
+                    if test_order:
+                        parts = test_order.split(":")
+                        if len(parts) == 3:
+                            t_side, t_sym, t_qty = parts[0].upper(), parts[1].upper(), int(parts[2])
+                            ltp = _get_live_ltp(t_sym) or 100.0
+                            signals = [{"symbol": t_sym, "side": t_side, "quantity": t_qty, "price": ltp, "type": "TEST"}]
+                            print(f"[TEST MODE] Injected signal: {t_side} {t_sym} x{t_qty} @ {ltp}")
+
                     if signals:
                         notify_signals(signals)
 
