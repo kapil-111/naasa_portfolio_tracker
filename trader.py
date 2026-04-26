@@ -89,30 +89,26 @@ class Trader:
             submit_button.click()
             dismiss_any_confirmation(self.page, timeout_ms=3_000)
 
-            # Wait up to 8s for qty to reset (success) or error to appear (failure)
-            deadline = time.time() + 8
+            # Wait 800ms — error toast is visible in this window
+            self.page.wait_for_timeout(800)
+            self.page.screenshot(path="order_result.png")
+
+            # Detect outcome
             outcome = "unconfirmed"
             detail  = ""
-            while time.time() < deadline:
-                # Check for visible error
-                err = self.page.locator(".alert-danger, .toast-error, .toast-danger, .invalid-feedback, .text-danger")
-                if err.count() > 0 and err.first.is_visible():
+            err_loc = self.page.locator(".alert-danger, .toast-error, .toast-danger, .invalid-feedback, .text-danger")
+            try:
+                if err_loc.count() > 0 and err_loc.first.is_visible():
                     outcome = "failure"
-                    try:
-                        detail = err.first.inner_text(timeout=500).strip()
-                    except Exception:
-                        detail = "Broker reported an error."
-                    break
-                # Check qty reset = success
+                    detail  = err_loc.first.inner_text(timeout=500).strip()
+            except Exception:
+                pass
+            if outcome == "unconfirmed":
                 try:
                     if qty.input_value(timeout=300).strip() == "":
                         outcome = "success"
-                        break
                 except Exception:
                     pass
-                self.page.wait_for_timeout(200)
-
-            self.page.screenshot(path="order_result.png")
 
             if outcome == "success":
                 self.last_outcome = "success"
