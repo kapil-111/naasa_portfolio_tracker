@@ -138,47 +138,50 @@ def poll_order_submission_outcome(
     """
     NAASA X shows no UI on success — the qty field silently resets to empty.
     Strategy:
-      1. Watch for a visible error indicator → failure.
-      2. Watch for qty field to clear (value becomes empty) → success.
-      3. If neither happens within timeout → unconfirmed (caller treats as unknown).
+      1. Snapshot qty value before polling (must be non-empty — we just filled it).
+      2. Watch for a visible error indicator → failure.
+      3. Watch for qty field to clear from a non-empty value → success.
+      4. If neither happens within timeout → unconfirmed.
+
+    NOTE: price field is NOT used for success detection — it is disabled/empty
+    in MKT mode before submit, so checking it would give a false positive.
     """
-    deadline = time.time() + timeout_ms / 1000.0
-    error_loc = order_error_indicators(page)
     qty_loc = order_quantity_input(page)
+    error_loc = order_error_indicators(page)
+
+    # Snapshot qty before we start polling — must be non-empty after our fill
+    try:
+        qty_before = qty_loc.first.input_value(timeout=500).strip() if qty_loc.count() > 0 else ""
+    except Exception:
+        qty_before = ""
 
     def _safe_visible_first(loc: Locator) -> bool:
         try:
-            if loc.count() == 0:
-                return False
-            return loc.first.is_visible()
+            return loc.count() > 0 and loc.first.is_visible()
         except Exception:
             return False
 
     def _safe_inner(loc: Locator) -> str:
         try:
-            if loc.count() == 0:
-                return ""
-            t = loc.first.inner_text(timeout=800).strip()
-            return t
+            return loc.first.inner_text(timeout=800).strip() if loc.count() > 0 else ""
         except Exception:
             return ""
 
-    price_loc = page.locator("#OrdertxtPrice")
-
-    def _form_reset() -> bool:
-        """Both qty and price fields clear simultaneously on ErrorCode == 0."""
+    def _qty_cleared() -> bool:
+        """Qty went from non-empty → empty after submit = broker accepted."""
+        if not qty_before:
+            return False  # never had a value — can't trust a clear
         try:
-            qty_val = qty_loc.first.input_value(timeout=500).strip() if qty_loc.count() > 0 else None
-            price_val = price_loc.first.input_value(timeout=500).strip() if price_loc.count() > 0 else None
-            # Either field clearing alone is enough — MKT orders may not use price
-            return qty_val == "" or price_val == ""
+            current = qty_loc.first.input_value(timeout=500).strip() if qty_loc.count() > 0 else ""
+            return current == ""
         except Exception:
             return False
 
+    deadline = time.time() + timeout_ms / 1000.0
     while time.time() < deadline:
         if _safe_visible_first(error_loc):
             return ("failure", _safe_inner(error_loc) or "Broker reported an error.")
-        if _form_reset():
+        if _qty_cleared():
             return ("success", None)
         page.wait_for_timeout(150)
 

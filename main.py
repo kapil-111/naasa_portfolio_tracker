@@ -375,7 +375,8 @@ def main():
         signals = []
         orders_placed_this_cycle = 0
 
-        _fetch_chukul_data()
+        if not os.getenv("SKIP_DATA_FETCH"):
+            _fetch_chukul_data()
 
         # Run analysis cycle when market is closed
         if not open_status:
@@ -401,6 +402,19 @@ def main():
                         save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
                     else:
                         portfolio_data = _load_cached_portfolio()
+
+                    # TEST MODE: force an order while browser is still open
+                    test_order = os.getenv("TEST_ORDER")
+                    if test_order:
+                        parts = test_order.split(":")
+                        if len(parts) == 3:
+                            t_side, t_sym, t_qty = parts[0].upper(), parts[1].upper(), int(parts[2])
+                            ltp = _get_live_ltp(t_sym) or 100.0
+                            test_signal = {"symbol": t_sym, "side": t_side, "quantity": t_qty, "price": ltp, "type": "TEST"}
+                            print(f"[TEST MODE] Forcing order: {t_side} {t_sym} x{t_qty} @ {ltp}")
+                            trader_test = Trader(page, dry_run=False)
+                            trader_test.place_order(test_signal)
+
                     browser.close()
 
                 holdings_count = len(portfolio_data.get("holdings", []))
