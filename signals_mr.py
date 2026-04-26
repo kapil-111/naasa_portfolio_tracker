@@ -187,6 +187,7 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
     # the bot always acts on yesterday's confirmed data.
     df_adjusted['ema9']        = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_ema(x, 9).shift(1))
     df_adjusted['ema21']       = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_ema(x, 21).shift(1))
+    df_adjusted['ema50']       = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_ema(x, 50).shift(1))
     df_adjusted['prev_ema9']   = df_adjusted.groupby('symbol')['ema9'].shift(1)
     df_adjusted['prev_ema21']  = df_adjusted.groupby('symbol')['ema21'].shift(1)
     df_adjusted['rsi']         = df_adjusted.groupby('symbol')['close'].transform(lambda x: _calc_rsi(x, 14).shift(1))
@@ -194,6 +195,11 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
                                      lambda x: x.rolling(20, min_periods=5).mean().shift(1))
     df_adjusted['prev_volume'] = df_adjusted.groupby('symbol')['volume'].shift(1)
     df_adjusted['prev_close']  = df_adjusted.groupby('symbol')['close'].shift(1)
+    # v4 entry filters: 3-day drop and 7-day higher-high (all shifted by 1 — confirmed candle)
+    df_adjusted['close_3d_ago'] = df_adjusted.groupby('symbol')['close'].shift(3 + 1)
+    df_adjusted['high_7d']      = df_adjusted.groupby('symbol')['high'].transform(
+                                      lambda x: x.shift(1).rolling(7, min_periods=3).max())
+    # v4 exit: peak price tracking happens in state; trail stop uses state['peak_price']
 
     # ADX per symbol — also shifted by 1
     adx_parts = []
@@ -282,25 +288,26 @@ def _get_holding_rate(h, avg_prices=None):
     return None
 
 
-# Fortress Signal constants (match backtest defaults)
-FORTRESS_ADX_MIN      = 25
-FORTRESS_RSI_MIN      = 45
-FORTRESS_RSI_MAX      = 65
-FORTRESS_VOL_FACTOR   = 1.5
-FORTRESS_TP_PCT       = 20.0
-FORTRESS_SL_PCT       = -10.0
-FORTRESS_RSI_OB       = 70
-FORTRESS_MIN_HOLD     = 5    # min calendar days before EMA-cross exit allowed
-FORTRESS_EMA_CONFIRM  = 4    # consecutive days EMA9 < EMA21 needed to exit
+# Hardcore v4 Signal constants — GLUE-calibrated (500-run Monte Carlo, top 20% behavioral)
+FORTRESS_ADX_MIN      = 15     # was 25 — GLUE: wider ADX range still performs
+FORTRESS_RSI_MIN      = 50     # was 45 — SENSITIVE parameter, keep at 50
+FORTRESS_RSI_MAX      = 72     # was 65 — slightly wider upper band
+FORTRESS_VOL_FACTOR   = 1.13   # was 1.5 — looser volume filter
+FORTRESS_TP_PCT       = 20.0   # kept — resistance-based TP used in live logic
+FORTRESS_SL_PCT       = -10.6  # was -10.0 — GLUE best-fit hard stop
+FORTRESS_RSI_OB       = 42     # was 70 — WEAKNESS exit threshold (RSI<42, held≥11d)
+FORTRESS_MIN_HOLD     = 11     # was 5  — wait longer before WEAKNESS fires
+FORTRESS_EMA_CONFIRM  = 3      # was 4  — trend fail after 3 consecutive EMA cross days
+FORTRESS_TRAIL_PCT    = 20.0   # NEW — trailing stop % from peak price
 MIN_SELL_QTY          = 10
 
 # Kelly position sizing
-# Based on backtest: win_rate=33%, avg_win=7.1%, avg_loss=5.9%
+# Based on hardcore-v4 GLUE backtest: win_rate=54.8%, avg_win=10.3%, avg_loss=7.8%
 # Kelly fraction = (win_rate * avg_win - loss_rate * avg_loss) / avg_win
 # Half-Kelly used for safety. Result clipped to [MIN_BUY_QTY, MAX_BUY_QTY].
-_KELLY_WIN_RATE  = 0.33
-_KELLY_AVG_WIN   = 0.071
-_KELLY_AVG_LOSS  = 0.059
+_KELLY_WIN_RATE  = 0.548
+_KELLY_AVG_WIN   = 0.103
+_KELLY_AVG_LOSS  = 0.078
 MIN_BUY_QTY      = 10
 MAX_BUY_QTY      = 50
 
@@ -415,14 +422,17 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             v = r.get(col, float('nan')) if hasattr(r, 'get') else getattr(r, col, float('nan'))
             return float(v) if not pd.isna(v) else default
 
-        close      = _f(row, 'close')
-        ema9       = _f(row, 'ema9')
-        ema21      = _f(row, 'ema21')
-        adx        = _f(row, 'adx')
-        rsi        = _f(row, 'rsi', float('nan'))
-        vol_avg20  = _f(row, 'vol_avg20')
-        prev_vol   = _f(row, 'prev_volume')
-        prev_close = _f(row, 'prev_close', close)
+        close        = _f(row, 'close')
+        ema9         = _f(row, 'ema9')
+        ema21        = _f(row, 'ema21')
+        ema50        = _f(row, 'ema50')
+        adx          = _f(row, 'adx')
+        rsi          = _f(row, 'rsi', float('nan'))
+        vol_avg20    = _f(row, 'vol_avg20')
+        prev_vol     = _f(row, 'prev_volume')
+        prev_close   = _f(row, 'prev_close', close)
+        close_3d_ago = _f(row, 'close_3d_ago', close)
+        high_7d      = _f(row, 'high_7d', close)
 
         prev_ema9  = _f(prev_row, 'ema9')
         prev_ema21 = _f(prev_row, 'ema21')
@@ -432,11 +442,12 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             print(f"[{symbol}] Skipping — zero/missing volume data (vol={prev_vol}, avg={vol_avg20:.0f}).")
             continue
 
-        ema_bullish   = ema9 > ema21
-        ema_below_now = ema9 < ema21
+        ema_bullish    = ema9 > ema21 > ema50          # v4: full EMA stack required
+        ema_below_now  = ema9 < ema21
         ema_below_prev = prev_ema9 < prev_ema21
-        volume_surge  = vol_avg20 > 0 and prev_vol >= vol_avg20 * FORTRESS_VOL_FACTOR
-        daily_return  = (close - prev_close) / prev_close if prev_close > 0 else 0
+        volume_surge   = vol_avg20 > 0 and prev_vol >= vol_avg20 * FORTRESS_VOL_FACTOR
+        drop_3d        = (close - close_3d_ago) / close_3d_ago * 100 if close_3d_ago > 0 else 0.0
+        higher_high    = close > high_7d               # price making new 7-day high
 
         # --- Generate BUY Signal ---
         if not state.get('in_position'):
@@ -448,16 +459,18 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                 continue
 
             fortress_buy = (
-                ema_bullish                              and
-                adx > FORTRESS_ADX_MIN                  and
-                FORTRESS_RSI_MIN <= rsi <= FORTRESS_RSI_MAX and
-                volume_surge                             and
-                close > ema21                            and
-                daily_return > -0.05
+                ema_bullish                                  and  # EMA9 > EMA21 > EMA50
+                close > ema21                                and  # price above mid trend
+                close > ema50                                and  # price above long trend
+                adx > FORTRESS_ADX_MIN                       and  # trend strength
+                FORTRESS_RSI_MIN <= rsi <= FORTRESS_RSI_MAX  and  # momentum sweet spot
+                volume_surge                                 and  # volume confirmation
+                drop_3d > -3.7                               and  # no recent sharp drop
+                higher_high                                       # 7-day breakout
             )
 
             if fortress_buy:
-                print(f"[{symbol}] *** FORTRESS BUY *** price={close:.2f} EMA9={ema9:.2f} EMA21={ema21:.2f} ADX={adx:.1f} RSI={rsi:.1f}")
+                print(f"[{symbol}] *** HARDCORE BUY *** price={close:.2f} EMA9={ema9:.2f} EMA21={ema21:.2f} EMA50={ema50:.2f} ADX={adx:.1f} RSI={rsi:.1f} drop3d={drop_3d:.1f}%")
                 default_qty = int(os.getenv("DEFAULT_BUY_QTY", 20))
                 qty = kelly_qty(available_fund, close, default_qty)
                 signals.append({
@@ -517,9 +530,9 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                 print(f"[{symbol}] [IPO] Skipping all automated exit rules — manual sell only.")
                 continue
 
-            # 0. Trailing Stop-Loss: 10% drop from peak → sell 50% if qty>19, else full exit
+            # 0. Trailing Stop-Loss: FORTRESS_TRAIL_PCT% drop from peak → sell 50% if qty>19, else full exit
             # Always active regardless of regime
-            tsl_trigger = peak_price * 0.90
+            tsl_trigger = peak_price * (1 - FORTRESS_TRAIL_PCT / 100)
             drop_from_peak = (close - peak_price) / peak_price * 100
             if close <= tsl_trigger and current_qty >= MIN_SELL_QTY:
                 if current_qty > 19:
@@ -606,21 +619,21 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     })
                     continue
 
-            # 5. RSI overbought
-            if rsi > FORTRESS_RSI_OB:
+            # 5. Weakness exit — RSI < 42 after holding ≥ 11 days (GLUE-calibrated)
+            # Replaces old RSI_OB (>70) rule which was cutting winners too early
+            if not pd.isna(rsi) and rsi < FORTRESS_RSI_OB and days_held >= FORTRESS_MIN_HOLD:
                 if current_qty >= MIN_SELL_QTY:
-                    print(f"[{symbol}] *** FORTRESS RSI OB *** rsi={rsi:.1f}")
+                    print(f"[{symbol}] *** WEAKNESS EXIT *** rsi={rsi:.1f} < {FORTRESS_RSI_OB} held={days_held}d")
                     signals.append({
-                        "side": "SELL", "symbol": symbol, "price": close, "type": "RSI_OB",
+                        "side": "SELL", "symbol": symbol, "price": close, "type": "WEAKNESS",
                         "quantity": current_qty, **_ctx,
-                        "reason": f"RSI overbought: {rsi:.1f} > {FORTRESS_RSI_OB}",
+                        "reason": f"Weakness: RSI={rsi:.1f} < {FORTRESS_RSI_OB} after {days_held}d",
                     })
                     continue
 
-            # 6. EMA cross exit — only after min_hold_days, confirmed for 2 consecutive days
+            # 6. EMA cross exit — confirmed for 3 consecutive days (v4: was 4)
             # BULL: suppressed. SIDEWAYS: sell half. BEAR: sell all (or remainder).
-            if (days_held >= FORTRESS_MIN_HOLD and
-                    state.get('ema_cross_days', 0) >= FORTRESS_EMA_CONFIRM):
+            if state.get('ema_cross_days', 0) >= FORTRESS_EMA_CONFIRM:
                 if regime == "BULL":
                     print(f"[{symbol}] EMA cross exit suppressed — BULL regime ({state.get('ema_cross_days', 0)}d cross)")
                     continue
