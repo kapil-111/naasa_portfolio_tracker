@@ -57,6 +57,8 @@ def _tg_send_photo(path: str, caption: str = "") -> bool:
 def notify_order_screenshot(path: str, label: str, symbol: str, side: str) -> None:
     """Send an order form screenshot to Telegram with a descriptive caption."""
     caption = f"{label}\n{side} {symbol} — {_now_npt()}"
+    if len(caption) > 1024:
+        caption = caption[:1021] + "..."
     ok = _tg_send_photo(path, caption=caption)
     print(f"Order screenshot ({label}) Telegram send: {'OK' if ok else 'FAILED'}")
 

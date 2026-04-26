@@ -81,16 +81,17 @@ class Trader:
 
             outcome, detail = poll_order_submission_outcome(self.page)
             self.page.screenshot(path="order_result.png")
-            notify_order_screenshot("order_result.png", "📸 After Submit", signal["symbol"], side)
 
             if outcome == "success":
                 self.last_outcome = "success"
+                notify_order_screenshot("order_result.png", "✅ Order Accepted", signal["symbol"], side)
                 print("Order confirmed by broker.")
                 return True
 
             if outcome == "failure":
                 self.last_outcome = "failure"
                 self.last_error = detail or "Broker reported an error."
+                notify_order_screenshot("order_result.png", f"❌ Order REJECTED: {self.last_error}", signal["symbol"], side)
                 print(f"Order failed: {self.last_error}")
                 return False
 
@@ -99,6 +100,7 @@ class Trader:
                 "UNCONFIRMED: qty field did not reset and no error appeared after submit. "
                 "Order may or may not have executed — verify in broker portal. Screenshot: order_result.png"
             )
+            notify_order_screenshot("order_result.png", "⚠️ Order UNCONFIRMED — verify manually", signal["symbol"], side)
             print(
                 "Warning: Order outcome unclear — qty field never reset (possible non-submission). "
                 "Not treating as success — verify manually. Screenshot saved."
