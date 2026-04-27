@@ -826,6 +826,183 @@ def backtest_hardcore_v4(sym_df, symbol, sector_id=None, sector_regime_series=No
     return trades
 
 
+def backtest_hardcore_v5(sym_df, symbol, sector_id=None, sector_regime_series=None, nepse_close=None, risk_pct=RISK_PCT_DEFAULT):
+    """
+    Hardcore NEPSE Strategy v5 — v4 + resistance zone filter
+    ==========================================================
+    Identical to v4 except entry skips if price is within 5% below
+    the 60-day high (resistance zone). Allows entries well below
+    resistance OR confirmed breakouts above it.
+    Hypothesis: entering in the resistance zone (within 5% of 60d high)
+    has worse risk/reward than entering from a healthier base.
+    """
+    sym_df = sym_df.sort_values("date").reset_index(drop=True)
+    if len(sym_df) < MIN_HISTORY:
+        return []
+
+    ADX_MIN        = 15
+    RSI_LO         = 50
+    RSI_HI         = 72
+    VOL_MULT       = 1.13
+    DROP_3D_LIMIT  = -3.7
+    HH_LOOKBACK    = 7
+    WEAKNESS_HOLD  = 11
+    WEAKNESS_RSI   = 42
+    TRAIL_STOP_PCT = 0.20
+    HARD_STOP_PCT  = 0.106
+    BREAKOUT_DAYS  = 60
+
+    sector_series = (sector_regime_series or {}).get(sector_id) if sector_id is not None else None
+
+    trades         = []
+    position       = None
+    last_exit_date = None
+
+    for i in range(1, len(sym_df)):
+        today     = sym_df.iloc[i]
+        yesterday = sym_df.iloc[i - 1]
+
+        close   = float(today["close"])
+        date    = today["date"]
+
+        ema9    = float(yesterday["ema9"])   if not pd.isna(yesterday["ema9"])   else float("nan")
+        ema21   = float(yesterday["ema21"])  if not pd.isna(yesterday["ema21"])  else float("nan")
+        ema50   = float(yesterday["ema50"])  if not pd.isna(yesterday["ema50"])  else float("nan")
+        rsi     = float(yesterday["rsi"])    if not pd.isna(yesterday["rsi"])    else 50.0
+        adx     = float(yesterday["adx"])    if not pd.isna(yesterday["adx"])    else 0.0
+        vol     = float(today["volume"])     if not pd.isna(today["volume"])     else 0.0
+        vol_avg = float(yesterday["vol_avg20"]) if not pd.isna(yesterday["vol_avg20"]) else 0.0
+
+        if pd.isna(ema9) or pd.isna(ema21) or pd.isna(ema50) or close < 100:
+            continue
+
+        vol_increasing = False
+        if i >= 3:
+            v2 = float(sym_df.iloc[i-2]["volume"]) if not pd.isna(sym_df.iloc[i-2]["volume"]) else 0.0
+            v1 = float(sym_df.iloc[i-1]["volume"]) if not pd.isna(sym_df.iloc[i-1]["volume"]) else 0.0
+            vol_increasing = (vol >= v1) and (v1 >= v2)
+
+        drop_3d = 0.0
+        if i >= 3:
+            p3 = float(sym_df.iloc[i-3]["close"])
+            drop_3d = (close - p3) / p3 * 100 if p3 > 0 else 0.0
+
+        lb = min(i, HH_LOOKBACK)
+        recent_high = sym_df.iloc[i - lb: i]["high"].max() if lb > 0 else close
+        higher_high = float(today["high"]) > float(recent_high)
+
+        lb60 = min(i, BREAKOUT_DAYS)
+        high_60d = sym_df.iloc[i - lb60: i]["high"].max() if lb60 > 0 else close
+        not_in_resistance_zone = close < high_60d * 0.95 or close > high_60d
+
+        outperforms_nepse = True
+        if nepse_close is not None and i >= 20:
+            try:
+                sr = (close / float(sym_df.iloc[i-20]["close"]) - 1) * 100
+                np_past = nepse_close[nepse_close.index <= date]
+                if len(np_past) >= 20:
+                    nr = (float(np_past.iloc[-1]) / float(np_past.iloc[-20]) - 1) * 100
+                    outperforms_nepse = sr > nr
+            except Exception:
+                pass
+
+        if position is None:
+            if last_exit_date is not None and (date - last_exit_date).days <= 10:
+                continue
+            if sector_series is not None:
+                past = sector_series[sector_series.index <= date]
+                if not past.empty and past.iloc[-1] == "BEAR":
+                    continue
+
+            buy_signal = (
+                ema9 > ema21 > ema50                     and
+                close > ema21                             and
+                close > ema50                             and
+                RSI_LO <= rsi <= RSI_HI                  and
+                adx > ADX_MIN                            and
+                vol_avg > 0 and vol >= VOL_MULT * vol_avg and
+                vol_increasing                            and
+                drop_3d > DROP_3D_LIMIT                  and
+                higher_high                               and
+                not_in_resistance_zone                    and
+                outperforms_nepse
+            )
+
+            if buy_signal:
+                position = {
+                    "entry_date":    date,
+                    "entry_price":   close,
+                    "peak_price":    close,
+                    "qty":           calc_qty(close, risk_pct=risk_pct),
+                    "ema_cross_days": 0,
+                }
+
+        else:
+            days_held  = (date - position["entry_date"]).days
+            profit_pct = (close - position["entry_price"]) / position["entry_price"] * 100
+
+            if close > position["peak_price"]:
+                position["peak_price"] = close
+            drawdown_from_peak = (close - position["peak_price"]) / position["peak_price"] * 100
+
+            if ema9 < ema21:
+                position["ema_cross_days"] = position.get("ema_cross_days", 0) + 1
+            else:
+                position["ema_cross_days"] = 0
+
+            lookback_tp = max(min(i, 60), 30)
+            resistance_high = sym_df.iloc[max(0, i - lookback_tp): i]["high"].max()
+
+            exit_reason = None
+
+            if profit_pct / 100 <= -HARD_STOP_PCT:
+                exit_reason = f"HARD_STOP ({profit_pct:.1f}%)"
+            elif position.get("ema_cross_days", 0) >= 3:
+                exit_reason = f"TREND_FAIL (EMA9<EMA21 x{position['ema_cross_days']}d)"
+            elif drawdown_from_peak / 100 <= -TRAIL_STOP_PCT:
+                exit_reason = f"TRAIL_STOP ({drawdown_from_peak:.1f}% from peak)"
+            elif close >= resistance_high and days_held >= 5:
+                exit_reason = f"TAKE_PROFIT (resistance={resistance_high:.0f})"
+            elif rsi < WEAKNESS_RSI and days_held >= WEAKNESS_HOLD:
+                exit_reason = f"WEAKNESS (RSI={rsi:.1f}, held={days_held}d)"
+
+            if exit_reason:
+                pnl_npr = (close - position["entry_price"]) * position["qty"]
+                trades.append({
+                    "symbol":      symbol,
+                    "entry_date":  position["entry_date"].strftime("%Y-%m-%d"),
+                    "exit_date":   date.strftime("%Y-%m-%d"),
+                    "days_held":   days_held,
+                    "entry_price": round(position["entry_price"], 2),
+                    "exit_price":  round(close, 2),
+                    "qty":         position["qty"],
+                    "pnl_pct":     round(profit_pct, 2),
+                    "pnl_npr":     round(pnl_npr, 2),
+                    "exit_reason": exit_reason,
+                })
+                position       = None
+                last_exit_date = date
+
+    if position is not None:
+        last  = sym_df.iloc[-1]
+        close = float(last["close"])
+        pnl_pct = (close - position["entry_price"]) / position["entry_price"] * 100
+        trades.append({
+            "symbol":      symbol,
+            "entry_date":  position["entry_date"].strftime("%Y-%m-%d"),
+            "exit_date":   "OPEN",
+            "days_held":   (last["date"] - position["entry_date"]).days,
+            "entry_price": round(position["entry_price"], 2),
+            "exit_price":  round(close, 2),
+            "qty":         position["qty"],
+            "pnl_pct":     round(pnl_pct, 2),
+            "pnl_npr":     round((close - position["entry_price"]) * position["qty"], 2),
+            "exit_reason": "STILL_OPEN",
+        })
+
+    return trades
+
+
 def backtest_hardcore_v3(sym_df, symbol, sector_id=None, sector_regime_series=None, nepse_close=None, risk_pct=RISK_PCT_DEFAULT):
     """
     Hardcore NEPSE Strategy v3 — Smarter exits
@@ -1470,8 +1647,8 @@ def main():
     parser.add_argument("symbols", nargs="*", help="Symbols to backtest (default: all)")
     parser.add_argument("--from",     dest="from_date", default=None, help="Start date YYYY-MM-DD")
     parser.add_argument("--file",     default="merged_data.csv", help="OHLCV CSV file")
-    parser.add_argument("--strategy", default="fortress", choices=["fortress", "52w", "hardcore", "hardcore-v2", "hardcore-v3", "hardcore-v4"],
-                        help="Strategy: fortress, 52w, hardcore, hardcore-v2, hardcore-v3, or hardcore-v4 (GLUE-calibrated)")
+    parser.add_argument("--strategy", default="fortress", choices=["fortress", "52w", "hardcore", "hardcore-v2", "hardcore-v3", "hardcore-v4", "hardcore-v5"],
+                        help="Strategy: fortress, 52w, hardcore, hardcore-v2, hardcore-v3, hardcore-v4, or hardcore-v5 (v4 + 60d breakout filter)")
     parser.add_argument("--proximity", type=float, default=5.0,
                         help="[52w] %% proximity to 52w high/low to trigger (default: 5)")
     parser.add_argument("--tp",        type=float, default=8.0,
@@ -1563,6 +1740,14 @@ def main():
             sym_df = df[df["symbol"] == sym].copy()
             sid = sector_map.get(sym)
             trades = backtest_hardcore_v4(sym_df, sym,
+                                          sector_id=sid,
+                                          sector_regime_series=sector_regime_series,
+                                          nepse_close=nepse_close,
+                                          risk_pct=args.risk_pct)
+        elif args.strategy == "hardcore-v5":
+            sym_df = df[df["symbol"] == sym].copy()
+            sid = sector_map.get(sym)
+            trades = backtest_hardcore_v5(sym_df, sym,
                                           sector_id=sid,
                                           sector_regime_series=sector_regime_series,
                                           nepse_close=nepse_close,

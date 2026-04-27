@@ -199,7 +199,11 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
     df_adjusted['close_3d_ago'] = df_adjusted.groupby('symbol')['close'].shift(3 + 1)
     df_adjusted['high_7d']      = df_adjusted.groupby('symbol')['high'].transform(
                                       lambda x: x.shift(1).rolling(7, min_periods=3).max())
-    # v4 exit: peak price tracking happens in state; trail stop uses state['peak_price']
+    # v4 exit: resistance-based TP uses 30–60d lookback (same as backtest)
+    df_adjusted['high_30d']     = df_adjusted.groupby('symbol')['high'].transform(
+                                      lambda x: x.shift(1).rolling(30, min_periods=10).max())
+    df_adjusted['high_60d']     = df_adjusted.groupby('symbol')['high'].transform(
+                                      lambda x: x.shift(1).rolling(60, min_periods=20).max())
 
     # ADX per symbol — also shifted by 1
     adx_parts = []
@@ -433,6 +437,8 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         prev_close   = _f(row, 'prev_close', close)
         close_3d_ago = _f(row, 'close_3d_ago', close)
         high_7d      = _f(row, 'high_7d', close)
+        high_30d     = _f(row, 'high_30d', close)
+        high_60d     = _f(row, 'high_60d', close)
 
         prev_ema9  = _f(prev_row, 'ema9')
         prev_ema21 = _f(prev_row, 'ema21')
@@ -583,16 +589,16 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     })
                     continue
 
-            # 3. Take profit at +20%
-            if profit_pct >= FORTRESS_TP_PCT:
-                if current_qty >= MIN_SELL_QTY:
-                    print(f"[{symbol}] *** FORTRESS TP *** profit={profit_pct:.1f}%")
-                    signals.append({
-                        "side": "SELL", "symbol": symbol, "price": close, "type": "FULL_EXIT",
-                        "quantity": current_qty, **_ctx,
-                        "reason": f"Take profit: +{profit_pct:.1f}% >= +{FORTRESS_TP_PCT:.0f}%",
-                    })
-                    continue
+            # 3. Take profit at resistance (30–60d high, same as backtest logic)
+            resistance_tp = high_30d if days_held < 30 else high_60d
+            if close >= resistance_tp and days_held >= 5 and current_qty >= MIN_SELL_QTY:
+                print(f"[{symbol}] *** RESISTANCE TP *** price={close:.0f} >= resistance={resistance_tp:.0f} profit={profit_pct:.1f}%")
+                signals.append({
+                    "side": "SELL", "symbol": symbol, "price": close, "type": "FULL_EXIT",
+                    "quantity": current_qty, **_ctx,
+                    "reason": f"Take profit: price={close:.0f} >= resistance={resistance_tp:.0f} (+{profit_pct:.1f}%)",
+                })
+                continue
 
             # 4. Stop loss at -10%
             # BULL: suppressed. SIDEWAYS: sell half. BEAR: sell all (or remainder).
