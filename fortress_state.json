@@ -44,13 +44,20 @@
         "last_exit_date": "2026-04-09"
     },
     "MEN": {
-        "in_position": true,
-        "entry_date": "2026-04-18",
-        "entry_price": 519.38,
-        "initial_entry": 519.38,
-        "ema_cross_days": 2,
+        "in_position": false,
+        "entry_date": null,
+        "entry_price": 0,
+        "initial_entry": 0,
+        "ema_cross_days": 3,
         "last_known_qty": 60,
-        "peak_price": 586.1
+        "peak_price": 586.1,
+        "half_sold": false,
+        "last_exit_price": 585.0,
+        "last_exit_date": "2026-04-29",
+        "trades": 1,
+        "position_count": 0,
+        "sideways_half_sold": true,
+        "sideways_sold_qty": 30
     },
     "NABIL": {
         "in_position": false,

@@ -1,17 +1,11 @@
 {
-    "date": "2026-04-28",
+    "date": "2026-04-29",
     "orders": [
         {
-            "symbol": "BNHC",
+            "symbol": "MEN",
             "side": "SELL",
-            "type": "SL_HALF",
-            "quantity": 10
-        },
-        {
-            "symbol": "CHCL",
-            "side": "SELL",
-            "type": "SL_HALF",
-            "quantity": 20
+            "type": "EMA_CROSS_HALF",
+            "quantity": 30
         }
     ]
 }
