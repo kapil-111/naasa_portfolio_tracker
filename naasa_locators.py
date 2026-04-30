@@ -200,6 +200,13 @@ def wallet_total_collateral_value(page: Page) -> Locator:
     )
 
 
+def order_available_collateral(page: Page) -> Locator:
+    """'Available Collateral' value shown on the order form — no wallet nav needed."""
+    return page.locator("xpath=//span[normalize-space()='Available Collateral']/following-sibling::*[1]").or_(
+        page.get_by_text("Available Collateral").locator("..").locator("strong, b, span").last
+    )
+
+
 # --- Holding report grid ---
 def holding_grid_root(page: Page) -> Locator:
     return page.locator("#GridDiv")

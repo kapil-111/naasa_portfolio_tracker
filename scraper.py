@@ -10,6 +10,8 @@ from naasa_locators import (
     holding_next_page,
     holding_no_data,
     naasa_holding_report,
+    naasa_order,
+    order_available_collateral,
     wallet_home,
     wallet_total_collateral_label,
     wallet_total_collateral_value,
@@ -51,21 +53,36 @@ def _is_holding_page_total_row(headers: list, clean_cells: list) -> bool:
 
 def scrape_available_fund(page: Page):
     """
-    Scrapes Total Collateral from NAASA wallet.
+    Scrapes Available Collateral from the order page (already loaded during trading cycle).
+    Falls back to wallet page if the order page value is missing.
     Returns float or None if not found.
     """
-    print("Scraping available fund...")
+    def _parse(text):
+        return float(text.replace(",", "").replace("Rs.", "").strip())
+
+    # Try order page first — no extra navigation needed
+    print("Scraping available fund from order page...")
+    try:
+        goto_broker_page(page, naasa_order())
+        loc = order_available_collateral(page)
+        loc.wait_for(state="visible", timeout=8000)
+        value = _parse(loc.inner_text(timeout=3000))
+        print(f"[FUND] Available Collateral (order page): {value:,.2f}")
+        return value
+    except Exception as e:
+        print(f"[FUND] Order page collateral failed ({e}), falling back to wallet...")
+
+    # Fallback: wallet page
     goto_broker_page(page, wallet_home())
     try:
         wallet_total_collateral_label(page).wait_for(state="visible", timeout=10000)
     except Exception:
         print("[FUND] Timed out waiting for wallet page.")
         return None
-
     try:
         value_text = wallet_total_collateral_value(page).inner_text(timeout=3000)
-        value = float(value_text.replace(",", "").replace("Rs.", "").strip())
-        print(f"[FUND] Total Collateral: {value:,.2f}")
+        value = _parse(value_text)
+        print(f"[FUND] Total Collateral (wallet): {value:,.2f}")
         return value
     except Exception as e:
         print(f"[FUND] Could not parse Total Collateral: {e}")
