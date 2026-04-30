@@ -258,12 +258,29 @@ def goto_broker_page(page: Page, url: str, timeout: float = 30_000) -> None:
     and some sessions appear to keep requests open long enough for Playwright's
     default `wait_until="load"` to timeout. Callers should wait for the specific
     element they need after navigation.
+
+    Retries up to 3 times with 10s backoff on transient DNS/network errors
+    (net::ERR_NAME_NOT_RESOLVED, net::ERR_CONNECTION_REFUSED, etc.).
     """
-    try:
-        page.goto(url, wait_until="domcontentloaded", timeout=timeout)
-    except PlaywrightTimeoutError:
-        # Last-resort fallback for pages that never reach DOMContentLoaded cleanly.
-        page.goto(url, wait_until="commit", timeout=10_000)
+    last_exc: Exception | None = None
+    for attempt in range(3):
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=timeout)
+            return
+        except PlaywrightTimeoutError:
+            # Last-resort fallback for pages that never reach DOMContentLoaded cleanly.
+            page.goto(url, wait_until="commit", timeout=10_000)
+            return
+        except Exception as e:
+            err_str = str(e)
+            if any(net_err in err_str for net_err in ("ERR_NAME_NOT_RESOLVED", "ERR_CONNECTION_REFUSED", "ERR_INTERNET_DISCONNECTED", "ERR_NETWORK_CHANGED")):
+                last_exc = e
+                if attempt < 2:
+                    print(f"[goto_broker_page] Network error (attempt {attempt+1}/3): {err_str[:120]}. Retrying in 10s...")
+                    time.sleep(10)
+                continue
+            raise
+    raise last_exc
 
 
 def wait_for_order_page(page: Page, timeout: float = 30_000) -> None:

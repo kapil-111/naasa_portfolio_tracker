@@ -235,7 +235,7 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
 # --- Portfolio column helpers ---
 
 _SYMBOL_KEYS = ['Symbol', 'symbol', 'Stock Symbol', 'Script', 'Scrip']
-_QTY_KEYS    = ['CDS Total\nBalance', 'NAASA\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']
+_QTY_KEYS    = ['NAASA\nBalance', 'CDS Total\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']
 _RATE_KEYS   = ['Average Rate', 'Avg Rate', 'Average Cost', 'Cost Price', 'Close Price\nPrice', 'LTP']
 _AVG_PRICES_FILE = "avg_prices.json"
 

@@ -187,7 +187,7 @@ def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNK
                 if h.get(k):
                     sym = str(h[k]).strip()
                     break
-            for k in ['CDS Total\nBalance', 'NAASA\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']:
+            for k in ['NAASA\nBalance', 'CDS Total\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']:
                 if h.get(k) is not None and str(h.get(k)).strip():
                     try:
                         qty = int(float(str(h[k]).replace(',', '')))
