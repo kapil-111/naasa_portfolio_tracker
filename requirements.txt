@@ -1,4 +1,4 @@
-playwright
+playwright==1.51.0
 python-dotenv
 pytz
 nepse-api

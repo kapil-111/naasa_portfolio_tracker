@@ -53,9 +53,11 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: playwright install chromium --with-deps
 
-      - name: Install Playwright system deps (cached browser)
+      - name: Install Playwright system deps only (cached browser)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: playwright install-deps chromium
+        run: |
+          playwright install chromium
+          playwright install-deps chromium
 
       - name: Run contract tests (fixtures)
         run: python -m pytest tests/ -v
