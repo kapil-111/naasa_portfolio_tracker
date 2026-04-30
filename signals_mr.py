@@ -149,7 +149,7 @@ def get_nepse_regime(ohlcv_file="chukul_data.csv"):
     return "UNKNOWN"
 
 
-def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
+def load_and_prepare_data(ohlcv_file="chukul_data.csv", held_symbols=None):
     """Loads OHLCV data, adjusts for corporate actions, and calculates Fortress indicators."""
     print("Loading and preparing data for Fortress strategy...")
     if not os.path.exists(ohlcv_file):
@@ -177,9 +177,11 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
         roe_ok = fund[fund["roe"].notna() & (fund["roe"] > 5)]["symbol"]
         npl_ok = fund[fund["npl"].isna() | (fund["npl"] < 10)]["symbol"]
         good = set(eps_ok) & set(roe_ok) & set(npl_ok) - BLACKLIST
+        # Always include held positions and swing targets for exit-only tracking
+        always_include = swing_target_syms | (set(held_symbols) - BLACKLIST if held_symbols else set())
         before = df_adjusted["symbol"].nunique()
-        df_adjusted = df_adjusted[df_adjusted["symbol"].isin(good | swing_target_syms)]
-        print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols (incl. {len(swing_target_syms)} swing-target exits)")
+        df_adjusted = df_adjusted[df_adjusted["symbol"].isin(good | always_include)]
+        print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols (incl. {len(swing_target_syms)} swing-targets, {len(held_symbols or [])} held)")
 
     print("Calculating Fortress indicators (EMA9, EMA21, ADX, RSI, volume)...")
     # All indicators are shifted by 1 so they are based on the last CLOSED candle only.
@@ -406,7 +408,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         if _in_cooldown and not state.get('in_position') and not _partial_remaining:
             print(f"[{symbol}] Re-entry cooldown — sold {_last_exit}, {_days_since_exit}d ago (10d cooldown).")
             continue
-        if is_in_live_portfolio and not state.get('in_position') and symbol not in swing_targets:
+        if is_in_live_portfolio and not state.get('in_position'):
             holding = held_symbols[symbol]
             avg_rate = _get_holding_rate(holding, avg_prices)
             if avg_rate is None:
@@ -511,6 +513,13 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             current_qty    = _get_holding_qty(held_symbols.get(symbol, {}))
             if current_qty > 0:
                 state['last_known_qty'] = current_qty  # persist for fallback when scrape unavailable
+            elif state.get('is_ipo'):
+                # IPO lock-in: CDS Free Balance = 0 for months; CDS Total Balance is the true qty
+                _h = held_symbols.get(symbol, {})
+                try:
+                    current_qty = int(float(str(_h.get('CDS Total\nBalance', 0)).replace(',', '')))
+                except (ValueError, TypeError):
+                    current_qty = state.get('last_known_qty', 0)
             else:
                 current_qty = state.get('last_known_qty', 0)
 

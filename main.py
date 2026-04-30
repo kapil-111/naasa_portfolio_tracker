@@ -430,7 +430,9 @@ def main():
                 fund_str = f"NPR {available_fund:,.2f}" if available_fund is not None else "N/A"
                 print(f"Portfolio: {holdings_count} holdings | Fund: {fund_str}")
 
-                latest_data = load_and_prepare_data()
+                from signals_mr import _get_holding_symbol
+                _held = {_get_holding_symbol(h) for h in portfolio_data.get('holdings', [])} - {None, ''}
+                latest_data = load_and_prepare_data(held_symbols=_held)
                 if latest_data is not None:
                     states = load_states()
                     placed_orders = load_placed_orders()
@@ -501,7 +503,9 @@ def main():
                     portfolio_data = _load_cached_portfolio()
 
                 # --- NEW SIGNAL GENERATION ---
-                latest_data = load_and_prepare_data()
+                from signals_mr import _get_holding_symbol
+                _held = {_get_holding_symbol(h) for h in portfolio_data.get('holdings', [])} - {None, ''}
+                latest_data = load_and_prepare_data(held_symbols=_held)
                 if latest_data is not None:
                     placed_orders = load_placed_orders()
                     portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)

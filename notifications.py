@@ -198,9 +198,12 @@ def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNK
                         break
                     except (ValueError, TypeError):
                         pass
-            # IPO lock-in: CDS Free Balance = 0 for months; use last_known_qty from state
+            # IPO lock-in: CDS Free Balance = 0 for months; use CDS Total Balance (actual shares owned)
             if not qty and sym and states.get(sym, {}).get('is_ipo'):
-                qty = states[sym].get('last_known_qty', 0) or None
+                try:
+                    qty = int(float(str(h.get('CDS Total\nBalance', 0)).replace(',', ''))) or None
+                except (ValueError, TypeError):
+                    pass
             for k in ['LTP', 'Close Price', 'Last Traded Price']:
                 if h.get(k) is not None and str(h.get(k)).strip():
                     try:
