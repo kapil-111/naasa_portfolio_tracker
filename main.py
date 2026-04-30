@@ -439,6 +439,7 @@ def main():
                     portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)
                     regime = get_nepse_regime()
                     signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
+                    save_states(states)  # persist orphan re-seeds so next cycle doesn't start blind
                     print(f"Generated {len(signals)} potential signals for next open.")
                     notify_premarket_report(portfolio_data, available_fund, signals, regime=regime)
             except SessionExpiredError as e:
@@ -513,6 +514,7 @@ def main():
                     regime = get_nepse_regime()
 
                     signals = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS, regime=regime, available_fund=available_fund)
+                    save_states(states)  # persist orphan re-seeds before order placement
                     print(f"Generated {len(signals)} signals.")
 
                     # TEST MODE: inject a forced signal to verify order placement end-to-end

@@ -1,35 +1,25 @@
 {
     "BNHC": {
-        "in_position": false,
-        "entry_date": null,
-        "entry_price": 0,
-        "initial_entry": 0,
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 645.4,
+        "initial_entry": 645.4,
         "ema_cross_days": 1,
-        "last_known_qty": 20,
-        "peak_price": 328.3,
-        "half_sold": false,
-        "last_exit_price": 328.3,
-        "last_exit_date": "2026-04-28",
-        "trades": 1,
-        "position_count": 0,
         "sideways_half_sold": true,
-        "sideways_sold_qty": 10
+        "sideways_sold_qty": 10,
+        "last_known_qty": 20,
+        "peak_price": 327.5
     },
     "CHCL": {
-        "in_position": false,
-        "entry_date": null,
-        "entry_price": 0,
-        "initial_entry": 0,
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 551.0,
+        "initial_entry": 551.0,
         "ema_cross_days": 1,
-        "last_known_qty": 40,
-        "peak_price": 479.0,
-        "half_sold": false,
-        "last_exit_price": 484.8,
-        "last_exit_date": "2026-04-28",
-        "trades": 1,
-        "position_count": 0,
         "sideways_half_sold": true,
-        "sideways_sold_qty": 20
+        "sideways_sold_qty": 20,
+        "last_known_qty": 40,
+        "peak_price": 478.5
     },
     "HDL": {
         "in_position": false,
@@ -44,20 +34,15 @@
         "last_exit_date": "2026-04-09"
     },
     "MEN": {
-        "in_position": false,
-        "entry_date": null,
-        "entry_price": 0,
-        "initial_entry": 0,
-        "ema_cross_days": 3,
-        "last_known_qty": 60,
-        "peak_price": 586.1,
-        "half_sold": false,
-        "last_exit_price": 585.0,
-        "last_exit_date": "2026-04-29",
-        "trades": 1,
-        "position_count": 0,
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 519.38,
+        "initial_entry": 519.38,
+        "ema_cross_days": 1,
         "sideways_half_sold": true,
-        "sideways_sold_qty": 30
+        "sideways_sold_qty": 30,
+        "last_known_qty": 60,
+        "peak_price": 583.5
     },
     "NABIL": {
         "in_position": false,
@@ -108,20 +93,15 @@
         "last_exit_date": "2026-04-17"
     },
     "SNLI": {
-        "in_position": false,
-        "entry_date": null,
-        "entry_price": 0,
-        "initial_entry": 0,
-        "ema_cross_days": 6,
-        "last_known_qty": 20,
-        "peak_price": 461.0,
-        "half_sold": false,
-        "last_exit_price": 460.0,
-        "last_exit_date": "2026-04-20",
-        "trades": 1,
-        "position_count": 0,
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 440.33,
+        "initial_entry": 440.33,
+        "ema_cross_days": 1,
         "sideways_half_sold": true,
-        "sideways_sold_qty": 10
+        "sideways_sold_qty": 10,
+        "last_known_qty": 20,
+        "peak_price": 452.5
     },
     "DDBL": {
         "in_position": false,
@@ -169,7 +149,8 @@
         "position_count": 1,
         "trades": 0,
         "is_ipo": true,
-        "last_known_qty": 10
+        "last_known_qty": 10,
+        "peak_price": 1024.0
     },
     "RLEL": {
         "in_position": true,
@@ -193,21 +174,63 @@
         "position_count": 1,
         "trades": 0,
         "is_ipo": true,
-        "last_known_qty": 10
+        "last_known_qty": 10,
+        "peak_price": 710.0
     },
-    "SMATA": {},
-    "HATHY": {},
-    "IGI": {},
-    "KDL": {},
-    "NFS": {},
+    "SMATA": {
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 879.42,
+        "initial_entry": 879.42,
+        "ema_cross_days": 1,
+        "last_known_qty": 30,
+        "peak_price": 755.0
+    },
+    "HATHY": {
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 1341.61,
+        "initial_entry": 1341.61,
+        "ema_cross_days": 1,
+        "last_known_qty": 36,
+        "peak_price": 814.0
+    },
+    "IGI": {
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 583.76,
+        "initial_entry": 583.76,
+        "ema_cross_days": 1,
+        "last_known_qty": 20,
+        "peak_price": 428.9
+    },
+    "KDL": {
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 1239.13,
+        "initial_entry": 1239.13,
+        "ema_cross_days": 1,
+        "last_known_qty": 31,
+        "peak_price": 820.0
+    },
+    "NFS": {
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 1450.24,
+        "initial_entry": 1450.24,
+        "ema_cross_days": 1,
+        "last_known_qty": 72,
+        "peak_price": 582.0
+    },
     "NGPL": {
         "in_position": true,
         "entry_date": "2026-03-05",
         "entry_price": 400.0,
         "initial_entry": 400.0,
-        "ema_cross_days": 0,
+        "ema_cross_days": 1,
         "last_known_qty": 2,
-        "trades": 0
+        "trades": 0,
+        "peak_price": 437.0
     },
     "NIBSF2": {
         "in_position": true,
@@ -218,9 +241,58 @@
         "last_known_qty": 100,
         "trades": 0
     },
-    "NMLBBL": {},
-    "PMLI": {},
-    "PROFL": {},
-    "SWBBL": {},
-    "UAIL": {}
+    "NMLBBL": {
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 754.31,
+        "initial_entry": 754.31,
+        "ema_cross_days": 1,
+        "last_known_qty": 30,
+        "peak_price": 610.0
+    },
+    "PMLI": {
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 559.7,
+        "initial_entry": 559.7,
+        "ema_cross_days": 1,
+        "last_known_qty": 86,
+        "peak_price": 464.0
+    },
+    "PROFL": {
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 615.2,
+        "initial_entry": 615.2,
+        "ema_cross_days": 1,
+        "last_known_qty": 50,
+        "peak_price": 444.7
+    },
+    "SWBBL": {
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 884.53,
+        "initial_entry": 884.53,
+        "ema_cross_days": 1,
+        "last_known_qty": 37,
+        "peak_price": 720.0
+    },
+    "UAIL": {
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 578.47,
+        "initial_entry": 578.47,
+        "ema_cross_days": 1,
+        "last_known_qty": 80,
+        "peak_price": 439.7
+    },
+    "NICA": {
+        "in_position": true,
+        "entry_date": "2026-04-20",
+        "entry_price": 585.59,
+        "initial_entry": 585.59,
+        "ema_cross_days": 1,
+        "last_known_qty": 45,
+        "peak_price": 358.0
+    }
 }
