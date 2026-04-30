@@ -235,7 +235,7 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv"):
 # --- Portfolio column helpers ---
 
 _SYMBOL_KEYS = ['Symbol', 'symbol', 'Stock Symbol', 'Script', 'Scrip']
-_QTY_KEYS    = ['NAASA\nBalance', 'CDS Total\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']
+_QTY_KEYS    = ['CDS Free\nBalance', 'NAASA\nBalance', 'CDS Total\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']
 _RATE_KEYS   = ['Average Rate', 'Avg Rate', 'Average Cost', 'Cost Price', 'Close Price\nPrice', 'LTP']
 _AVG_PRICES_FILE = "avg_prices.json"
 
@@ -399,10 +399,11 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
         )
         _t3_pending   = _days_since_exit <= 3
         _in_cooldown  = _days_since_exit <= 10
-        if _t3_pending and is_in_live_portfolio:
+        _partial_remaining = state.get('sideways_half_sold') and is_in_live_portfolio
+        if _t3_pending and is_in_live_portfolio and not _partial_remaining:
             print(f"[{symbol}] Skipping orphan re-seed — sold {_last_exit}, T+3 pending ({_days_since_exit}d ago).")
             continue
-        if _in_cooldown and not state.get('in_position'):
+        if _in_cooldown and not state.get('in_position') and not _partial_remaining:
             print(f"[{symbol}] Re-entry cooldown — sold {_last_exit}, {_days_since_exit}d ago (10d cooldown).")
             continue
         if is_in_live_portfolio and not state.get('in_position') and symbol not in swing_targets:
@@ -411,15 +412,22 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             if avg_rate is None:
                 avg_rate = float(row['close'])
                 print(f"[{symbol}] Orphan: no avg_prices.json entry, using current price as entry.")
-            state = {
+            reseeded = {
                 'in_position':    True,
                 'entry_date':     (pd.to_datetime('today') - pd.Timedelta(days=10)).strftime('%Y-%m-%d'),
                 'entry_price':    avg_rate,
                 'initial_entry':  avg_rate,
                 'ema_cross_days': 0,
             }
+            # Preserve partial-sell flags so exit rules know half is already gone
+            if state.get('sideways_half_sold'):
+                reseeded['sideways_half_sold'] = True
+                reseeded['sideways_sold_qty']  = state.get('sideways_sold_qty', 0)
+                print(f"[{symbol}] Orphan partial-sell re-seeded: avg_rate={avg_rate}, half already sold")
+            else:
+                print(f"[{symbol}] Orphan position seeded: avg_rate={avg_rate}")
+            state = reseeded
             states[symbol] = state
-            print(f"[{symbol}] Orphan position seeded: avg_rate={avg_rate}")
 
         # --- Read indicators ---
         def _f(r, col, default=0.0):

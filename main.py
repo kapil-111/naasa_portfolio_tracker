@@ -228,7 +228,8 @@ def _clean_portfolio(portfolio_data, states, placed_orders):
         )
 
         # 1. Full exit — state says gone, T+3 still showing it
-        if not state.get("in_position") and days_since_exit <= 3:
+        # Skip removal if it was a partial sell (remaining shares still held)
+        if not state.get("in_position") and days_since_exit <= 3 and not state.get("sideways_half_sold"):
             print(f"[PORTFOLIO CLEAN] Removing {sym} — sold {last_exit} ({days_since_exit}d ago), T+3 pending.")
             continue
 

@@ -157,11 +157,15 @@ def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNK
              f"Market Trend: {regime_emoji} {regime}\n"]
 
     # Portfolio holdings
+    import json as _json
     avg_prices = {}
     if os.path.exists("avg_prices.json"):
-        import json as _json
         with open("avg_prices.json") as _f:
             avg_prices = _json.load(_f)
+    states = {}
+    if os.path.exists("fortress_state.json"):
+        with open("fortress_state.json") as _f:
+            states = _json.load(_f)
 
     BLACKLIST = {"NIBSF2", "NEPSE"}
 
@@ -187,13 +191,16 @@ def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNK
                 if h.get(k):
                     sym = str(h[k]).strip()
                     break
-            for k in ['NAASA\nBalance', 'CDS Total\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']:
+            for k in ['CDS Free\nBalance', 'NAASA\nBalance', 'CDS Total\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']:
                 if h.get(k) is not None and str(h.get(k)).strip():
                     try:
                         qty = int(float(str(h[k]).replace(',', '')))
                         break
                     except (ValueError, TypeError):
                         pass
+            # IPO lock-in: CDS Free Balance = 0 for months; use last_known_qty from state
+            if not qty and sym and states.get(sym, {}).get('is_ipo'):
+                qty = states[sym].get('last_known_qty', 0) or None
             for k in ['LTP', 'Close Price', 'Last Traded Price']:
                 if h.get(k) is not None and str(h.get(k)).strip():
                     try:
