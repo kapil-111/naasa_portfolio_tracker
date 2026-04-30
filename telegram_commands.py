@@ -274,6 +274,8 @@ HELP_TEXT = (
     "  Example: /buy NABIL 10 500\n\n"
     "/status\n"
     "  → Show portfolio & fund\n\n"
+    "/tradelog\n"
+    "  → Show trade record & P&L summary\n\n"
     "/help\n"
     "  → Show this message"
 )
@@ -331,6 +333,10 @@ def poll_and_handle(page, trader, states, portfolio_data, available_fund, dry_ru
 
         elif cmd == "/buy":
             _handle_buy(parts, page, trader, states, portfolio_data, available_fund, dry_run)
+
+        elif cmd == "/tradelog":
+            from trade_logger import get_summary
+            _reply(get_summary())
 
         else:
             _reply(f"Unknown command: {cmd}\nSend /help for available commands.")

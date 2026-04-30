@@ -27,6 +27,7 @@ from notifications import (
     notify_premarket_report,
 )
 from telegram_commands import poll_and_handle
+from trade_logger import log_trade
 
 from datetime import datetime, time as dt_time
 import pytz
@@ -615,6 +616,9 @@ def main():
                             placed_orders = load_placed_orders() # Refresh placed orders
                             orders_placed_this_cycle += 1
                             notify_order(signal, is_dry_run=DRY_RUN)
+                            from signals_mr import _load_avg_prices
+                            avg_cost = _load_avg_prices().get(symbol) if side == 'SELL' else None
+                            log_trade(symbol, side, signal_type, qty, order_signal['price'], avg_cost=avg_cost)
                 else:
                     print("No trading signals generated.")
 

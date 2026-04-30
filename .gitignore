@@ -22,3 +22,5 @@ env/
 !chukul_fundamental.csv
 # Exception: historical OHLCV data — full refetch is slow, persist and update incrementally
 !chukul_data.csv
+# Exception: trade log — persistent record of all trades, must not be lost
+!trade_log.csv

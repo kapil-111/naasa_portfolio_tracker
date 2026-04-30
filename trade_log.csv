@@ -1,0 +1,19 @@
+date,symbol,side,type,qty,price,avg_cost,pnl_pct,pnl_npr,notes
+2026-04-30 17:55,DDBL,BUY,INITIAL,20,850.0,,,,pre-log backfill
+2026-04-30 17:55,DDBL,SELL,FULL_EXIT,20,850.0,850.0,,,pre-log backfill — entry price unknown
+2026-04-30 17:55,HDL,BUY,INITIAL,10,1182.0,,,,pre-log backfill
+2026-04-30 17:55,HDL,SELL,FULL_EXIT,10,1182.0,1182.0,,,pre-log backfill — entry price unknown
+2026-04-30 17:55,MSHL,BUY,INITIAL,10,775.0,,,,pre-log backfill
+2026-04-30 17:55,MSHL,SELL,FULL_EXIT,10,775.0,775.0,,,pre-log backfill — entry price unknown
+2026-04-30 17:55,NABIL,BUY,INITIAL,10,529.4,,,,pre-log backfill
+2026-04-30 17:55,NABIL,SELL,FULL_EXIT,10,529.4,529.4,,,pre-log backfill — entry price unknown
+2026-04-30 17:55,NLIC,BUY,INITIAL,10,781.0,,,,pre-log backfill
+2026-04-30 17:55,NLIC,SELL,FULL_EXIT,10,781.0,781.0,,,pre-log backfill — entry price unknown
+2026-04-30 17:55,NMB,BUY,INITIAL,10,270.1,,,,pre-log backfill
+2026-04-30 17:55,SAHAS,BUY,INITIAL,10,625.3,,,,pre-log backfill
+2026-04-30 17:55,SAHAS,SELL,FULL_EXIT,10,625.3,625.3,,,pre-log backfill — entry price unknown
+2026-04-30 17:55,HFIN,BUY,INITIAL,10,100.0,,,,IPO allotment
+2026-04-30 17:55,PCIL,BUY,INITIAL,80,100.0,,,,IPO allotment
+2026-04-30 17:55,RLEL,BUY,INITIAL,10,100.0,,,,IPO allotment
+2026-04-30 17:55,SOHL,BUY,INITIAL,10,100.0,,,,IPO allotment
+2026-04-30 17:55,MEN,SELL,EMA_CROSS_HALF,30,583.5,519.38,12.35,1923.6,pre-log backfill
