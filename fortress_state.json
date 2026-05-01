@@ -4,7 +4,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 645.4,
         "initial_entry": 645.4,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "sideways_half_sold": true,
         "sideways_sold_qty": 10,
         "last_known_qty": 10,
@@ -15,7 +15,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 551.0,
         "initial_entry": 551.0,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "sideways_half_sold": true,
         "sideways_sold_qty": 20,
         "last_known_qty": 20,
@@ -38,7 +38,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 519.38,
         "initial_entry": 519.38,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "sideways_half_sold": true,
         "sideways_sold_qty": 30,
         "last_known_qty": 30,
@@ -97,7 +97,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 440.33,
         "initial_entry": 440.33,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "sideways_half_sold": true,
         "sideways_sold_qty": 10,
         "last_known_qty": 20,
@@ -182,7 +182,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 879.42,
         "initial_entry": 879.42,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 31,
         "peak_price": 755.0
     },
@@ -191,7 +191,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 1341.61,
         "initial_entry": 1341.61,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 36,
         "peak_price": 814.0
     },
@@ -200,7 +200,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 583.76,
         "initial_entry": 583.76,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 20,
         "peak_price": 428.9
     },
@@ -209,7 +209,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 1239.13,
         "initial_entry": 1239.13,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 31,
         "peak_price": 820.0
     },
@@ -218,7 +218,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 1450.24,
         "initial_entry": 1450.24,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 72,
         "peak_price": 582.0
     },
@@ -227,7 +227,7 @@
         "entry_date": "2026-03-05",
         "entry_price": 400.0,
         "initial_entry": 400.0,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 2,
         "trades": 0,
         "peak_price": 437.0
@@ -246,7 +246,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 754.31,
         "initial_entry": 754.31,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 30,
         "peak_price": 610.0
     },
@@ -255,7 +255,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 559.7,
         "initial_entry": 559.7,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 86,
         "peak_price": 464.0
     },
@@ -264,7 +264,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 615.2,
         "initial_entry": 615.2,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 50,
         "peak_price": 444.7
     },
@@ -273,7 +273,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 884.53,
         "initial_entry": 884.53,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 37,
         "peak_price": 720.0
     },
@@ -282,7 +282,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 578.47,
         "initial_entry": 578.47,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 80,
         "peak_price": 439.7
     },
@@ -291,7 +291,7 @@
         "entry_date": "2026-04-20",
         "entry_price": 585.59,
         "initial_entry": 585.59,
-        "ema_cross_days": 3,
+        "ema_cross_days": 4,
         "last_known_qty": 45,
         "peak_price": 358.0
     }
