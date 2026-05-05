@@ -109,10 +109,10 @@
         "entry_date": "2026-04-25",
         "entry_price": 440.33,
         "initial_entry": 440.33,
-        "ema_cross_days": 2,
+        "ema_cross_days": 3,
         "sideways_half_sold": true,
         "sideways_sold_qty": 10,
-        "peak_price": 447.5
+        "peak_price": 448.0
     },
     "DDBL": {
         "in_position": false,
@@ -263,7 +263,7 @@
         "entry_date": "2026-03-05",
         "entry_price": 400.0,
         "initial_entry": 400.0,
-        "ema_cross_days": 12,
+        "ema_cross_days": 13,
         "last_known_qty": 2,
         "trades": 0,
         "peak_price": 437.0
