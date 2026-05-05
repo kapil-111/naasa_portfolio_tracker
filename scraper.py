@@ -11,6 +11,7 @@ from naasa_locators import (
     holding_no_data,
     naasa_holding_report,
     naasa_order,
+    naasa_orderbook_report,
     order_available_collateral,
     wallet_home,
     wallet_total_collateral_label,
@@ -156,6 +157,81 @@ def parse_holding_grid(page: Page) -> list:
 
     print(f"Scraped {len(holdings)} holdings.")
     return holdings
+
+
+def scrape_orderbook(page: Page) -> list:
+    """
+    Scrape today's orderbook from /TradeBook?Report=ORDERBOOK.
+    Returns a list of dicts with keys: symbol, side, quantity, traded_qty,
+    remaining_qty, status, price.
+    """
+    print("Scraping orderbook...")
+    goto_broker_page(page, naasa_orderbook_report())
+
+    rows = parse_holding_grid(page)
+    if not rows:
+        print("[ORDERBOOK] No rows found.")
+        return []
+
+    # Normalise column names — the grid may use different header text
+    _COL_SYMBOL   = ("Scrip", "Symbol", "Stock Symbol", "Script")
+    _COL_SIDE     = ("BuySellText", "Buy/Sell", "Side")
+    _COL_PRICE    = ("Price",)
+    _COL_QTY      = ("Quantity", "Qty", "Order Qty")
+    _COL_TRADED   = ("TradedQuantity", "Traded Qty", "Traded Quantity")
+    _COL_REMAIN   = ("RemainingQty", "Remaining Qty", "Remaining Quantity")
+    _COL_STATUS   = ("StatusText", "Status")
+
+    def _get(row, keys):
+        for k in keys:
+            v = row.get(k)
+            if v is not None and str(v).strip():
+                return str(v).strip()
+        return ""
+
+    def _int(val):
+        try:
+            return int(float(str(val).replace(",", "")))
+        except (ValueError, TypeError):
+            return 0
+
+    def _float(val):
+        try:
+            return float(str(val).replace(",", ""))
+        except (ValueError, TypeError):
+            return 0.0
+
+    result = []
+    for row in rows:
+        symbol = _get(row, _COL_SYMBOL)
+        if not symbol or symbol.lower().startswith("total"):
+            continue
+        traded_qty   = _int(_get(row, _COL_TRADED))
+        remaining_qty = _int(_get(row, _COL_REMAIN))
+        order_qty    = _int(_get(row, _COL_QTY))
+        status_raw   = _get(row, _COL_STATUS).upper()
+
+        if "COMPLETE" in status_raw:
+            fill_status = "COMPLETE"
+        elif "CANCEL" in status_raw and traded_qty > 0:
+            fill_status = "PARTIAL"
+        elif "CANCEL" in status_raw:
+            fill_status = "CANCELLED"
+        else:
+            fill_status = "PENDING"
+
+        result.append({
+            "symbol":        symbol,
+            "side":          _get(row, _COL_SIDE).upper(),
+            "price":         _float(_get(row, _COL_PRICE)),
+            "order_qty":     order_qty,
+            "traded_qty":    traded_qty,
+            "remaining_qty": remaining_qty,
+            "fill_status":   fill_status,
+        })
+
+    print(f"[ORDERBOOK] Scraped {len(result)} orders.")
+    return result
 
 
 def scrape_portfolio(page: Page):

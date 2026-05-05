@@ -264,6 +264,43 @@ def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNK
     print(f"Morning report Telegram send: {'OK' if ok else 'FAILED'}")
 
 
+def notify_eod_fill_report(fill_results):
+    """
+    Send end-of-day fill reconciliation report.
+    fill_results: list of dicts with keys:
+      symbol, side, signal_qty, traded_qty, fill_status, price
+    """
+    if not fill_results:
+        _tg_send(f"📋 EOD Fill Report — {_now_npt()}\nNo orders to reconcile.")
+        return
+
+    lines = [f"📋 EOD Fill Report — {_now_npt()}\n"]
+    for r in fill_results:
+        sym    = r["symbol"]
+        side   = r["side"]
+        status = r["fill_status"]
+        tqty   = r["traded_qty"]
+        sqty   = r["signal_qty"]
+        price  = r.get("price", 0)
+
+        if status == "COMPLETE":
+            icon = "✅"
+            detail = f"qty={tqty} @{price:.2f}"
+        elif status == "PARTIAL":
+            icon = "⚠️"
+            detail = f"filled={tqty}/{sqty} @{price:.2f}"
+        elif status == "CANCELLED":
+            icon = "❌"
+            detail = f"qty=0/{sqty} — fully cancelled"
+        else:
+            icon = "❓"
+            detail = f"traded={tqty} status={status}"
+
+        lines.append(f"{icon} {side} {sym} [{status}]  {detail}")
+
+    _tg_send("\n".join(lines))
+
+
 def notify_market_close(daily_orders):
     lines = [f"🔴 Market Closed — {_now_npt()}\n"]
     if daily_orders:

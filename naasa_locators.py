@@ -27,6 +27,10 @@ def naasa_holding_report() -> str:
     return f"{NAASA_BASE}/TradeBook?Report=HOLDINGDATA"
 
 
+def naasa_orderbook_report() -> str:
+    return f"{NAASA_BASE}/TradeBook?Report=ORDERBOOK"
+
+
 def naasa_market_watch() -> str:
     return f"{NAASA_BASE}/MarketWatch"
 

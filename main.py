@@ -25,6 +25,7 @@ from notifications import (
     notify_cycle_summary,
     notify_market_close,
     notify_premarket_report,
+    notify_eod_fill_report,
 )
 from telegram_commands import poll_and_handle
 from trade_logger import log_trade
@@ -326,6 +327,106 @@ def _fetch_chukul_data(max_retries=3, retry_delay=30):
         update_fundamental_data(symbols=symbols, verbose=False)
 
 
+def _reconcile_eod_fills(page):
+    """
+    At market close: scrape orderbook, compare actual traded qty vs placed orders,
+    correct placed_orders_today.json quantities, fix fortress_state for partial fills,
+    update trade_log.csv, and send a Telegram fill report.
+    """
+    from scraper import scrape_orderbook
+
+    placed_orders = load_placed_orders()
+    if not placed_orders.get("orders"):
+        return
+
+    ob_rows = scrape_orderbook(page)
+    if not ob_rows:
+        print("[EOD] Orderbook scrape returned no rows — skipping reconciliation.")
+        return
+
+    # Index orderbook by (symbol, side) — take the most recent if duplicates
+    ob_index = {}
+    for row in ob_rows:
+        key = (row["symbol"], row["side"])
+        ob_index[key] = row
+
+    states = load_states()
+    fill_results = []
+    orders_updated = False
+
+    for order in placed_orders.get("orders", []):
+        sym        = order.get("symbol")
+        side       = order.get("side", "").upper()
+        signal_qty = order.get("quantity", 0)
+        sig_type   = order.get("type", "FULL")
+
+        ob = ob_index.get((sym, side))
+        if not ob:
+            # Not found in orderbook — no fill data available
+            fill_results.append({
+                "symbol": sym, "side": side,
+                "signal_qty": signal_qty, "traded_qty": 0,
+                "fill_status": "NOT_FOUND", "price": 0,
+            })
+            continue
+
+        traded_qty  = ob["traded_qty"]
+        fill_status = ob["fill_status"]
+        price       = ob["price"]
+
+        fill_results.append({
+            "symbol": sym, "side": side,
+            "signal_qty": signal_qty, "traded_qty": traded_qty,
+            "fill_status": fill_status, "price": price,
+        })
+
+        if fill_status == "COMPLETE" and traded_qty == signal_qty:
+            continue  # nothing to correct
+
+        # --- Correct placed_orders_today.json qty ---
+        if traded_qty != signal_qty:
+            order["quantity"] = traded_qty
+            orders_updated = True
+            print(f"[EOD] {side} {sym}: correcting qty {signal_qty} → {traded_qty} ({fill_status})")
+
+        # --- Fix fortress_state for partial SELL fills ---
+        if side == "SELL" and fill_status == "PARTIAL":
+            state = states.get(sym, {})
+            # Position is still open — traded less than ordered
+            state["in_position"] = True
+            # Reduce position_count proportionally if tracked
+            if state.get("position_count", 0) > 0 and signal_qty > 0:
+                remaining_qty = signal_qty - traded_qty
+                state["partial_remaining_qty"] = remaining_qty
+            states[sym] = state
+            print(f"[EOD] {sym} SELL PARTIAL — marking still in_position, {signal_qty - traded_qty} shares remain.")
+
+        elif side == "SELL" and fill_status == "CANCELLED":
+            # Nothing traded — undo full-exit state change
+            state = states.get(sym, {})
+            state["in_position"] = True
+            states[sym] = state
+            print(f"[EOD] {sym} SELL CANCELLED — reverting in_position=True.")
+
+        # --- Correct trade_log.csv with actual qty ---
+        if traded_qty > 0 and traded_qty != signal_qty:
+            from signals_mr import _load_avg_prices
+            avg_cost = _load_avg_prices().get(sym) if side == "SELL" else None
+            log_trade(sym, side, sig_type, traded_qty, price,
+                      avg_cost=avg_cost, notes=f"EOD corrected from {signal_qty}")
+
+    if orders_updated:
+        filename = "placed_orders_today.json"
+        with open(filename, "w") as f:
+            json.dump(placed_orders, f, indent=4)
+            f.flush()
+            os.fsync(f.fileno())
+        print("[EOD] placed_orders_today.json updated with actual filled quantities.")
+
+    save_states(states)
+    notify_eod_fill_report(fill_results)
+
+
 def main():
     load_dotenv()
 
@@ -363,6 +464,7 @@ def main():
 
     market_open_notified_date = None
     last_was_open = False
+    eod_reconciled_date = None  # run fill reconciliation once per trading day
 
     while True:
         cycle_start = time.monotonic()
@@ -396,6 +498,16 @@ def main():
                     context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
                     page = context.new_page()
                     login(page, username, password)
+
+                    # EOD fill reconciliation — run once on the first closed cycle after market close
+                    if eod_reconciled_date != today_str and load_placed_orders().get("orders"):
+                        try:
+                            _reconcile_eod_fills(page)
+                            eod_reconciled_date = today_str
+                        except Exception as e:
+                            print(f"[EOD] Reconciliation error: {e}")
+                            notify_error(f"EOD reconciliation failed: {e}")
+
                     portfolio_data = scrape_portfolio(page)
                     raise_if_login_page(page, "closed market: after holding report")
                     available_fund = scrape_available_fund(page)
