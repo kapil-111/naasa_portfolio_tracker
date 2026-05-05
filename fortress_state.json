@@ -40,7 +40,7 @@
         "last_exit_date": "2026-04-09"
     },
     "MEN": {
-        "in_position": false,
+        "in_position": true,
         "entry_date": null,
         "entry_price": 0,
         "initial_entry": 0,
@@ -53,7 +53,8 @@
         "last_exit_price": 578.1,
         "last_exit_date": "2026-05-04",
         "trades": 1,
-        "position_count": 0
+        "position_count": 0,
+        "partial_remaining_qty": 35
     },
     "NABIL": {
         "in_position": false,
@@ -325,7 +326,7 @@
         "position_count": 0
     },
     "SWBBL": {
-        "in_position": false,
+        "in_position": true,
         "entry_date": null,
         "entry_price": 0,
         "initial_entry": 0,
@@ -336,7 +337,8 @@
         "last_exit_price": 725.0,
         "last_exit_date": "2026-05-04",
         "trades": 1,
-        "position_count": 0
+        "position_count": 0,
+        "partial_remaining_qty": 7
     },
     "UAIL": {
         "in_position": false,
