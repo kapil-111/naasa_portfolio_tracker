@@ -105,20 +105,14 @@
         "last_exit_date": "2026-04-17"
     },
     "SNLI": {
-        "in_position": false,
-        "entry_date": null,
-        "entry_price": 0,
-        "initial_entry": 0,
-        "ema_cross_days": 8,
+        "in_position": true,
+        "entry_date": "2026-04-25",
+        "entry_price": 440.33,
+        "initial_entry": 440.33,
+        "ema_cross_days": 1,
         "sideways_half_sold": true,
         "sideways_sold_qty": 10,
-        "last_known_qty": 20,
-        "peak_price": 452.5,
-        "half_sold": false,
-        "last_exit_price": 447.5,
-        "last_exit_date": "2026-05-04",
-        "trades": 1,
-        "position_count": 0
+        "peak_price": 447.5
     },
     "DDBL": {
         "in_position": false,
@@ -269,7 +263,7 @@
         "entry_date": "2026-03-05",
         "entry_price": 400.0,
         "initial_entry": 400.0,
-        "ema_cross_days": 10,
+        "ema_cross_days": 11,
         "last_known_qty": 2,
         "trades": 0,
         "peak_price": 437.0
