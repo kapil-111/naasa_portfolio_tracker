@@ -1,17 +1,16 @@
 {
     "BNHC": {
-        "in_position": false,
+        "in_position": true,
         "entry_date": null,
-        "entry_price": 0,
-        "initial_entry": 0,
+        "entry_price": 645.4,
+        "initial_entry": 645.4,
         "ema_cross_days": 8,
-        "last_known_qty": 10,
-        "peak_price": 327.5,
+        "last_known_qty": 20,
         "half_sold": false,
         "last_exit_price": 321.1,
         "last_exit_date": "2026-05-04",
         "trades": 1,
-        "position_count": 0
+        "position_count": 1
     },
     "CHCL": {
         "in_position": false,
@@ -47,7 +46,7 @@
         "ema_cross_days": 8,
         "sideways_half_sold": true,
         "sideways_sold_qty": 30,
-        "last_known_qty": 30,
+        "last_known_qty": 35,
         "peak_price": 583.5,
         "half_sold": false,
         "last_exit_price": 578.1,
@@ -139,7 +138,7 @@
         "position_count": 1,
         "trades": 0,
         "is_ipo": true,
-        "last_known_qty": 30
+        "last_known_qty": 0
     },
     "HFIN": {
         "in_position": true,
@@ -316,7 +315,7 @@
         "entry_price": 0,
         "initial_entry": 0,
         "ema_cross_days": 8,
-        "last_known_qty": 37,
+        "last_known_qty": 7,
         "peak_price": 725.0,
         "half_sold": false,
         "last_exit_price": 725.0,

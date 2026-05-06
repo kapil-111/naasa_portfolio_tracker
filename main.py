@@ -327,6 +327,71 @@ def _fetch_chukul_data(max_retries=3, retry_delay=30):
         update_fundamental_data(symbols=symbols, verbose=False)
 
 
+def _sync_state_from_portfolio(portfolio_data):
+    """Sync fortress_state.json in_position and last_known_qty from live portfolio data.
+
+    For each symbol in portfolio_data: mark in_position=True, update last_known_qty.
+    For symbols in state that are NOT in portfolio but marked in_position=True:
+    mark in_position=False (they've been fully sold/settled).
+    Preserves all other state fields untouched.
+    """
+    from signals_mr import _get_holding_symbol, _get_holding_qty
+
+    holdings = portfolio_data.get("holdings", [])
+    if not holdings:
+        return
+
+    # Build map: symbol -> (total_qty, naasa_qty)
+    # CDS Total Balance = total owned (incl. locked); NAASA Balance = tradeable
+    def _get_cds_total(h):
+        v = h.get('CDS Total\nBalance')
+        if v is not None and str(v).strip():
+            try:
+                return int(float(str(v).replace(',', '')))
+            except (ValueError, TypeError):
+                pass
+        return _get_holding_qty(h)
+
+    live = {}
+    for h in holdings:
+        sym = _get_holding_symbol(h)
+        if not sym or sym.lower().startswith("total"):
+            continue
+        total = _get_cds_total(h)
+        naasa = _get_holding_qty(h)
+        if total > 0:
+            live[sym] = naasa  # store tradeable qty; presence = owned
+
+    states = load_states()
+    changed = []
+
+    # Mark held symbols as in_position with correct qty
+    for sym, qty in live.items():
+        state = states.setdefault(sym, {})
+        old_pos = state.get("in_position")
+        old_qty = state.get("last_known_qty")
+        state["in_position"] = True
+        # IPO stocks: signals_mr reads CDS Total directly — don't overwrite last_known_qty
+        if not state.get("is_ipo"):
+            state["last_known_qty"] = qty
+        if old_pos != True or (not state.get("is_ipo") and old_qty != qty):
+            changed.append(f"{sym}: in_position={old_pos}→True, qty={old_qty}→{qty}")
+
+    # Mark symbols no longer in portfolio as exited
+    for sym, state in states.items():
+        if sym not in live and state.get("in_position"):
+            state["in_position"] = False
+            changed.append(f"{sym}: in_position=True→False (not in portfolio)")
+
+    if changed:
+        save_states(states)
+        print(f"[PORTFOLIO SYNC] {len(changed)} state(s) corrected:")
+        for c in changed:
+            print(f"  {c}")
+    else:
+        print("[PORTFOLIO SYNC] fortress_state matches portfolio — no changes.")
+
+
 def _reconcile_eod_fills(page):
     """
     At market close: scrape orderbook, compare actual traded qty vs placed orders,
@@ -514,6 +579,7 @@ def main():
                     raise_if_login_page(page, "closed market: after wallet")
                     if portfolio_data and portfolio_data.get("holdings"):
                         save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
+                        _sync_state_from_portfolio(portfolio_data)
                     else:
                         portfolio_data = _load_cached_portfolio()
 
@@ -612,6 +678,7 @@ def main():
                 if portfolio_data and portfolio_data.get("holdings"):
                     save_to_json(portfolio_data.get("summary", {}), "portfolio_summary.json")
                     save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
+                    _sync_state_from_portfolio(portfolio_data)
                 else:
                     print("Warning: Portfolio scraping returned empty holdings. Falling back to cached portfolio.")
                     portfolio_data = _load_cached_portfolio()
