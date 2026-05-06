@@ -358,9 +358,8 @@ def _sync_state_from_portfolio(portfolio_data):
         if not sym or sym.lower().startswith("total"):
             continue
         total = _get_cds_total(h)
-        naasa = _get_holding_qty(h)
         if total > 0:
-            live[sym] = naasa  # store tradeable qty; presence = owned
+            live[sym] = total  # CDS Total = true qty owned (incl. locked/bonus)
 
     states = load_states()
     changed = []
@@ -371,10 +370,8 @@ def _sync_state_from_portfolio(portfolio_data):
         old_pos = state.get("in_position")
         old_qty = state.get("last_known_qty")
         state["in_position"] = True
-        # IPO stocks: signals_mr reads CDS Total directly — don't overwrite last_known_qty
-        if not state.get("is_ipo"):
-            state["last_known_qty"] = qty
-        if old_pos != True or (not state.get("is_ipo") and old_qty != qty):
+        state["last_known_qty"] = qty
+        if old_pos != True or old_qty != qty:
             changed.append(f"{sym}: in_position={old_pos}→True, qty={old_qty}→{qty}")
 
     # Mark symbols no longer in portfolio as exited

@@ -138,7 +138,7 @@
         "position_count": 1,
         "trades": 0,
         "is_ipo": true,
-        "last_known_qty": 0
+        "last_known_qty": 80
     },
     "HFIN": {
         "in_position": true,
