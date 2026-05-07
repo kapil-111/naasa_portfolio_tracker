@@ -38,7 +38,7 @@ import pandas as pd
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # ── import backtest helpers ──────────────────────────────────────────────────
-from backtest import load_data, calc_qty, RISK_PCT_DEFAULT, MIN_HISTORY, NEPSE_MIN_LOT
+from backtest import load_data, calc_qty, MIN_HISTORY, NEPSE_MIN_LOT
 
 # ── Parameter space (MINIMA / MAXIMA) ───────────────────────────────────────
 PARAM_SPACE = {
@@ -53,6 +53,7 @@ PARAM_SPACE = {
     "weakness_rsi"   : (40,    50,    "int"),
     "trail_stop_pct" : (10.0,  20.0,  "float"),
     "hard_stop_pct"  : (7.0,   13.0,  "float"),
+    "risk_pct"       : (1.0,   5.0,   "float"),
 }
 
 # ── Baseline (v1 defaults) for behavioral threshold ─────────────────────────
@@ -79,7 +80,7 @@ def sample_parameters(n_runs, seed=42):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-def run_single(sym_df, symbol, sector_series, nepse_close, ps, risk_pct):
+def run_single(sym_df, symbol, sector_series, nepse_close, ps):
     """Run backtest for one symbol with given parameter set. Returns list of trades."""
     sym_df = sym_df.sort_values("date").reset_index(drop=True)
     if len(sym_df) < MIN_HISTORY:
@@ -89,6 +90,7 @@ def run_single(sym_df, symbol, sector_series, nepse_close, ps, risk_pct):
     position       = None
     last_exit_date = None
 
+    risk_pct      = ps["risk_pct"]
     adx_min       = ps["adx_min"]
     rsi_lo        = ps["rsi_lo"]
     rsi_hi        = ps["rsi_hi"]
@@ -228,13 +230,13 @@ def run_single(sym_df, symbol, sector_series, nepse_close, ps, risk_pct):
 
 def score_param_set(args_tuple):
     """Worker function: run all symbols for one parameter set, return metrics."""
-    sym_data, sector_regime_series, sector_map, nepse_close, ps, risk_pct = args_tuple
+    sym_data, sector_regime_series, sector_map, nepse_close, ps = args_tuple
 
     all_trades = []
     for sym, sym_df in sym_data:
         sid = sector_map.get(sym)
         sec = (sector_regime_series or {}).get(sid) if sid is not None else None
-        trades = run_single(sym_df, sym, sec, nepse_close, ps, risk_pct)
+        trades = run_single(sym_df, sym, sec, nepse_close, ps)
         all_trades.extend(trades)
 
     closed = [t for t in all_trades if t["exit"] != "OPEN"]
@@ -302,7 +304,7 @@ def main():
 
     # Build worker args
     worker_args = [
-        (sym_data, sector_regime_series, sector_map, nepse_close, ps, RISK_PCT_DEFAULT)
+        (sym_data, sector_regime_series, sector_map, nepse_close, ps)
         for ps in param_sets
     ]
 
@@ -352,13 +354,13 @@ def main():
     top20 = behavioral.nlargest(20, "likelihood")
     print("\n  TOP 20 BEHAVIORAL SETS (by likelihood = P&L × profit factor)")
     print(f"  {'ADX':>5} {'RSI_lo':>7} {'RSI_hi':>7} {'VolMult':>8} {'Drop3d':>7} {'HH_lb':>6} "
-          f"{'WkHold':>7} {'WkRSI':>6} {'Trail':>6} {'HStop':>6} "
+          f"{'WkHold':>7} {'WkRSI':>6} {'Trail':>6} {'HStop':>6} {'Risk%':>6} "
           f"{'Trades':>7} {'WR%':>6} {'PF':>5} {'P&L':>12}")
-    print("  " + "-" * 110)
+    print("  " + "-" * 118)
     for _, r in top20.iterrows():
         print(f"  {r.adx_min:>5} {r.rsi_lo:>7} {r.rsi_hi:>7} {r.vol_mult:>8.2f} {r.drop_3d_limit:>7.1f} "
               f"{r.hh_lookback:>6} {r.weakness_hold:>7} {r.weakness_rsi:>6} "
-              f"{r.trail_stop_pct:>6.1f} {r.hard_stop_pct:>6.1f} "
+              f"{r.trail_stop_pct:>6.1f} {r.hard_stop_pct:>6.1f} {r.risk_pct:>6.2f} "
               f"{r.trades:>7} {r.win_rate:>5.1f}% {r.pf:>5.2f}  NPR {r.total_pnl:>+10,.0f}")
 
     # ── Best single set ──────────────────────────────────────────────────────
