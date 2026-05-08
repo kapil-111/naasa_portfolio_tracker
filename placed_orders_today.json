@@ -1,95 +1,11 @@
 {
-    "date": "2026-05-04",
+    "date": "2026-05-08",
     "orders": [
         {
             "symbol": "BNHC",
             "side": "SELL",
             "type": "FULL_EXIT",
             "quantity": 10
-        },
-        {
-            "symbol": "CHCL",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 20
-        },
-        {
-            "symbol": "HATHY",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 36
-        },
-        {
-            "symbol": "IGI",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 20
-        },
-        {
-            "symbol": "KDL",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 31
-        },
-        {
-            "symbol": "MEN",
-            "side": "SELL",
-            "type": "WEAKNESS",
-            "quantity": 30
-        },
-        {
-            "symbol": "NFS",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 72
-        },
-        {
-            "symbol": "NICA",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 45
-        },
-        {
-            "symbol": "NMLBBL",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 30
-        },
-        {
-            "symbol": "PMLI",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 86
-        },
-        {
-            "symbol": "PROFL",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 50
-        },
-        {
-            "symbol": "SMATA",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 31
-        },
-        {
-            "symbol": "SNLI",
-            "side": "SELL",
-            "type": "WEAKNESS",
-            "quantity": 20
-        },
-        {
-            "symbol": "SWBBL",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 37
-        },
-        {
-            "symbol": "UAIL",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 80
         }
     ]
 }
