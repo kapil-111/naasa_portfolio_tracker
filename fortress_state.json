@@ -4,13 +4,14 @@
         "entry_date": null,
         "entry_price": 645.4,
         "initial_entry": 645.4,
-        "ema_cross_days": 8,
+        "ema_cross_days": 9,
         "last_known_qty": 10,
         "half_sold": false,
         "last_exit_price": 321.1,
         "last_exit_date": "2026-05-04",
         "trades": 1,
-        "position_count": 1
+        "position_count": 1,
+        "peak_price": 320.0
     },
     "CHCL": {
         "in_position": false,
@@ -253,7 +254,7 @@
         "entry_date": "2026-03-05",
         "entry_price": 400.0,
         "initial_entry": 400.0,
-        "ema_cross_days": 22,
+        "ema_cross_days": 23,
         "last_known_qty": 2,
         "trades": 0,
         "peak_price": 437.0
