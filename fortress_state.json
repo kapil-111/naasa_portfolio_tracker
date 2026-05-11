@@ -152,7 +152,7 @@
         "trades": 0,
         "is_ipo": true,
         "last_known_qty": 10,
-        "peak_price": 1025.0
+        "peak_price": 1058.0
     },
     "RLEL": {
         "in_position": true,
@@ -255,7 +255,7 @@
         "entry_date": "2026-03-05",
         "entry_price": 400.0,
         "initial_entry": 400.0,
-        "ema_cross_days": 27,
+        "ema_cross_days": 28,
         "last_known_qty": 2,
         "trades": 0,
         "peak_price": 450.0
