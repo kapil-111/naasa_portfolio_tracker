@@ -139,6 +139,52 @@
     .error-msg { color: var(--red); font-size: 0.8rem; padding: 10px 14px; background: #3a1a1a; border-radius: 8px; margin-bottom: 16px; }
     .note { font-size: 0.72rem; color: var(--subtle); margin-top: 8px; }
     .dry-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; background: #2a2a1a; color: var(--yellow); border: 1px solid var(--yellow); margin-left: 6px; }
+
+    /* ── Refresh button ── */
+    .refresh-btn {
+      background: var(--muted); border: 1px solid var(--border); color: var(--subtle);
+      border-radius: 6px; padding: 4px 12px; font-size: 0.75rem; cursor: pointer;
+      transition: all .15s;
+    }
+    .refresh-btn:hover { background: var(--border); color: var(--text); }
+    .refresh-btn:active { transform: scale(.96); }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .stat-label { font-size: 0.68rem; color: var(--subtle); text-transform: uppercase; letter-spacing: .06em; }
+    .stat-value { font-size: 1rem; font-weight: 700; }
+
+    /* ── Deploy bar ── */
+    .deploy-wrap { margin-bottom: 20px; }
+    .deploy-label { font-size: 0.72rem; color: var(--subtle); margin-bottom: 5px; }
+    .deploy-track { background: var(--muted); border-radius: 4px; height: 8px; width: 100%; }
+    .deploy-fill  { background: var(--blue); border-radius: 4px; height: 8px; transition: width .4s; }
+
+    /* ── Watchlist ── */
+    .watch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    .watch-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 14px;
+    }
+    .watch-sym { font-size: 0.9rem; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+    .watch-target { font-size: 0.75rem; color: var(--subtle); }
+    .watch-target span { color: var(--yellow); font-weight: 600; }
   </style>
 </head>
 <body>
@@ -151,6 +197,8 @@
     <div class="header-meta">
       <span class="dot" id="status-dot"></span>
       <span id="last-updated">Loading…</span>
+      &nbsp;·&nbsp;
+      <button class="refresh-btn" onclick="render()">↻ Refresh</button>
     </div>
   </div>
   <span id="regime-badge-top"></span>
@@ -162,6 +210,15 @@
 <div class="cards" id="summary-cards">
   <div class="loading">Fetching data…</div>
 </div>
+
+<!-- Deploy bar -->
+<div class="deploy-wrap" id="deploy-wrap" style="display:none">
+  <div class="deploy-label" id="deploy-label"></div>
+  <div class="deploy-track"><div class="deploy-fill" id="deploy-fill" style="width:0%"></div></div>
+</div>
+
+<!-- Win rate stats -->
+<div class="stats-row" id="stats-row"></div>
 
 <!-- Signals -->
 <div class="section">
@@ -188,6 +245,15 @@
     <span class="section-total" id="closed-total"></span>
   </div>
   <div class="table-wrap" id="closed-table"><div class="loading">…</div></div>
+</div>
+
+<!-- Swing Watchlist -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-title">Swing Watchlist</span>
+    <span class="section-total" id="watch-count"></span>
+  </div>
+  <div id="watch-grid"></div>
 </div>
 
 <!-- Trade Log -->
@@ -242,7 +308,7 @@ function allocBar(share) {
 
 async function render() {
   try {
-    const [avgPrices, ordersData, csvText, stateData, fundData, tradeText, signalsData] = await Promise.all([
+    const [avgPrices, ordersData, csvText, stateData, fundData, tradeText, signalsData, watchData] = await Promise.all([
       getJSON("avg_prices.json"),
       getJSON("placed_orders_today.json").catch(() => ({ orders: [], date: "—" })),
       getText("portfolio_data.csv"),
@@ -250,6 +316,7 @@ async function render() {
       getJSON("available_fund.json").catch(() => ({ available_fund: null })),
       getText("trade_log.csv").catch(() => ""),
       getJSON("signals.json").catch(() => null),
+      getJSON("swing_targets.json").catch(() => ({})),
     ]);
 
     const holdings = parseCSV(csvText).filter(h => h.Symbol && !h.Symbol.toLowerCase().startsWith("total"));
@@ -319,6 +386,46 @@ async function render() {
         return { sym, qty, avg, exitP, pl, plP, exitDate: s.last_exit_date };
       })
       .sort((a, b) => (b.exitDate || "").localeCompare(a.exitDate || ""));
+
+    // ── Win Rate Stats ──
+    const closedWithPL = closed.filter(c => c.pl !== null);
+    const wins   = closedWithPL.filter(c => c.pl >= 0);
+    const losses = closedWithPL.filter(c => c.pl < 0);
+    const winRate  = closedWithPL.length > 0 ? wins.length / closedWithPL.length * 100 : null;
+    const avgWin   = wins.length   > 0 ? wins.reduce((s, c) => s + c.plP, 0) / wins.length   : null;
+    const avgLoss  = losses.length > 0 ? losses.reduce((s, c) => s + c.plP, 0) / losses.length : null;
+    const dayPL    = holdings.reduce((s, h) => s + parseFloat(h["Day Profit Loss"] || 0), 0);
+
+    document.getElementById("stats-row").innerHTML = `
+      <div class="stat-card">
+        <span class="stat-label">Win Rate</span>
+        <span class="stat-value ${winRate !== null ? (winRate >= 50 ? 'green' : 'red') : ''}">${winRate !== null ? winRate.toFixed(0) + "%" : "—"}</span>
+        <span style="font-size:.7rem;color:var(--subtle)">${wins.length}W / ${losses.length}L of ${closedWithPL.length} trades</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Avg Win</span>
+        <span class="stat-value green">${avgWin !== null ? "+" + avgWin.toFixed(1) + "%" : "—"}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Avg Loss</span>
+        <span class="stat-value red">${avgLoss !== null ? avgLoss.toFixed(1) + "%" : "—"}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Today's P&amp;L</span>
+        <span class="stat-value ${cls(dayPL)}">${dayPL !== 0 ? fmtN(dayPL) : "—"}</span>
+        <span style="font-size:.7rem;color:var(--subtle)">vs prev close</span>
+      </div>
+    `;
+
+    // ── Deployed Capital Bar ──
+    if (availFund !== null && totalValue > 0) {
+      const grand = totalValue + availFund;
+      const deployPct = (totalValue / grand * 100).toFixed(1);
+      document.getElementById("deploy-wrap").style.display = "block";
+      document.getElementById("deploy-label").textContent =
+        `Capital Deployed: ${deployPct}% in stocks · ${(100 - deployPct).toFixed(1)}% cash`;
+      document.getElementById("deploy-fill").style.width = deployPct + "%";
+    }
 
     // ── Summary Cards ──
     const grandTotal = totalValue + (availFund || 0);
@@ -415,6 +522,18 @@ async function render() {
             <td class="${cls(realizedPL)}" colspan="3">${fmtN(realizedPL)}</td>
           </tr></tfoot>` : ""}
         </table>`;
+
+    // ── Swing Watchlist ──
+    const watchEntries = Object.entries(watchData || {});
+    document.getElementById("watch-count").textContent = watchEntries.length ? `${watchEntries.length} stocks` : "";
+    document.getElementById("watch-grid").innerHTML = watchEntries.length === 0
+      ? `<div class="loading" style="padding:16px">No swing targets</div>`
+      : `<div class="watch-grid">${watchEntries.map(([sym, target]) => `
+          <div class="watch-card">
+            <div class="watch-sym">${sym}</div>
+            <div class="watch-target">Target: <span>NPR ${fmt(parseFloat(target))}</span></div>
+          </div>`).join("")}
+        </div>`;
 
     // ── Trade Log ──
     const trades = tradeText ? parseCSV(tradeText).reverse() : [];
