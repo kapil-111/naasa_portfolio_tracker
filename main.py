@@ -369,6 +369,17 @@ def _sync_state_from_portfolio(portfolio_data):
         state = states.setdefault(sym, {})
         old_pos = state.get("in_position")
         old_qty = state.get("last_known_qty")
+
+        # Don't re-enable a recently exited position — broker portal can show
+        # ghost holdings after a sell (data lag, CDS discrepancy). Only trust
+        # the portal if the stock was never exited OR exited > 7 days ago.
+        last_exit = state.get("last_exit_date")
+        if old_pos is False and last_exit:
+            days_since_exit = (pd.to_datetime("today") - pd.to_datetime(last_exit)).days
+            if days_since_exit <= 7:
+                print(f"[PORTFOLIO SYNC] Skipping re-enable of {sym} — exited {days_since_exit}d ago, treating portal data as ghost.")
+                continue
+
         state["in_position"] = True
         state["last_known_qty"] = qty
         if old_pos != True or old_qty != qty:
