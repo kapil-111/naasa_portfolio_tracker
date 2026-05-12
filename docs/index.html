@@ -172,19 +172,6 @@
     .deploy-track { background: var(--muted); border-radius: 4px; height: 8px; width: 100%; }
     .deploy-fill  { background: var(--blue); border-radius: 4px; height: 8px; transition: width .4s; }
 
-    /* ── Watchlist ── */
-    .watch-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 10px;
-    }
-    .watch-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 8px; padding: 12px 14px;
-    }
-    .watch-sym { font-size: 0.9rem; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
-    .watch-target { font-size: 0.75rem; color: var(--subtle); }
-    .watch-target span { color: var(--yellow); font-weight: 600; }
   </style>
 </head>
 <body>
@@ -247,15 +234,6 @@
   <div class="table-wrap" id="closed-table"><div class="loading">…</div></div>
 </div>
 
-<!-- Swing Watchlist -->
-<div class="section">
-  <div class="section-header">
-    <span class="section-title">Swing Watchlist</span>
-    <span class="section-total" id="watch-count"></span>
-  </div>
-  <div id="watch-grid"></div>
-</div>
-
 <!-- Trade Log -->
 <div class="section">
   <div class="section-header">
@@ -316,7 +294,6 @@ async function render() {
       getJSON("available_fund.json").catch(() => ({ available_fund: null })),
       getText("trade_log.csv").catch(() => ""),
       getJSON("signals.json").catch(() => null),
-      getJSON("swing_targets.json").catch(() => ({})),
     ]);
 
     const holdings = parseCSV(csvText).filter(h => h.Symbol && !h.Symbol.toLowerCase().startsWith("total"));
@@ -522,18 +499,6 @@ async function render() {
             <td class="${cls(realizedPL)}" colspan="3">${fmtN(realizedPL)}</td>
           </tr></tfoot>` : ""}
         </table>`;
-
-    // ── Swing Watchlist ──
-    const watchEntries = Object.entries(watchData || {});
-    document.getElementById("watch-count").textContent = watchEntries.length ? `${watchEntries.length} stocks` : "";
-    document.getElementById("watch-grid").innerHTML = watchEntries.length === 0
-      ? `<div class="loading" style="padding:16px">No swing targets</div>`
-      : `<div class="watch-grid">${watchEntries.map(([sym, target]) => `
-          <div class="watch-card">
-            <div class="watch-sym">${sym}</div>
-            <div class="watch-target">Target: <span>NPR ${fmt(parseFloat(target))}</span></div>
-          </div>`).join("")}
-        </div>`;
 
     // ── Trade Log ──
     const trades = tradeText ? parseCSV(tradeText).reverse() : [];
