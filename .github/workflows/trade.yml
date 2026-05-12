@@ -99,4 +99,4 @@ jobs:
           git config --global user.email "action@github.com"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git add placed_orders_today.json portfolio_summary.json fortress_state.json swing_targets.json chukul_fundamental.csv chukul_data.csv 2>/dev/null || true
-          git diff-index --cached --quiet HEAD || (git commit -m "Update order state" && git push)
+          git diff-index --cached --quiet HEAD || (git commit -m "Update order state" && git pull --rebase origin main && git push)
