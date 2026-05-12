@@ -222,7 +222,7 @@ function parseCSV(text) {
 }
 
 const fmt  = n => n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const fmtN = n => (n >= 0 ? "+" : "") + "NPR " + fmt(Math.abs(n));
+const fmtN = n => (n >= 0 ? "+" : "-") + "NPR " + fmt(Math.abs(n));
 const pct  = n => (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
 const cls  = n => n >= 0 ? "up" : "down";
 
