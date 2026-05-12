@@ -1,9 +1,9 @@
 {
     "BNHC": {
-        "in_position": false,
-        "entry_date": null,
-        "entry_price": 0,
-        "initial_entry": 0,
+        "in_position": true,
+        "entry_date": "2026-05-12",
+        "entry_price": 100.0,
+        "initial_entry": 100.0,
         "ema_cross_days": 10,
         "last_known_qty": 10,
         "half_sold": false,
