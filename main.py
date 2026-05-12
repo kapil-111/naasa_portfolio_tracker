@@ -10,7 +10,7 @@ from session import SessionExpiredError, raise_if_login_page
 from scraper import scrape_portfolio, scrape_available_fund
 from storage import save_to_csv, save_to_json
 from trader import Trader
-from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals, remove_swing_target, save_avg_price, get_nepse_regime
+from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals, save_avg_price, get_nepse_regime
 from state_manager import load_states, save_states, update_state_for_trade
 from fetch_live_data import fetch_live_data
 from fetch_chukul_history import update_chukul_data
@@ -782,9 +782,6 @@ def main():
                                 remove_placed_order(symbol, side, signal_type)
                                 notify_error(f"place_order failed: {side} {symbol} ({signal_type})\n{trader.last_error}")
                         else:
-                            if signal_type == "SWING_TARGET":
-                                remove_swing_target(symbol)
-
                             # --- UPDATE STATE on successful trade ---
                             symbol_state = states.get(symbol, {})
                             new_symbol_state = update_state_for_trade(symbol_state, signal, order_signal['price'], signal['quantity'])
@@ -793,7 +790,7 @@ def main():
                                 new_symbol_state['sideways_half_sold'] = True
                                 new_symbol_state['sideways_sold_qty'] = signal.get('sideways_sold_qty', 0)
                             # Clear sideways flag on full exit or successful re-buy
-                            if signal_type in ('FULL_EXIT', 'CUT_LOSS', 'RSI_OB', 'SWING_TARGET', 'TRAIL_SL'):
+                            if signal_type in ('FULL_EXIT', 'CUT_LOSS', 'RSI_OB', 'TRAIL_SL'):
                                 new_symbol_state.pop('sideways_half_sold', None)
                                 new_symbol_state.pop('sideways_sold_qty', None)
                             states[symbol] = new_symbol_state
@@ -807,7 +804,7 @@ def main():
                                 )
                                 existing_qty = _get_holding_qty(existing_holding)
                                 save_avg_price(symbol, order_signal['price'], qty, existing_qty)
-                            elif side == 'SELL' and signal_type in ('FULL_EXIT', 'CUT_LOSS', 'RSI_OB', 'SWING_TARGET'):
+                            elif side == 'SELL' and signal_type in ('FULL_EXIT', 'CUT_LOSS', 'RSI_OB'):
                                 _clear_avg_price(symbol)
 
                             placed_orders = load_placed_orders() # Refresh placed orders

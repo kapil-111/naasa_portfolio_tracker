@@ -2,23 +2,6 @@ import os
 import json
 import pandas as pd
 
-def _load_swing_targets(path="swing_targets.json"):
-    if os.path.exists(path):
-        try:
-            with open(path) as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError) as e:
-            print(f"Warning: could not load {path}: {e}. Using empty targets.")
-    return {}
-
-def remove_swing_target(symbol, path="swing_targets.json"):
-    targets = _load_swing_targets(path)
-    if symbol in targets:
-        del targets[symbol]
-        with open(path, 'w') as f:
-            json.dump(targets, f, indent=4)
-        print(f"[{symbol}] Removed from swing_targets.json — now eligible for fundamental re-evaluation.")
-
 # --- Data Loading and Preparation Helpers ---
 
 def _adjust_prices(df, actions_file="chukul_corporate_actions.csv"):
@@ -169,19 +152,16 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv", held_symbols=None):
     BLACKLIST = {"NIBSF2", "NEPSE"}
 
     # Fundamental filter: only trade quality stocks
-    # Exception: always include symbols with a swing target set (for exit-only tracking)
-    swing_target_syms = set(_load_swing_targets().keys()) - BLACKLIST
     if os.path.exists("chukul_fundamental.csv"):
         fund = pd.read_csv("chukul_fundamental.csv")
         eps_ok = fund[fund["eps"].notna() & (fund["eps"] > 0)]["symbol"]
         roe_ok = fund[fund["roe"].notna() & (fund["roe"] > 5)]["symbol"]
         npl_ok = fund[fund["npl"].isna() | (fund["npl"] < 10)]["symbol"]
         good = set(eps_ok) & set(roe_ok) & set(npl_ok) - BLACKLIST
-        # Always include held positions and swing targets for exit-only tracking
-        always_include = swing_target_syms | (set(held_symbols) - BLACKLIST if held_symbols else set())
+        always_include = set(held_symbols) - BLACKLIST if held_symbols else set()
         before = df_adjusted["symbol"].nunique()
         df_adjusted = df_adjusted[df_adjusted["symbol"].isin(good | always_include)]
-        print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols (incl. {len(swing_target_syms)} swing-targets, {len(held_symbols or [])} held)")
+        print(f"Fundamental filter: {before} → {df_adjusted['symbol'].nunique()} symbols (incl. {len(held_symbols or [])} held)")
 
     print("Calculating Fortress indicators (EMA9, EMA21, ADX, RSI, volume)...")
     # All indicators are shifted by 1 so they are based on the last CLOSED candle only.
@@ -355,7 +335,6 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
     regime — 'BULL', 'BEAR', or 'UNKNOWN'. BEAR blocks new buys (sells still execute).
     """
     signals = []
-    swing_targets = _load_swing_targets()
     avg_prices = _load_avg_prices()
 
     if regime == "BEAR":
@@ -467,8 +446,6 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
 
         # --- Generate BUY Signal ---
         if not state.get('in_position'):
-            if symbol in swing_targets:
-                continue
             if regime == "BEAR":
                 continue
             if daily_buy_count >= daily_buy_limit:
@@ -595,18 +572,7 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                     })
                     continue
 
-            # 2. Swing target (manual resistance level, always applies)
-            if symbol in swing_targets and close >= swing_targets[symbol]:
-                print(f"[{symbol}] *** SWING TARGET HIT *** price={close} >= target={swing_targets[symbol]}")
-                if current_qty >= MIN_SELL_QTY:
-                    signals.append({
-                        "side": "SELL", "symbol": symbol, "price": close, "type": "SWING_TARGET",
-                        "quantity": current_qty, **_ctx,
-                        "reason": f"Swing target hit: price={close} >= target={swing_targets[symbol]}",
-                    })
-                    continue
-
-            # 3. Take profit at resistance (30–60d high, same as backtest logic)
+            # 2. Take profit at resistance (30–60d high, same as backtest logic)
             resistance_tp = high_30d if days_held < 30 else high_60d
             if close >= resistance_tp and days_held >= 5 and current_qty >= MIN_SELL_QTY:
                 print(f"[{symbol}] *** RESISTANCE TP *** price={close:.0f} >= resistance={resistance_tp:.0f} profit={profit_pct:.1f}%")

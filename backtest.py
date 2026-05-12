@@ -17,7 +17,7 @@ import pandas as pd
 
 # ── Import the exact same helpers used in live trading ──────────────────────
 from signals_mr import (
-    _adjust_prices, _calc_rsi, _calc_ema, _calc_adx, _load_swing_targets,
+    _adjust_prices, _calc_rsi, _calc_ema, _calc_adx,
     FORTRESS_ADX_MIN,
     FORTRESS_TP_PCT, FORTRESS_SL_PCT, FORTRESS_RSI_OB,
     FORTRESS_MIN_HOLD, FORTRESS_EMA_CONFIRM,
@@ -84,7 +84,6 @@ def load_data(ohlcv_file="merged_data.csv", symbols=None, from_date=None):
 
     # Fundamental filter: only trade quality stocks
     BLACKLIST = {"NIBSF2", "NEPSE"}
-    swing_target_syms = set(_load_swing_targets().keys()) - BLACKLIST
     if os.path.exists("chukul_fundamental.csv"):
         fund = pd.read_csv("chukul_fundamental.csv")
         eps_ok = fund[fund["eps"].notna() & (fund["eps"] > 0)]["symbol"]
@@ -92,8 +91,8 @@ def load_data(ohlcv_file="merged_data.csv", symbols=None, from_date=None):
         npl_ok = fund[fund["npl"].isna() | (fund["npl"] < 10)]["symbol"]
         good = set(eps_ok) & set(roe_ok) & set(npl_ok) - BLACKLIST
         before = df["symbol"].nunique()
-        df = df[df["symbol"].isin(good | swing_target_syms)]
-        print(f"Fundamental filter: {before} → {df['symbol'].nunique()} symbols (incl. {len(swing_target_syms)} swing-target exits)")
+        df = df[df["symbol"].isin(good)]
+        print(f"Fundamental filter: {before} → {df['symbol'].nunique()} symbols")
 
     # Build sector regime series BEFORE filtering to from_date (needs full history for EMA50)
     sector_regime_series = build_sector_regime_series(df)
