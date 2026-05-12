@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NAASA Portfolio Tracker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #f0f6fc;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: #8b949e;
+      margin-bottom: 24px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .card-label {
+      font-size: 0.72rem;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .card-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #f0f6fc;
+    }
+
+    .card-value.green { color: #3fb950; }
+    .card-value.red   { color: #f85149; }
+
+    .card-sub {
+      font-size: 0.75rem;
+      color: #8b949e;
+      margin-top: 4px;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    thead th {
+      background: #1c2128;
+      color: #8b949e;
+      font-weight: 600;
+      padding: 10px 14px;
+      text-align: right;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    thead th:first-child { text-align: left; }
+
+    tbody tr {
+      border-top: 1px solid #21262d;
+      transition: background 0.1s;
+    }
+
+    tbody tr:hover { background: #1c2128; }
+
+    td {
+      padding: 10px 14px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    td:first-child {
+      text-align: left;
+      font-weight: 600;
+      color: #58a6ff;
+    }
+
+    .up   { color: #3fb950; }
+    .down { color: #f85149; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .badge-bull { background: #1a3a1a; color: #3fb950; border: 1px solid #3fb950; }
+    .badge-bear { background: #3a1a1a; color: #f85149; border: 1px solid #f85149; }
+    .badge-side { background: #2a2a1a; color: #d29922; border: 1px solid #d29922; }
+
+    .regime-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .updated {
+      font-size: 0.72rem;
+      color: #8b949e;
+    }
+
+    .orders-table td:first-child {
+      color: #e6edf3;
+      font-weight: 400;
+    }
+
+    .side-buy  { color: #3fb950; font-weight: 700; }
+    .side-sell { color: #f85149; font-weight: 700; }
+
+    .loading {
+      color: #8b949e;
+      font-size: 0.85rem;
+      padding: 40px 0;
+      text-align: center;
+    }
+
+    .error-msg {
+      color: #f85149;
+      font-size: 0.8rem;
+      padding: 8px 12px;
+      background: #3a1a1a;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>NAASA Portfolio Tracker</h1>
+<div class="subtitle" id="last-updated">Loading…</div>
+
+<div id="error-box"></div>
+
+<div class="cards" id="summary-cards">
+  <div class="loading">Fetching data…</div>
+</div>
+
+<div class="regime-row" id="regime-row" style="display:none">
+  <span class="section-title">Market Regime</span>
+  <span id="regime-badge"></span>
+</div>
+
+<div class="section-title">Holdings</div>
+<div id="holdings-table"><div class="loading">…</div></div>
+
+<div class="section-title">Recent Orders</div>
+<div id="orders-table"><div class="loading">…</div></div>
+
+<script>
+const REPO = "kapil-111/naasa_portfolio_tracker";
+const RAW  = `https://raw.githubusercontent.com/${REPO}/main`;
+
+async function fetchJSON(path) {
+  const r = await fetch(`${RAW}/${path}?_=${Date.now()}`);
+  if (!r.ok) throw new Error(`${path}: ${r.status}`);
+  return r.json();
+}
+
+async function fetchText(path) {
+  const r = await fetch(`${RAW}/${path}?_=${Date.now()}`);
+  if (!r.ok) throw new Error(`${path}: ${r.status}`);
+  return r.text();
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split("\n");
+  // headers may contain newlines encoded as literal \n inside the cell — rejoin quoted fields
+  const rawHeaders = lines[0].split(",").map(h => h.replace(/^"|"$/g, "").replace(/\n/g, "\n"));
+  // Normalise multiline headers to single tokens
+  const headers = rawHeaders.map(h => h.trim().replace(/\s+/g, " "));
+  return lines.slice(1).map(line => {
+    const cells = [];
+    let cur = "", inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cells.push(cur.replace(/,/g,"")); cur = ""; }
+      else { cur += c; }
+    }
+    cells.push(cur.replace(/,/g,""));
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (cells[i] || "").trim());
+    return obj;
+  });
+}
+
+function fmt(n) {
+  return n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function pct(n) {
+  return (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
+}
+
+function colorClass(n) { return n >= 0 ? "up" : "down"; }
+
+async function render() {
+  try {
+    const [avgPrices, ordersData, csvText] = await Promise.all([
+      fetchJSON("avg_prices.json"),
+      fetchJSON("placed_orders_today.json").catch(() => ({ orders: [] })),
+      fetchText("portfolio_data.csv"),
+    ]);
+
+    const holdings = parseCSV(csvText).filter(h => h.Symbol && !h.Symbol.toLowerCase().startsWith("total"));
+
+    // Compute portfolio metrics
+    let totalValue = 0, totalCost = 0;
+    const rows = holdings.map(h => {
+      const sym  = h.Symbol;
+      const qty  = parseFloat(h["CDS Total Balance"] || h["NAASA Balance"] || 0);
+      const ltp  = parseFloat(h.LTP || h["Close Price Price"] || 0);
+      const avg  = parseFloat(avgPrices[sym] || 0);
+      const val  = qty * ltp;
+      const cost = qty * avg;
+      const pl   = val - cost;
+      const plPct = cost > 0 ? (pl / cost * 100) : 0;
+      totalValue += val;
+      totalCost  += cost;
+      return { sym, qty, ltp, avg, val, pl, plPct };
+    });
+
+    const totalPL    = totalValue - totalCost;
+    const totalPLPct = totalCost > 0 ? (totalPL / totalCost * 100) : 0;
+
+    // Summary cards
+    document.getElementById("summary-cards").innerHTML = `
+      <div class="card">
+        <div class="card-label">Portfolio Value</div>
+        <div class="card-value">NPR ${fmt(totalValue)}</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Total Invested</div>
+        <div class="card-value">NPR ${fmt(totalCost)}</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Total P&amp;L</div>
+        <div class="card-value ${totalPL >= 0 ? 'green' : 'red'}">
+          ${totalPL >= 0 ? "+" : ""}NPR ${fmt(totalPL)}
+        </div>
+        <div class="card-sub ${colorClass(totalPLPct)}">${pct(totalPLPct)}</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Holdings</div>
+        <div class="card-value">${rows.length}</div>
+      </div>
+    `;
+
+    // Holdings table
+    const sortedRows = [...rows].sort((a, b) => b.val - a.val);
+    const holdingHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Qty</th>
+            <th>Avg</th>
+            <th>LTP</th>
+            <th>Value</th>
+            <th>P&amp;L</th>
+            <th>P&amp;L %</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sortedRows.map(r => `
+            <tr>
+              <td>${r.sym}</td>
+              <td>${r.qty}</td>
+              <td>${fmt(r.avg)}</td>
+              <td>${fmt(r.ltp)}</td>
+              <td>NPR ${fmt(r.val)}</td>
+              <td class="${colorClass(r.pl)}">${r.pl >= 0 ? "+" : ""}NPR ${fmt(r.pl)}</td>
+              <td class="${colorClass(r.plPct)}">${pct(r.plPct)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+    document.getElementById("holdings-table").innerHTML = holdingHTML;
+
+    // Orders table
+    const orders = ordersData.orders || [];
+    if (orders.length === 0) {
+      document.getElementById("orders-table").innerHTML = `<div class="loading" style="padding:16px 0">No orders today</div>`;
+    } else {
+      document.getElementById("orders-table").innerHTML = `
+        <table class="orders-table">
+          <thead>
+            <tr><th style="text-align:left">Symbol</th><th>Side</th><th>Type</th><th>Qty</th></tr>
+          </thead>
+          <tbody>
+            ${orders.map(o => `
+              <tr>
+                <td>${o.symbol}</td>
+                <td class="${o.side === 'BUY' ? 'side-buy' : 'side-sell'}">${o.side}</td>
+                <td>${o.type || "-"}</td>
+                <td>${o.quantity}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+        <div class="updated" style="margin-top:4px">Date: ${ordersData.date || "—"}</div>
+      `;
+    }
+
+    document.getElementById("last-updated").textContent =
+      `Last updated: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kathmandu" })} NPT`;
+
+  } catch (e) {
+    document.getElementById("error-box").innerHTML =
+      `<div class="error-msg">Error loading data: ${e.message}</div>`;
+    console.error(e);
+  }
+}
+
+render();
+setInterval(render, 5 * 60 * 1000); // refresh every 5 minutes
+</script>
+</body>
+</html>
