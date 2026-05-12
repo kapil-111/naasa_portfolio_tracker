@@ -1,6 +1,6 @@
 {
     "BNHC": {
-        "in_position": true,
+        "in_position": false,
         "entry_date": "2026-05-12",
         "entry_price": 100.0,
         "initial_entry": 100.0,
@@ -255,7 +255,7 @@
         "entry_date": "2026-03-05",
         "entry_price": 400.0,
         "initial_entry": 400.0,
-        "ema_cross_days": 32,
+        "ema_cross_days": 33,
         "last_known_qty": 2,
         "trades": 0,
         "peak_price": 450.0
