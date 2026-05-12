@@ -163,6 +163,15 @@
   <div class="loading">Fetching data…</div>
 </div>
 
+<!-- Signals -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-title">Latest Signals</span>
+    <span class="section-total" id="signals-meta"></span>
+  </div>
+  <div class="table-wrap" id="signals-table"><div class="loading">…</div></div>
+</div>
+
 <!-- Holdings -->
 <div class="section">
   <div class="section-header">
@@ -233,17 +242,48 @@ function allocBar(share) {
 
 async function render() {
   try {
-    const [avgPrices, ordersData, csvText, stateData, fundData, tradeText] = await Promise.all([
+    const [avgPrices, ordersData, csvText, stateData, fundData, tradeText, signalsData] = await Promise.all([
       getJSON("avg_prices.json"),
       getJSON("placed_orders_today.json").catch(() => ({ orders: [], date: "—" })),
       getText("portfolio_data.csv"),
       getJSON("fortress_state.json"),
       getJSON("available_fund.json").catch(() => ({ available_fund: null })),
       getText("trade_log.csv").catch(() => ""),
+      getJSON("signals.json").catch(() => null),
     ]);
 
     const holdings = parseCSV(csvText).filter(h => h.Symbol && !h.Symbol.toLowerCase().startsWith("total"));
     const availFund = fundData.available_fund;
+
+    // ── Signals ──
+    if (!signalsData) {
+      document.getElementById("signals-table").innerHTML = `<div class="loading" style="padding:16px">No signals file yet — will appear after next bot run</div>`;
+      document.getElementById("signals-meta").textContent = "";
+    } else {
+      const sigs = signalsData.signals || [];
+      const regimeLabel = signalsData.regime || "UNKNOWN";
+      const regimeCls = regimeLabel === "BULL" ? "badge-bull" : regimeLabel === "BEAR" ? "badge-bear" : "badge-side";
+      document.getElementById("signals-meta").innerHTML =
+        `<span class="badge ${regimeCls}">${regimeLabel}</span>&nbsp; ${signalsData.generated_at || ""} &nbsp;·&nbsp; ${signalsData.context || ""}`;
+
+      document.getElementById("signals-table").innerHTML = sigs.length === 0
+        ? `<div class="loading" style="padding:16px">No signals generated — ${signalsData.generated_at || ""}</div>`
+        : `<table>
+            <thead><tr>
+              <th>Symbol</th><th>Side</th><th>Type</th><th>Qty</th><th>Price</th><th>Reason</th>
+            </tr></thead>
+            <tbody>
+              ${sigs.map(s => `<tr>
+                <td>${s.symbol}</td>
+                <td class="${s.side === 'BUY' ? 'side-buy' : 'side-sell'}">${s.side}</td>
+                <td style="text-align:left;color:var(--subtle);font-size:0.75rem">${s.type || "—"}</td>
+                <td>${s.quantity || "—"}</td>
+                <td>${s.price ? fmt(parseFloat(s.price)) : "—"}</td>
+                <td style="text-align:left;color:var(--subtle);font-size:0.72rem">${s.reason || "—"}</td>
+              </tr>`).join("")}
+            </tbody>
+          </table>`;
+    }
 
     // ── Holdings ──
     let totalValue = 0, totalCost = 0;

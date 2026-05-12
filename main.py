@@ -126,6 +126,22 @@ def _adjust_order_price(signal):
     return adjusted_signal
 
 
+def save_signals(signals, regime="UNKNOWN", context="premarket"):
+    """Persist latest signals to signals.json for the dashboard."""
+    from datetime import datetime
+    data = {
+        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "context": context,
+        "regime": regime,
+        "signals": [
+            {k: v for k, v in s.items() if k in ("symbol", "side", "type", "price", "quantity", "reason")}
+            for s in (signals or [])
+        ],
+    }
+    with open("signals.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+
 def save_placed_order(symbol, side, signal_type, quantity=0):
     """Saves a symbol, side, type, and quantity to the placed orders list."""
     filename = "placed_orders_today.json"
@@ -617,6 +633,7 @@ def main():
                     regime = get_nepse_regime()
                     signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
                     save_states(states)  # persist orphan re-seeds so next cycle doesn't start blind
+                    save_signals(signals, regime=regime, context="premarket")
                     print(f"Generated {len(signals)} potential signals for next open.")
                     notify_premarket_report(portfolio_data, available_fund, signals, regime=regime)
             except SessionExpiredError as e:
@@ -693,6 +710,7 @@ def main():
 
                     signals = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS, regime=regime, available_fund=available_fund)
                     save_states(states)  # persist orphan re-seeds before order placement
+                    save_signals(signals, regime=regime, context="live")
                     print(f"Generated {len(signals)} signals.")
 
                     # TEST MODE: inject a forced signal to verify order placement end-to-end
