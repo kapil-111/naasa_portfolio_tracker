@@ -591,6 +591,8 @@ def main():
                     raise_if_login_page(page, "closed market: after holding report")
                     available_fund = scrape_available_fund(page)
                     raise_if_login_page(page, "closed market: after wallet")
+                    if available_fund is not None:
+                        save_to_json({"available_fund": available_fund}, "available_fund.json")
                     if portfolio_data and portfolio_data.get("holdings"):
                         save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
                         _sync_state_from_portfolio(portfolio_data)
