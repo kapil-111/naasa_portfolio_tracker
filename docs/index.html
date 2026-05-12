@@ -189,6 +189,9 @@
 <div class="section-title">Holdings</div>
 <div id="holdings-table"><div class="loading">…</div></div>
 
+<div class="section-title">Closed Positions</div>
+<div id="closed-table"><div class="loading">…</div></div>
+
 <div class="section-title">Recent Orders</div>
 <div id="orders-table"><div class="loading">…</div></div>
 
@@ -232,10 +235,11 @@ function colorClass(n) { return n >= 0 ? "up" : "down"; }
 
 async function render() {
   try {
-    const [avgPrices, ordersData, csvText] = await Promise.all([
+    const [avgPrices, ordersData, csvText, stateData] = await Promise.all([
       fetchJSON("avg_prices.json"),
       fetchJSON("placed_orders_today.json").catch(() => ({ orders: [] })),
       fetchText("portfolio_data.csv"),
+      fetchJSON("fortress_state.json"),
     ]);
 
     const holdings = parseCSV(csvText).filter(h => h.Symbol && !h.Symbol.toLowerCase().startsWith("total"));
@@ -336,6 +340,53 @@ async function render() {
           </tbody>
         </table>
         <div class="updated" style="margin-top:4px">Date: ${ordersData.date || "—"}</div>
+      `;
+    }
+
+    // Closed positions from fortress_state
+    const heldSyms = new Set(rows.map(r => r.sym));
+    const closed = Object.entries(stateData)
+      .filter(([sym, s]) => !heldSyms.has(sym) && s.last_exit_date)
+      .map(([sym, s]) => {
+        const avg      = parseFloat(avgPrices[sym] || 0);
+        const exitP    = parseFloat(s.last_exit_price || 0);
+        const qty      = parseFloat(s.last_known_qty || 0);
+        const pl       = avg > 0 && exitP > 0 && qty > 0 ? (exitP - avg) * qty : null;
+        const plPct    = avg > 0 && exitP > 0 ? (exitP - avg) / avg * 100 : null;
+        return { sym, qty, avg, exitP, pl, plPct, exitDate: s.last_exit_date };
+      })
+      .sort((a, b) => (b.exitDate || "").localeCompare(a.exitDate || ""));
+
+    if (closed.length === 0) {
+      document.getElementById("closed-table").innerHTML = `<div class="loading" style="padding:16px 0">No closed positions</div>`;
+    } else {
+      document.getElementById("closed-table").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Qty</th>
+              <th>Avg Cost</th>
+              <th>Exit Price</th>
+              <th>P&amp;L</th>
+              <th>P&amp;L %</th>
+              <th>Exit Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${closed.map(c => `
+              <tr>
+                <td>${c.sym}</td>
+                <td>${c.qty || "—"}</td>
+                <td>${c.avg > 0 ? fmt(c.avg) : "—"}</td>
+                <td>${c.exitP > 0 ? fmt(c.exitP) : "—"}</td>
+                <td class="${c.pl !== null ? colorClass(c.pl) : ''}">${c.pl !== null ? (c.pl >= 0 ? "+" : "") + "NPR " + fmt(c.pl) : "—"}</td>
+                <td class="${c.plPct !== null ? colorClass(c.plPct) : ''}">${c.plPct !== null ? pct(c.plPct) : "—"}</td>
+                <td>${c.exitDate || "—"}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
       `;
     }
 
