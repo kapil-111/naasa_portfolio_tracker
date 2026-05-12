@@ -6,402 +6,435 @@
   <title>NAASA Portfolio Tracker</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --border:   #30363d;
+      --muted:    #21262d;
+      --text:     #e6edf3;
+      --subtle:   #8b949e;
+      --blue:     #58a6ff;
+      --green:    #3fb950;
+      --red:      #f85149;
+      --yellow:   #d29922;
+      --purple:   #bc8cff;
+    }
 
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #0d1117;
-      color: #e6edf3;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      padding: 24px 16px;
+      padding: 24px 20px 48px;
+      max-width: 1100px;
+      margin: 0 auto;
     }
 
-    h1 {
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: #f0f6fc;
-      margin-bottom: 4px;
-    }
-
-    .subtitle {
-      font-size: 0.8rem;
-      color: #8b949e;
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
       margin-bottom: 24px;
     }
+    .header h1 { font-size: 1.35rem; font-weight: 700; color: var(--text); }
+    .header-meta { font-size: 0.75rem; color: var(--subtle); }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+    .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .dot-red   { background: var(--red);   box-shadow: 0 0 6px var(--red); }
 
+    /* ── Summary Cards ── */
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
-
     .card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
       padding: 16px;
     }
+    .card-label { font-size: 0.7rem; color: var(--subtle); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .card-value { font-size: 1.25rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .card-sub   { font-size: 0.75rem; margin-top: 4px; color: var(--subtle); }
+    .green { color: var(--green); }
+    .red   { color: var(--red); }
+    .blue  { color: var(--blue); }
+    .yellow{ color: var(--yellow); }
 
-    .card-label {
-      font-size: 0.72rem;
-      color: #8b949e;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 6px;
-    }
-
-    .card-value {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #f0f6fc;
-    }
-
-    .card-value.green { color: #3fb950; }
-    .card-value.red   { color: #f85149; }
-
-    .card-sub {
-      font-size: 0.75rem;
-      color: #8b949e;
-      margin-top: 4px;
-    }
-
-    .section-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #8b949e;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+    /* ── Section ── */
+    .section { margin-bottom: 32px; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 10px;
     }
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--subtle);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .section-total {
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
 
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.85rem;
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 24px;
+      font-size: 0.83rem;
+      background: var(--surface);
     }
-
     thead th {
-      background: #1c2128;
-      color: #8b949e;
+      background: var(--muted);
+      color: var(--subtle);
       font-weight: 600;
-      padding: 10px 14px;
+      padding: 9px 14px;
       text-align: right;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    thead th:first-child { text-align: left; }
-
-    tbody tr {
-      border-top: 1px solid #21262d;
-      transition: background 0.1s;
-    }
-
-    tbody tr:hover { background: #1c2128; }
-
-    td {
-      padding: 10px 14px;
-      text-align: right;
+      letter-spacing: .05em;
       white-space: nowrap;
     }
+    thead th:first-child { text-align: left; }
+    tbody tr { border-top: 1px solid var(--muted); transition: background .1s; }
+    tbody tr:hover { background: var(--muted); }
+    td { padding: 9px 14px; text-align: right; white-space: nowrap; color: var(--text); }
+    td:first-child { text-align: left; font-weight: 600; color: var(--blue); }
+    tfoot td { border-top: 1px solid var(--border); font-weight: 700; padding: 9px 14px; text-align: right; background: var(--muted); color: var(--text); }
+    tfoot td:first-child { text-align: left; }
 
-    td:first-child {
-      text-align: left;
-      font-weight: 600;
-      color: #58a6ff;
-    }
+    .up   { color: var(--green); }
+    .down { color: var(--red); }
+    .side-buy  { color: var(--green); font-weight: 700; }
+    .side-sell { color: var(--red);   font-weight: 700; }
 
-    .up   { color: #3fb950; }
-    .down { color: #f85149; }
+    /* ── Allocation bar ── */
+    .alloc-bar-bg { background: var(--muted); border-radius: 3px; height: 5px; width: 80px; display: inline-block; vertical-align: middle; }
+    .alloc-bar-fill { background: var(--blue); border-radius: 3px; height: 5px; }
 
+    /* ── Regime badge ── */
     .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.72rem;
-      font-weight: 600;
+      display: inline-block; padding: 3px 10px;
+      border-radius: 20px; font-size: 0.72rem; font-weight: 700;
     }
+    .badge-bull { background: #1a3a1a; color: var(--green); border: 1px solid var(--green); }
+    .badge-bear { background: #3a1a1a; color: var(--red);   border: 1px solid var(--red); }
+    .badge-side { background: #2a2a1a; color: var(--yellow);border: 1px solid var(--yellow); }
+    .badge-na   { background: var(--muted); color: var(--subtle); border: 1px solid var(--border); }
 
-    .badge-bull { background: #1a3a1a; color: #3fb950; border: 1px solid #3fb950; }
-    .badge-bear { background: #3a1a1a; color: #f85149; border: 1px solid #f85149; }
-    .badge-side { background: #2a2a1a; color: #d29922; border: 1px solid #d29922; }
-
-    .regime-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 24px;
-    }
-
-    .updated {
-      font-size: 0.72rem;
-      color: #8b949e;
-    }
-
-    .orders-table td:first-child {
-      color: #e6edf3;
-      font-weight: 400;
-    }
-
-    .side-buy  { color: #3fb950; font-weight: 700; }
-    .side-sell { color: #f85149; font-weight: 700; }
-
-    .loading {
-      color: #8b949e;
-      font-size: 0.85rem;
-      padding: 40px 0;
-      text-align: center;
-    }
-
-    .error-msg {
-      color: #f85149;
-      font-size: 0.8rem;
-      padding: 8px 12px;
-      background: #3a1a1a;
-      border-radius: 6px;
-      margin-bottom: 16px;
-    }
+    /* ── Misc ── */
+    .loading { color: var(--subtle); font-size: 0.85rem; padding: 32px 0; text-align: center; }
+    .error-msg { color: var(--red); font-size: 0.8rem; padding: 10px 14px; background: #3a1a1a; border-radius: 8px; margin-bottom: 16px; }
+    .note { font-size: 0.72rem; color: var(--subtle); margin-top: 8px; }
+    .dry-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; background: #2a2a1a; color: var(--yellow); border: 1px solid var(--yellow); margin-left: 6px; }
   </style>
 </head>
 <body>
 
-<h1>NAASA Portfolio Tracker</h1>
-<div class="subtitle" id="last-updated">Loading…</div>
+<div class="header">
+  <div>
+    <h1>NAASA Portfolio Tracker
+      <span id="dry-badge"></span>
+    </h1>
+    <div class="header-meta">
+      <span class="dot" id="status-dot"></span>
+      <span id="last-updated">Loading…</span>
+    </div>
+  </div>
+  <span id="regime-badge-top"></span>
+</div>
 
 <div id="error-box"></div>
 
+<!-- Summary Cards -->
 <div class="cards" id="summary-cards">
   <div class="loading">Fetching data…</div>
 </div>
 
-<div class="regime-row" id="regime-row" style="display:none">
-  <span class="section-title">Market Regime</span>
-  <span id="regime-badge"></span>
+<!-- Holdings -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-title">Current Holdings</span>
+    <span class="section-total" id="holdings-total"></span>
+  </div>
+  <div class="table-wrap" id="holdings-table"><div class="loading">…</div></div>
 </div>
 
-<div class="section-title">Holdings</div>
-<div id="holdings-table"><div class="loading">…</div></div>
+<!-- Closed Positions -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-title">Closed Positions</span>
+    <span class="section-total" id="closed-total"></span>
+  </div>
+  <div class="table-wrap" id="closed-table"><div class="loading">…</div></div>
+</div>
 
-<div class="section-title">Closed Positions</div>
-<div id="closed-table"><div class="loading">…</div></div>
+<!-- Trade Log -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-title">Trade Log</span>
+    <span class="section-total" id="tradelog-count"></span>
+  </div>
+  <div class="table-wrap" id="tradelog-table"><div class="loading">…</div></div>
+</div>
 
-<div class="section-title">Recent Orders</div>
-<div id="orders-table"><div class="loading">…</div></div>
+<!-- Recent Orders -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-title">Today's Orders</span>
+    <span class="section-total" id="orders-date"></span>
+  </div>
+  <div class="table-wrap" id="orders-table"><div class="loading">…</div></div>
+</div>
 
 <script>
 const REPO = "kapil-111/naasa_portfolio_tracker";
 const RAW  = `https://raw.githubusercontent.com/${REPO}/main`;
 
-async function fetchJSON(path) {
+async function get(path) {
   const r = await fetch(`${RAW}/${path}?_=${Date.now()}`);
   if (!r.ok) throw new Error(`${path}: ${r.status}`);
-  return r.json();
+  return r;
 }
-
-async function fetchText(path) {
-  const r = await fetch(`${RAW}/${path}?_=${Date.now()}`);
-  if (!r.ok) throw new Error(`${path}: ${r.status}`);
-  return r.text();
-}
+const getJSON = p => get(p).then(r => r.json());
+const getText = p => get(p).then(r => r.text());
 
 function parseCSV(text) {
   const result = Papa.parse(text, { header: true, skipEmptyLines: true });
-  // Normalise multiline headers (e.g. "CDS Total\nBalance" → "CDS Total Balance")
   return result.data.map(row => {
     const norm = {};
-    for (const [k, v] of Object.entries(row)) {
+    for (const [k, v] of Object.entries(row))
       norm[k.trim().replace(/\s+/g, " ")] = typeof v === "string" ? v.replace(/,/g, "").trim() : v;
-    }
     return norm;
   });
 }
 
-function fmt(n) {
-  return n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+const fmt  = n => n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtN = n => (n >= 0 ? "+" : "") + "NPR " + fmt(Math.abs(n));
+const pct  = n => (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
+const cls  = n => n >= 0 ? "up" : "down";
 
-function pct(n) {
-  return (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
+function allocBar(share) {
+  const w = Math.min(100, Math.max(0, share * 100)).toFixed(1);
+  return `<span class="alloc-bar-bg"><span class="alloc-bar-fill" style="width:${w}%"></span></span> ${w}%`;
 }
-
-function colorClass(n) { return n >= 0 ? "up" : "down"; }
 
 async function render() {
   try {
-    const [avgPrices, ordersData, csvText, stateData] = await Promise.all([
-      fetchJSON("avg_prices.json"),
-      fetchJSON("placed_orders_today.json").catch(() => ({ orders: [] })),
-      fetchText("portfolio_data.csv"),
-      fetchJSON("fortress_state.json"),
+    const [avgPrices, ordersData, csvText, stateData, fundData, tradeText] = await Promise.all([
+      getJSON("avg_prices.json"),
+      getJSON("placed_orders_today.json").catch(() => ({ orders: [], date: "—" })),
+      getText("portfolio_data.csv"),
+      getJSON("fortress_state.json"),
+      getJSON("available_fund.json").catch(() => ({ available_fund: null })),
+      getText("trade_log.csv").catch(() => ""),
     ]);
 
     const holdings = parseCSV(csvText).filter(h => h.Symbol && !h.Symbol.toLowerCase().startsWith("total"));
+    const availFund = fundData.available_fund;
 
-    // Compute portfolio metrics
+    // ── Holdings ──
     let totalValue = 0, totalCost = 0;
     const rows = holdings.map(h => {
-      const sym  = h["Symbol"] || h["symbol"];
+      const sym  = h["Symbol"];
       const qty  = parseFloat(h["CDS Total Balance"] || h["NAASA Balance"] || h["Quantity"] || 0);
-      const ltp  = parseFloat(h.LTP || h["Close Price Price"] || 0);
+      const ltp  = parseFloat(h["LTP"] || h["Close Price Price"] || 0);
       const avg  = parseFloat(avgPrices[sym] || 0);
       const val  = qty * ltp;
       const cost = qty * avg;
       const pl   = val - cost;
-      const plPct = cost > 0 ? (pl / cost * 100) : 0;
+      const plP  = cost > 0 ? pl / cost * 100 : 0;
       totalValue += val;
       totalCost  += cost;
-      return { sym, qty, ltp, avg, val, pl, plPct };
-    });
+      return { sym, qty, ltp, avg, val, cost, pl, plP };
+    }).sort((a, b) => b.val - a.val);
 
-    const totalPL    = totalValue - totalCost;
-    const totalPLPct = totalCost > 0 ? (totalPL / totalCost * 100) : 0;
+    const totalPL  = totalValue - totalCost;
+    const totalPLP = totalCost > 0 ? totalPL / totalCost * 100 : 0;
 
-    // Summary cards
+    // ── Closed Positions ──
+    const heldSyms = new Set(rows.map(r => r.sym));
+    let realizedPL = 0, realizedKnown = 0;
+    const closed = Object.entries(stateData)
+      .filter(([sym, s]) => !heldSyms.has(sym) && s.last_exit_date)
+      .map(([sym, s]) => {
+        const avg   = parseFloat(avgPrices[sym] || 0);
+        const exitP = parseFloat(s.last_exit_price || 0);
+        const qty   = parseFloat(s.last_known_qty || 0);
+        const pl    = avg > 0 && exitP > 0 && qty > 0 ? (exitP - avg) * qty : null;
+        const plP   = avg > 0 && exitP > 0 ? (exitP - avg) / avg * 100 : null;
+        if (pl !== null) { realizedPL += pl; realizedKnown++; }
+        return { sym, qty, avg, exitP, pl, plP, exitDate: s.last_exit_date };
+      })
+      .sort((a, b) => (b.exitDate || "").localeCompare(a.exitDate || ""));
+
+    // ── Summary Cards ──
+    const grandTotal = totalValue + (availFund || 0);
     document.getElementById("summary-cards").innerHTML = `
       <div class="card">
         <div class="card-label">Portfolio Value</div>
-        <div class="card-value">NPR ${fmt(totalValue)}</div>
+        <div class="card-value blue">NPR ${fmt(totalValue)}</div>
+        <div class="card-sub">${rows.length} stocks</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Available Fund</div>
+        <div class="card-value">${availFund !== null ? "NPR " + fmt(availFund) : "—"}</div>
+        <div class="card-sub">Cash in broker</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Unrealized P&amp;L</div>
+        <div class="card-value ${cls(totalPL)}">${fmtN(totalPL)}</div>
+        <div class="card-sub ${cls(totalPLP)}">${pct(totalPLP)} on invested</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Realized P&amp;L</div>
+        <div class="card-value ${cls(realizedPL)}">${realizedKnown > 0 ? fmtN(realizedPL) : "—"}</div>
+        <div class="card-sub">${closed.length} closed trades</div>
       </div>
       <div class="card">
         <div class="card-label">Total Invested</div>
         <div class="card-value">NPR ${fmt(totalCost)}</div>
+        <div class="card-sub">Cost basis</div>
       </div>
+      ${availFund !== null ? `
       <div class="card">
-        <div class="card-label">Total P&amp;L</div>
-        <div class="card-value ${totalPL >= 0 ? 'green' : 'red'}">
-          ${totalPL >= 0 ? "+" : ""}NPR ${fmt(totalPL)}
-        </div>
-        <div class="card-sub ${colorClass(totalPLPct)}">${pct(totalPLPct)}</div>
-      </div>
-      <div class="card">
-        <div class="card-label">Holdings</div>
-        <div class="card-value">${rows.length}</div>
-      </div>
+        <div class="card-label">Total Portfolio</div>
+        <div class="card-value">NPR ${fmt(grandTotal)}</div>
+        <div class="card-sub">Stocks + Cash</div>
+      </div>` : ""}
     `;
 
-    // Holdings table
-    const sortedRows = [...rows].sort((a, b) => b.val - a.val);
-    const holdingHTML = `
-      <table>
-        <thead>
-          <tr>
-            <th>Symbol</th>
-            <th>Qty</th>
-            <th>Avg</th>
-            <th>LTP</th>
-            <th>Value</th>
-            <th>P&amp;L</th>
-            <th>P&amp;L %</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${sortedRows.map(r => `
-            <tr>
+    // ── Holdings Table ──
+    document.getElementById("holdings-total").innerHTML =
+      `<span class="${cls(totalPL)}">${fmtN(totalPL)} (${pct(totalPLP)})</span>`;
+
+    document.getElementById("holdings-table").innerHTML = rows.length === 0
+      ? `<div class="loading" style="padding:16px">No holdings</div>`
+      : `<table>
+          <thead><tr>
+            <th>Symbol</th><th>Qty</th><th>Avg Cost</th><th>LTP</th>
+            <th>Value</th><th>P&amp;L</th><th>P&amp;L %</th><th>Allocation</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map(r => `<tr>
               <td>${r.sym}</td>
               <td>${r.qty}</td>
-              <td>${fmt(r.avg)}</td>
+              <td>${r.avg > 0 ? fmt(r.avg) : "—"}</td>
               <td>${fmt(r.ltp)}</td>
               <td>NPR ${fmt(r.val)}</td>
-              <td class="${colorClass(r.pl)}">${r.pl >= 0 ? "+" : ""}NPR ${fmt(r.pl)}</td>
-              <td class="${colorClass(r.plPct)}">${pct(r.plPct)}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
-    document.getElementById("holdings-table").innerHTML = holdingHTML;
+              <td class="${cls(r.pl)}">${fmtN(r.pl)}</td>
+              <td class="${cls(r.plP)}">${pct(r.plP)}</td>
+              <td>${allocBar(totalValue > 0 ? r.val / totalValue : 0)}</td>
+            </tr>`).join("")}
+          </tbody>
+          <tfoot><tr>
+            <td colspan="4">Total</td>
+            <td>NPR ${fmt(totalValue)}</td>
+            <td class="${cls(totalPL)}">${fmtN(totalPL)}</td>
+            <td class="${cls(totalPLP)}">${pct(totalPLP)}</td>
+            <td>100%</td>
+          </tr></tfoot>
+        </table>`;
 
-    // Orders table
+    // ── Closed Positions Table ──
+    document.getElementById("closed-total").innerHTML = realizedKnown > 0
+      ? `<span class="${cls(realizedPL)}">${fmtN(realizedPL)} realized</span>` : "";
+
+    document.getElementById("closed-table").innerHTML = closed.length === 0
+      ? `<div class="loading" style="padding:16px">No closed positions</div>`
+      : `<table>
+          <thead><tr>
+            <th>Symbol</th><th>Qty</th><th>Avg Cost</th><th>Exit Price</th>
+            <th>Realized P&amp;L</th><th>P&amp;L %</th><th>Exit Date</th>
+          </tr></thead>
+          <tbody>
+            ${closed.map(c => `<tr>
+              <td>${c.sym}</td>
+              <td>${c.qty || "—"}</td>
+              <td>${c.avg > 0 ? fmt(c.avg) : "—"}</td>
+              <td>${c.exitP > 0 ? fmt(c.exitP) : "—"}</td>
+              <td class="${c.pl !== null ? cls(c.pl) : ''}">${c.pl !== null ? fmtN(c.pl) : "—"}</td>
+              <td class="${c.plP !== null ? cls(c.plP) : ''}">${c.plP !== null ? pct(c.plP) : "—"}</td>
+              <td>${c.exitDate || "—"}</td>
+            </tr>`).join("")}
+          </tbody>
+          ${realizedKnown > 0 ? `<tfoot><tr>
+            <td colspan="4">Total Realized (${realizedKnown} trades)</td>
+            <td class="${cls(realizedPL)}" colspan="3">${fmtN(realizedPL)}</td>
+          </tr></tfoot>` : ""}
+        </table>`;
+
+    // ── Trade Log ──
+    const trades = tradeText ? parseCSV(tradeText).reverse() : [];
+    document.getElementById("tradelog-count").textContent = trades.length ? `${trades.length} entries` : "";
+    document.getElementById("tradelog-table").innerHTML = trades.length === 0
+      ? `<div class="loading" style="padding:16px">No trade log</div>`
+      : `<table>
+          <thead><tr>
+            <th>Date</th><th>Symbol</th><th>Side</th><th>Type</th>
+            <th>Qty</th><th>Price</th><th>P&amp;L NPR</th><th>P&amp;L %</th><th>Notes</th>
+          </tr></thead>
+          <tbody>
+            ${trades.map(t => `<tr>
+              <td style="text-align:left;color:var(--subtle)">${t.date || "—"}</td>
+              <td style="text-align:left;font-weight:600;color:var(--blue)">${t.symbol || "—"}</td>
+              <td class="${t.side === 'BUY' ? 'side-buy' : 'side-sell'}">${t.side || "—"}</td>
+              <td style="text-align:left;color:var(--subtle);font-size:0.75rem">${t.type || "—"}</td>
+              <td>${t.qty || "—"}</td>
+              <td>${t.price ? fmt(parseFloat(t.price)) : "—"}</td>
+              <td class="${t.pnl_npr ? cls(parseFloat(t.pnl_npr)) : ''}">${t.pnl_npr ? fmtN(parseFloat(t.pnl_npr)) : "—"}</td>
+              <td class="${t.pnl_pct ? cls(parseFloat(t.pnl_pct)) : ''}">${t.pnl_pct ? pct(parseFloat(t.pnl_pct)) : "—"}</td>
+              <td style="text-align:left;color:var(--subtle);font-size:0.72rem;max-width:180px;overflow:hidden;text-overflow:ellipsis">${t.notes || ""}</td>
+            </tr>`).join("")}
+          </tbody>
+        </table>`;
+
+    // ── Today's Orders ──
     const orders = ordersData.orders || [];
-    if (orders.length === 0) {
-      document.getElementById("orders-table").innerHTML = `<div class="loading" style="padding:16px 0">No orders today</div>`;
-    } else {
-      document.getElementById("orders-table").innerHTML = `
-        <table class="orders-table">
-          <thead>
-            <tr><th style="text-align:left">Symbol</th><th>Side</th><th>Type</th><th>Qty</th></tr>
-          </thead>
+    document.getElementById("orders-date").textContent = ordersData.date ? `Date: ${ordersData.date}` : "";
+    document.getElementById("orders-table").innerHTML = orders.length === 0
+      ? `<div class="loading" style="padding:16px">No orders today</div>`
+      : `<table>
+          <thead><tr><th>Symbol</th><th>Side</th><th>Type</th><th>Qty</th></tr></thead>
           <tbody>
-            ${orders.map(o => `
-              <tr>
-                <td>${o.symbol}</td>
-                <td class="${o.side === 'BUY' ? 'side-buy' : 'side-sell'}">${o.side}</td>
-                <td>${o.type || "-"}</td>
-                <td>${o.quantity}</td>
-              </tr>
-            `).join("")}
+            ${orders.map(o => `<tr>
+              <td>${o.symbol}</td>
+              <td class="${o.side === 'BUY' ? 'side-buy' : 'side-sell'}">${o.side}</td>
+              <td style="text-align:left;color:var(--subtle)">${o.type || "—"}</td>
+              <td>${o.quantity}</td>
+            </tr>`).join("")}
           </tbody>
-        </table>
-        <div class="updated" style="margin-top:4px">Date: ${ordersData.date || "—"}</div>
-      `;
-    }
+        </table>`;
 
-    // Closed positions from fortress_state
-    const heldSyms = new Set(rows.map(r => r.sym));
-    const closed = Object.entries(stateData)
-      .filter(([sym, s]) => !heldSyms.has(sym) && s.last_exit_date)
-      .map(([sym, s]) => {
-        const avg      = parseFloat(avgPrices[sym] || 0);
-        const exitP    = parseFloat(s.last_exit_price || 0);
-        const qty      = parseFloat(s.last_known_qty || 0);
-        const pl       = avg > 0 && exitP > 0 && qty > 0 ? (exitP - avg) * qty : null;
-        const plPct    = avg > 0 && exitP > 0 ? (exitP - avg) / avg * 100 : null;
-        return { sym, qty, avg, exitP, pl, plPct, exitDate: s.last_exit_date };
-      })
-      .sort((a, b) => (b.exitDate || "").localeCompare(a.exitDate || ""));
-
-    if (closed.length === 0) {
-      document.getElementById("closed-table").innerHTML = `<div class="loading" style="padding:16px 0">No closed positions</div>`;
-    } else {
-      document.getElementById("closed-table").innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Symbol</th>
-              <th>Qty</th>
-              <th>Avg Cost</th>
-              <th>Exit Price</th>
-              <th>P&amp;L</th>
-              <th>P&amp;L %</th>
-              <th>Exit Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${closed.map(c => `
-              <tr>
-                <td>${c.sym}</td>
-                <td>${c.qty || "—"}</td>
-                <td>${c.avg > 0 ? fmt(c.avg) : "—"}</td>
-                <td>${c.exitP > 0 ? fmt(c.exitP) : "—"}</td>
-                <td class="${c.pl !== null ? colorClass(c.pl) : ''}">${c.pl !== null ? (c.pl >= 0 ? "+" : "") + "NPR " + fmt(c.pl) : "—"}</td>
-                <td class="${c.plPct !== null ? colorClass(c.plPct) : ''}">${c.plPct !== null ? pct(c.plPct) : "—"}</td>
-                <td>${c.exitDate || "—"}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
-    }
-
-    document.getElementById("last-updated").textContent =
-      `Last updated: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kathmandu" })} NPT`;
+    // ── Header meta ──
+    const now = new Date();
+    const npt = now.toLocaleString("en-IN", { timeZone: "Asia/Kathmandu", hour12: true });
+    document.getElementById("last-updated").textContent = `Updated ${npt} NPT`;
+    document.getElementById("status-dot").className = "dot dot-green";
 
   } catch (e) {
     document.getElementById("error-box").innerHTML =
-      `<div class="error-msg">Error loading data: ${e.message}</div>`;
+      `<div class="error-msg">Error: ${e.message}</div>`;
+    document.getElementById("status-dot").className = "dot dot-red";
+    document.getElementById("last-updated").textContent = "Failed to load data";
     console.error(e);
   }
 }
 
 render();
-setInterval(render, 5 * 60 * 1000); // refresh every 5 minutes
+setInterval(render, 5 * 60 * 1000);
 </script>
 </body>
 </html>
