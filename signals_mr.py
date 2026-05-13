@@ -446,9 +446,8 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
 
         # --- Generate BUY Signal ---
         if not state.get('in_position'):
-            if regime == "BEAR":
-                continue
-            if daily_buy_count >= daily_buy_limit:
+            # Only apply daily buy limit for non-BEAR markets (we want to show all blocked signals)
+            if regime != "BEAR" and daily_buy_count >= daily_buy_limit:
                 continue
 
             fortress_buy = (
@@ -463,15 +462,21 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             )
 
             if fortress_buy:
-                print(f"[{symbol}] *** HARDCORE BUY *** price={close:.2f} EMA9={ema9:.2f} EMA21={ema21:.2f} EMA50={ema50:.2f} ADX={adx:.1f} RSI={rsi:.1f} drop3d={drop_3d:.1f}%")
+                if regime == "BEAR":
+                    sig_type = "BLOCKED_BEAR"
+                    print(f"[{symbol}] *** BLOCKED BUY (BEAR) *** price={close:.2f} EMA9={ema9:.2f} EMA21={ema21:.2f} EMA50={ema50:.2f} ADX={adx:.1f} RSI={rsi:.1f} drop3d={drop_3d:.1f}%")
+                else:
+                    sig_type = "INITIAL"
+                    daily_buy_count += 1
+                    print(f"[{symbol}] *** HARDCORE BUY *** price={close:.2f} EMA9={ema9:.2f} EMA21={ema21:.2f} EMA50={ema50:.2f} ADX={adx:.1f} RSI={rsi:.1f} drop3d={drop_3d:.1f}%")
+                    
                 default_qty = int(os.getenv("DEFAULT_BUY_QTY", 20))
                 qty = kelly_qty(available_fund, close, default_qty)
                 signals.append({
-                    "side": "BUY", "symbol": symbol, "price": close, "type": "INITIAL",
+                    "side": "BUY", "symbol": symbol, "price": close, "type": sig_type,
                     "quantity": qty,
-                    "reason": f"EMA9>{ema9:.0f} EMA21={ema21:.0f} ADX={adx:.1f} RSI={rsi:.1f} vol={prev_vol:.0f}",
+                    "reason": f"EMA9>{ema9:.0f} EMA21={ema21:.0f} ADX={adx:.1f} RSI={rsi:.1f} vol={prev_vol:.0f}" + (" (BLOCKED: BEAR)" if sig_type == "BLOCKED_BEAR" else ""),
                 })
-                daily_buy_count += 1
 
 
         # --- Generate SELL Signals (existing positions) ---

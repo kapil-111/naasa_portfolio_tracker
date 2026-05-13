@@ -736,6 +736,11 @@ def main():
                         side = signal['side'].upper()
                         signal_type = signal.get('type', 'FULL')
 
+                        # Skip execution for blocked signals
+                        if signal_type == "BLOCKED_BEAR":
+                            print(f"[SKIP] {side} {symbol} — blocked due to BEAR market regime.")
+                            continue
+
                         # Prevent re-placing the same specific action (e.g. half-sell)
                         already_placed = any(
                             o['symbol'] == symbol and o['side'] == side and o.get('type') == signal_type
