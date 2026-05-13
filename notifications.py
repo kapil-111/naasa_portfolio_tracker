@@ -54,18 +54,148 @@ def _tg_send_photo(path: str, caption: str = "") -> bool:
         return False
 
 
+
+
+# ─────────────────────────────────────────
+# Facebook Messenger
+# ─────────────────────────────────────────
+
+_fb_psid_cache = None
+_fb_cache_time = 0
+
+def _fb_get_subscribers():
+    global _fb_psid_cache, _fb_cache_time
+    import time
+    
+    token = os.getenv("FB_PAGE_ACCESS_TOKEN")
+    if not token:
+        return []
+        
+    # Cache PSIDs for 1 hour to avoid excessive API calls
+    if _fb_psid_cache is not None and time.time() - _fb_cache_time < 3600:
+        return _fb_psid_cache
+
+    try:
+        url = f"https://graph.facebook.com/v19.0/me/conversations?fields=participants&access_token={token}"
+        resp = requests.get(url, timeout=10)
+        
+        if resp.status_code != 200:
+            print(f"Facebook conversations fetch failed: {resp.status_code} {resp.text}")
+            return []
+            
+        data = resp.json()
+        psids = set()
+        
+        me_resp = requests.get(f"https://graph.facebook.com/v19.0/me?access_token={token}", timeout=10)
+        page_id = me_resp.json().get("id") if me_resp.status_code == 200 else None
+
+        conversations = data.get("data", [])
+        for conv in conversations:
+            participants = conv.get("participants", {}).get("data", [])
+            for p in participants:
+                pid = p.get("id")
+                if pid and pid != page_id:
+                    psids.add(pid)
+                    
+        _fb_psid_cache = list(psids)
+        _fb_cache_time = time.time()
+        return _fb_psid_cache
+    except Exception as e:
+        print(f"Facebook get subscribers error: {type(e).__name__}: {e}")
+        return []
+
+def _fb_send(text):
+    token = os.getenv("FB_PAGE_ACCESS_TOKEN")
+    if not token:
+        return False
+        
+    psids = _fb_get_subscribers()
+    if not psids:
+        return False
+
+    success = True
+    for psid in psids:
+        try:
+            url = f"https://graph.facebook.com/v19.0/me/messages?access_token={token}"
+            payload = {
+                "recipient": {"id": psid},
+                "message": {"text": text},
+                "messaging_type": "MESSAGE_TAG",
+                "tag": "ACCOUNT_UPDATE"
+            }
+            resp = requests.post(url, json=payload, timeout=10)
+            if resp.status_code != 200:
+                print(f"Facebook send failed to {psid}: {resp.status_code} {resp.text}")
+                success = False
+        except Exception as e:
+            print(f"Facebook send error to {psid}: {type(e).__name__}: {e}")
+            success = False
+            
+    return success
+
+def _fb_send_photo(path: str, caption: str = "") -> bool:
+    token = os.getenv("FB_PAGE_ACCESS_TOKEN")
+    if not token:
+        return False
+    if not os.path.exists(path):
+        return False
+        
+    psids = _fb_get_subscribers()
+    if not psids:
+        return False
+
+    success = True
+    for psid in psids:
+        try:
+            with open(path, "rb") as f:
+                url = f"https://graph.facebook.com/v19.0/me/messages?access_token={token}"
+                payload = {
+                    "recipient": f'{{"id":"{psid}"}}',
+                    "message": f'{{"attachment":{{"type":"image", "payload":{{"is_reusable":true}}}}}}',
+                    "messaging_type": "MESSAGE_TAG",
+                    "tag": "ACCOUNT_UPDATE"
+                }
+                resp = requests.post(
+                    url,
+                    data=payload,
+                    files={"filedata": f},
+                    timeout=20
+                )
+                if resp.status_code != 200:
+                    print(f"Facebook photo send failed to {psid}: {resp.status_code} {resp.text}")
+                    success = False
+        except Exception as e:
+            print(f"Facebook photo send error to {psid}: {type(e).__name__}: {e}")
+            success = False
+            
+    return success
+
+# ─────────────────────────────────────────
+# Universal Notification Wrappers
+# ─────────────────────────────────────────
+
+def _send_text(text):
+    tg_ok = _tg_send(text)
+    fb_ok = _fb_send(text)
+    return tg_ok or fb_ok
+
+def _send_photo(path: str, caption: str = "") -> bool:
+    tg_ok = _tg_send_photo(path, caption)
+    fb_ok = _fb_send_photo(path, caption)
+    return tg_ok or fb_ok
+
 def notify_order_screenshot(path: str, label: str, symbol: str, side: str) -> None:
     """Send an order form screenshot to Telegram with a descriptive caption."""
     caption = f"{label}\n{side} {symbol} — {_now_npt()}"
     if len(caption) > 1024:
         caption = caption[:1021] + "..."
-    ok = _tg_send_photo(path, caption=caption)
-    print(f"Order screenshot ({label}) Telegram send: {'OK' if ok else 'FAILED'}")
+    ok = _send_photo(path, caption=caption)
+    print(f"Order screenshot ({label}) Alerts send: {'OK' if ok else 'FAILED'}")
 
 
 def notify_bot_started(dry_run, market_status):
     mode = "DRY RUN" if dry_run else "LIVE"
-    _tg_send(
+    _send_text(
         f"🤖 Bot Started — {_now_npt()}\n"
         f"Mode: {mode} | {market_status}"
     )
@@ -73,7 +203,7 @@ def notify_bot_started(dry_run, market_status):
 
 def notify_market_open(dry_run):
     mode = "DRY RUN" if dry_run else "LIVE TRADING"
-    _tg_send(
+    _send_text(
         f"🟢 NEPSE Market Open\n"
         f"Bot started — {_now_npt()}\n"
         f"Mode: {mode}"
@@ -104,7 +234,7 @@ def notify_signals(signals):
             line += f"\n    Reason: {s['reason']}"
         lines.append(line)
 
-    _tg_send("\n".join(lines))
+    _send_text("\n".join(lines))
 
 
 def notify_order(signal, is_dry_run):
@@ -117,7 +247,7 @@ def notify_order(signal, is_dry_run):
     icon = "✅" if not is_dry_run else "🔔"
     tag  = "[DRY RUN]" if is_dry_run else "[LIVE]"
 
-    _tg_send(
+    _send_text(
         f"{icon} {tag} Order {'Simulated' if is_dry_run else 'Placed'}\n"
         f"{side} {symbol} x{qty} @ MKT (ref: {price:.2f})\n"
         f"Reason: {signal.get('reason', '?')}"
@@ -128,7 +258,7 @@ def notify_error(error_msg):
     msg = str(error_msg)
     if len(msg) > 300:
         msg = msg[:297] + "..."
-    _tg_send(f"⚠️ Bot Error — {_now_npt()}\n{msg}")
+    _send_text(f"⚠️ Bot Error — {_now_npt()}\n{msg}")
 
 
 def notify_cycle_summary(signals, orders_placed, next_in_seconds, daily_orders=None):
@@ -146,7 +276,7 @@ def notify_cycle_summary(signals, orders_placed, next_in_seconds, daily_orders=N
         lines.append(f"\n📋 Today's orders ({len(daily_orders)}):")
         for o in daily_orders:
             lines.append(f"  • {o.get('side')} {o.get('symbol')} [{o.get('type', '?')}]")
-    _tg_send("\n".join(lines))
+    _send_text("\n".join(lines))
 
 
 def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNKNOWN"):
@@ -260,8 +390,8 @@ def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNK
     else:
         lines.append("\nSignals: None for today")
 
-    ok = _tg_send("\n".join(lines))
-    print(f"Morning report Telegram send: {'OK' if ok else 'FAILED'}")
+    ok = _send_text("\n".join(lines))
+    print(f"Morning report Alerts send: {'OK' if ok else 'FAILED'}")
 
 
 def notify_eod_fill_report(fill_results):
@@ -271,7 +401,7 @@ def notify_eod_fill_report(fill_results):
       symbol, side, signal_qty, traded_qty, fill_status, price
     """
     if not fill_results:
-        _tg_send(f"📋 EOD Fill Report — {_now_npt()}\nNo orders to reconcile.")
+        _send_text(f"📋 EOD Fill Report — {_now_npt()}\nNo orders to reconcile.")
         return
 
     lines = [f"📋 EOD Fill Report — {_now_npt()}\n"]
@@ -298,7 +428,7 @@ def notify_eod_fill_report(fill_results):
 
         lines.append(f"{icon} {side} {sym} [{status}]  {detail}")
 
-    _tg_send("\n".join(lines))
+    _send_text("\n".join(lines))
 
 
 def notify_market_close(daily_orders):
@@ -309,7 +439,7 @@ def notify_market_close(daily_orders):
             lines.append(f"  • {o.get('side')} {o.get('symbol')}")
     else:
         lines.append("No orders placed today.")
-    _tg_send("\n".join(lines))
+    _send_text("\n".join(lines))
 
 
 # ─────────────────────────────────────────
@@ -325,7 +455,7 @@ def _now_npt():
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
-    _tg_send("✅ Telegram test from NAASA bot")
+    _send_text("✅ Telegram test from NAASA bot")
     test_signal = {'side': 'BUY', 'symbol': 'TEST', 'quantity': 100, 'price': 1000,
                    'score': 4, 'breakdown': {'ema': 2, 'macd': 1, 'volume': 1}}
     notify_signals([{**test_signal, 'side': 'BUY'}])
