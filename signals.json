@@ -1,6 +1,15 @@
 {
-    "generated_at": "2026-05-14 04:58",
-    "context": "premarket",
+    "generated_at": "2026-05-14 07:36",
+    "context": "live",
     "regime": "BEAR",
-    "signals": []
+    "signals": [
+        {
+            "side": "BUY",
+            "symbol": "SAHAS",
+            "price": 663.0,
+            "type": "BLOCKED_BEAR",
+            "quantity": 50,
+            "reason": "EMA9>629 EMA21=623 ADX=25.4 RSI=70.2 vol=38742 (BLOCKED: BEAR)"
+        }
+    ]
 }
