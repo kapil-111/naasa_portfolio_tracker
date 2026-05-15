@@ -255,7 +255,7 @@
         "entry_date": "2026-03-05",
         "entry_price": 400.0,
         "initial_entry": 400.0,
-        "ema_cross_days": 46,
+        "ema_cross_days": 47,
         "last_known_qty": 2,
         "trades": 0,
         "peak_price": 450.0
