@@ -1,6 +1,15 @@
 {
-    "generated_at": "2026-05-20 05:16",
+    "generated_at": "2026-05-20 08:08",
     "context": "live",
     "regime": "BEAR",
-    "signals": []
+    "signals": [
+        {
+            "side": "BUY",
+            "symbol": "SBL",
+            "price": 401.5,
+            "type": "BLOCKED_BEAR",
+            "quantity": 50,
+            "reason": "EMA9>393 EMA21=392 ADX=40.9 RSI=54.2 vol=59033 (BLOCKED: BEAR)"
+        }
+    ]
 }
