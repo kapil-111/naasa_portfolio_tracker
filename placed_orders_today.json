@@ -1,11 +1,11 @@
 {
-    "date": "2026-05-08",
+    "date": "2026-05-25",
     "orders": [
         {
-            "symbol": "BNHC",
-            "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 10
+            "symbol": "USHEC",
+            "side": "BUY",
+            "type": "INITIAL",
+            "quantity": 50
         }
     ]
 }
