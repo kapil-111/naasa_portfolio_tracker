@@ -159,7 +159,7 @@
         "entry_date": "2026-03-11",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 4,
+        "ema_cross_days": 5,
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
@@ -172,7 +172,7 @@
         "entry_date": "2026-03-11",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 19,
+        "ema_cross_days": 20,
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
@@ -255,7 +255,7 @@
         "entry_date": "2026-03-05",
         "entry_price": 400.0,
         "initial_entry": 400.0,
-        "ema_cross_days": 67,
+        "ema_cross_days": 68,
         "last_known_qty": 2,
         "trades": 0,
         "peak_price": 455.0
@@ -363,13 +363,5 @@
         "last_known_qty": 50,
         "peak_price": 400.0
     },
-    "USHEC": {
-        "in_position": true,
-        "half_sold": false,
-        "initial_entry": 511.0,
-        "entry_price": 511.0,
-        "entry_date": "2026-05-25",
-        "position_count": 1,
-        "trades": 0
-    }
+    "USHEC": {}
 }
