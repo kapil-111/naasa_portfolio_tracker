@@ -275,6 +275,39 @@ def _clean_portfolio(portfolio_data, states, placed_orders):
     return {**portfolio_data, "holdings": cleaned}
 
 
+def _backfill_missing_avg_prices(page, portfolio_data: dict) -> None:
+    """If any holding has no avg price, scrape ORDERBOOK history to fill gaps."""
+    from signals_mr import _load_avg_prices, _get_holding_symbol
+    from fetch_trade_history import scrape_trade_history_avg_prices
+
+    holdings = portfolio_data.get("holdings", [])
+    if not holdings:
+        return
+    avg_prices = _load_avg_prices()
+    missing = [_get_holding_symbol(h) for h in holdings
+               if _get_holding_symbol(h) and _get_holding_symbol(h) not in avg_prices]
+    if not missing:
+        return
+    print(f"[AVG PRICE] Missing avg prices for: {missing}. Scraping trade history...")
+    try:
+        computed = scrape_trade_history_avg_prices(page)
+        updated = []
+        for sym in missing:
+            if sym in computed:
+                avg_prices[sym] = computed[sym]
+                updated.append(f"{sym}={computed[sym]:.2f}")
+        if updated:
+            import json as _json
+            with open("avg_prices.json", "w") as f:
+                _json.dump(avg_prices, f, indent=4, sort_keys=True)
+            print(f"[AVG PRICE] Auto-filled: {', '.join(updated)}")
+        still_missing = [s for s in missing if s not in avg_prices]
+        if still_missing:
+            print(f"[AVG PRICE] Still missing after scrape: {still_missing}")
+    except Exception as e:
+        print(f"[AVG PRICE] Trade history backfill failed: {e}")
+
+
 def _fetch_chukul_data(max_retries=3, retry_delay=30):
     """Fetch historical OHLCV and (if stale) fundamental data for all NEPSE symbols.
     Retries up to max_retries times with retry_delay seconds between attempts
@@ -596,6 +629,7 @@ def main():
                     if portfolio_data and portfolio_data.get("holdings"):
                         save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
                         _sync_state_from_portfolio(portfolio_data)
+                        _backfill_missing_avg_prices(page, portfolio_data)
                     else:
                         portfolio_data = _load_cached_portfolio()
 
@@ -632,12 +666,13 @@ def main():
                     states = load_states()
                     placed_orders = load_placed_orders()
                     portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)
-                    regime = get_nepse_regime()
+                    regime_info = get_nepse_regime()
+                    regime = regime_info["regime"]
                     signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
                     save_states(states)  # persist orphan re-seeds so next cycle doesn't start blind
                     save_signals(signals, regime=regime, context="premarket")
                     print(f"Generated {len(signals)} potential signals for next open.")
-                    notify_premarket_report(portfolio_data, available_fund, signals, regime=regime)
+                    notify_premarket_report(portfolio_data, available_fund, signals, regime_info=regime_info)
             except SessionExpiredError as e:
                 print(f"Session / auth error (analysis cycle): {e}")
                 notify_error(e)
@@ -696,6 +731,7 @@ def main():
                     save_to_json(portfolio_data.get("summary", {}), "portfolio_summary.json")
                     save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
                     _sync_state_from_portfolio(portfolio_data)
+                    _backfill_missing_avg_prices(page, portfolio_data)
                 else:
                     print("Warning: Portfolio scraping returned empty holdings. Falling back to cached portfolio.")
                     portfolio_data = _load_cached_portfolio()
@@ -708,7 +744,8 @@ def main():
                     placed_orders = load_placed_orders()
                     portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)
                     buy_count = sum(1 for o in placed_orders.get('orders', []) if o['side'] == 'BUY' and o.get('type') == 'INITIAL')
-                    regime = get_nepse_regime()
+                    regime_info = get_nepse_regime()
+                    regime = regime_info["regime"]
 
                     signals = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS, regime=regime, available_fund=available_fund)
                     save_states(states)  # persist orphan re-seeds before order placement

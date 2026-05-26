@@ -57,118 +57,51 @@ def _tg_send_photo(path: str, caption: str = "") -> bool:
 
 
 # ─────────────────────────────────────────
-# Facebook Messenger
+# Facebook Page Posts
 # ─────────────────────────────────────────
 
-_fb_psid_cache = None
-_fb_cache_time = 0
-
-def _fb_get_subscribers():
-    global _fb_psid_cache, _fb_cache_time
-    import time
-    
-    token = os.getenv("FB_PAGE_ACCESS_TOKEN")
-    if not token:
-        return []
-        
-    # Cache PSIDs for 1 hour to avoid excessive API calls
-    if _fb_psid_cache is not None and time.time() - _fb_cache_time < 3600:
-        return _fb_psid_cache
-
+def _fb_post(text):
+    """Publish a text post to the Facebook Page feed."""
+    token   = os.getenv("FB_PAGE_ACCESS_TOKEN")
+    page_id = os.getenv("FB_PAGE_ID")
+    if not token or not page_id:
+        return False
     try:
-        url = f"https://graph.facebook.com/v19.0/me/conversations?fields=participants&access_token={token}"
-        resp = requests.get(url, timeout=10)
-        
+        url  = f"https://graph.facebook.com/v19.0/{page_id}/feed"
+        resp = requests.post(url, json={"message": text, "access_token": token}, timeout=10)
         if resp.status_code != 200:
-            print(f"Facebook conversations fetch failed: {resp.status_code} {resp.text}")
-            return []
-            
-        data = resp.json()
-        psids = set()
-        
-        me_resp = requests.get(f"https://graph.facebook.com/v19.0/me?access_token={token}", timeout=10)
-        page_id = me_resp.json().get("id") if me_resp.status_code == 200 else None
-
-        conversations = data.get("data", [])
-        for conv in conversations:
-            participants = conv.get("participants", {}).get("data", [])
-            for p in participants:
-                pid = p.get("id")
-                if pid and pid != page_id:
-                    psids.add(pid)
-                    
-        _fb_psid_cache = list(psids)
-        _fb_cache_time = time.time()
-        return _fb_psid_cache
+            print(f"Facebook post failed: {resp.status_code} {resp.text}")
+            return False
+        return True
     except Exception as e:
-        print(f"Facebook get subscribers error: {type(e).__name__}: {e}")
-        return []
-
-def _fb_send(text):
-    token = os.getenv("FB_PAGE_ACCESS_TOKEN")
-    if not token:
-        return False
-        
-    psids = _fb_get_subscribers()
-    if not psids:
+        print(f"Facebook post error: {type(e).__name__}: {e}")
         return False
 
-    success = True
-    for psid in psids:
-        try:
-            url = f"https://graph.facebook.com/v19.0/me/messages?access_token={token}"
-            payload = {
-                "recipient": {"id": psid},
-                "message": {"text": text},
-                "messaging_type": "MESSAGE_TAG",
-                "tag": "ACCOUNT_UPDATE"
-            }
-            resp = requests.post(url, json=payload, timeout=10)
-            if resp.status_code != 200:
-                print(f"Facebook send failed to {psid}: {resp.status_code} {resp.text}")
-                success = False
-        except Exception as e:
-            print(f"Facebook send error to {psid}: {type(e).__name__}: {e}")
-            success = False
-            
-    return success
 
-def _fb_send_photo(path: str, caption: str = "") -> bool:
-    token = os.getenv("FB_PAGE_ACCESS_TOKEN")
-    if not token:
+def _fb_post_photo(path: str, caption: str = "") -> bool:
+    """Publish a photo post to the Facebook Page feed."""
+    token   = os.getenv("FB_PAGE_ACCESS_TOKEN")
+    page_id = os.getenv("FB_PAGE_ID")
+    if not token or not page_id:
         return False
     if not os.path.exists(path):
         return False
-        
-    psids = _fb_get_subscribers()
-    if not psids:
+    try:
+        url = f"https://graph.facebook.com/v19.0/{page_id}/photos"
+        with open(path, "rb") as f:
+            resp = requests.post(
+                url,
+                data={"caption": caption, "access_token": token},
+                files={"source": f},
+                timeout=20,
+            )
+        if resp.status_code != 200:
+            print(f"Facebook photo post failed: {resp.status_code} {resp.text}")
+            return False
+        return True
+    except Exception as e:
+        print(f"Facebook photo post error: {type(e).__name__}: {e}")
         return False
-
-    success = True
-    for psid in psids:
-        try:
-            with open(path, "rb") as f:
-                url = f"https://graph.facebook.com/v19.0/me/messages?access_token={token}"
-                payload = {
-                    "recipient": f'{{"id":"{psid}"}}',
-                    "message": f'{{"attachment":{{"type":"image", "payload":{{"is_reusable":true}}}}}}',
-                    "messaging_type": "MESSAGE_TAG",
-                    "tag": "ACCOUNT_UPDATE"
-                }
-                resp = requests.post(
-                    url,
-                    data=payload,
-                    files={"filedata": f},
-                    timeout=20
-                )
-                if resp.status_code != 200:
-                    print(f"Facebook photo send failed to {psid}: {resp.status_code} {resp.text}")
-                    success = False
-        except Exception as e:
-            print(f"Facebook photo send error to {psid}: {type(e).__name__}: {e}")
-            success = False
-            
-    return success
 
 # ─────────────────────────────────────────
 # Universal Notification Wrappers
@@ -176,12 +109,12 @@ def _fb_send_photo(path: str, caption: str = "") -> bool:
 
 def _send_text(text):
     tg_ok = _tg_send(text)
-    fb_ok = _fb_send(text)
+    fb_ok = _fb_post(text)
     return tg_ok or fb_ok
 
 def _send_photo(path: str, caption: str = "") -> bool:
     tg_ok = _tg_send_photo(path, caption)
-    fb_ok = _fb_send_photo(path, caption)
+    fb_ok = _fb_post_photo(path, caption)
     return tg_ok or fb_ok
 
 def notify_order_screenshot(path: str, label: str, symbol: str, side: str) -> None:
@@ -279,8 +212,10 @@ def notify_cycle_summary(signals, orders_placed, next_in_seconds, daily_orders=N
     _send_text("\n".join(lines))
 
 
-def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNKNOWN"):
+def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNKNOWN", regime_info=None):
     """Send morning report: holdings, available fund, and today's buy/sell signals."""
+    if regime_info:
+        regime = regime_info.get("regime", regime)
     print("Sending morning report via Telegram...")
     regime_emoji = {"BULL": "🟢", "BEAR": "🔴", "SIDEWAYS": "🟡"}.get(regime, "⚪")
     lines = [f"📋 Morning Report — {_now_npt()}\n",
@@ -390,8 +325,47 @@ def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNK
     else:
         lines.append("\nSignals: None for today")
 
-    ok = _send_text("\n".join(lines))
-    print(f"Morning report Alerts send: {'OK' if ok else 'FAILED'}")
+    tg_ok = _tg_send("\n".join(lines))
+
+    # Facebook: post only signals (no portfolio/holdings)
+    active_buys  = [s for s in signals if s["side"] == "BUY" and s.get("type") != "BLOCKED_BEAR"]
+    blocked_buys = [s for s in signals if s["side"] == "BUY" and s.get("type") == "BLOCKED_BEAR"]
+    sells_fb     = [s for s in signals if s["side"] == "SELL"]
+    if active_buys or blocked_buys or sells_fb:
+        fb_lines = [f"📊 NEPSE Daily Signals — {_now_npt()}", f"Market: {regime_emoji} {regime}"]
+
+        if regime == "BEAR":
+            nepse_close = regime_info.get("nepse_close") if regime_info else None
+            ema21       = regime_info.get("ema21") if regime_info else None
+            if nepse_close and ema21:
+                fb_lines.append(f"\n⚠️ NEPSE is in a BEAR trend (Index: {nepse_close:,.2f} | EMA21: {ema21:,.2f}). Avoid opening new BUY positions until the index recovers above EMA21.")
+            else:
+                fb_lines.append("\n⚠️ NEPSE is in a BEAR trend. Avoid opening new BUY positions until the market recovers.")
+
+        if active_buys:
+            fb_lines.append("\n✅ BUY Signals:")
+            for s in active_buys:
+                reason = s.get('reason', '').replace(' (BLOCKED: BEAR)', '')
+                fb_lines.append(f"  🟢 {s['symbol']} @{s['price']:.2f}  |  {reason}")
+
+        if blocked_buys:
+            fb_lines.append("\n🚫 Watch List (DO NOT BUY — Bear Market):")
+            for s in blocked_buys:
+                reason = s.get('reason', '').replace(' (BLOCKED: BEAR)', '')
+                fb_lines.append(f"  👁 {s['symbol']} @{s['price']:.2f}  |  {reason}")
+            fb_lines.append("  → These stocks show technical strength but buying is not advised while NEPSE remains bearish.")
+
+        if sells_fb:
+            fb_lines.append("\n📤 SELL / Exit Signals:")
+            for s in sells_fb:
+                pnl = f"  P&L {s.get('profit_pct', 0):+.1f}%" if s.get('profit_pct') is not None else ""
+                reason = s.get('reason', '')
+                fb_lines.append(f"  🔴 {s['symbol']} ({s.get('type','?')}) @{s['price']:.2f}{pnl}  |  {reason}")
+
+        fb_lines.append("\n📌 Disclaimer: This information is for educational purposes only and should not be considered financial advice. Always do your own research before buying or selling any stock.")
+        _fb_post("\n".join(fb_lines))
+
+    print(f"Morning report Alerts send: {'OK' if tg_ok else 'FAILED'}")
 
 
 def notify_eod_fill_report(fill_results):
@@ -455,8 +429,17 @@ def _now_npt():
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
-    _send_text("✅ Telegram test from NAASA bot")
-    test_signal = {'side': 'BUY', 'symbol': 'TEST', 'quantity': 100, 'price': 1000,
-                   'score': 4, 'breakdown': {'ema': 2, 'macd': 1, 'volume': 1}}
-    notify_signals([{**test_signal, 'side': 'BUY'}])
-    notify_order(test_signal, is_dry_run=True)
+    test_signals = [
+        {
+            'side': 'BUY', 'symbol': 'SAHAS', 'quantity': 50, 'price': 663.00,
+            'type': 'BLOCKED_BEAR',
+            'reason': 'EMA9>629 EMA21=623 ADX=25.4 RSI=70.2 vol=38742 (BLOCKED: BEAR)',
+        },
+        {
+            'side': 'SELL', 'symbol': 'NABIL', 'quantity': 20, 'price': 1250.00,
+            'type': 'FULL_EXIT', 'profit_pct': 12.5,
+            'reason': 'RSI overbought + trailing stop hit',
+        },
+    ]
+    regime_info = {"regime": "BEAR", "nepse_close": 2134.56, "ema21": 2289.43, "adx": 24.1}
+    notify_premarket_report(None, 50000, test_signals, regime_info=regime_info)

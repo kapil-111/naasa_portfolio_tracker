@@ -125,11 +125,11 @@ def get_nepse_regime(ohlcv_file="chukul_data.csv"):
                 else:
                     regime = "SIDEWAYS"
                 print(f"[REGIME] NEPSE index {last['close']:.0f} vs EMA21 {last['ema21']:.0f} | ADX={adx:.1f} → {regime}")
-                return regime
+                return {"regime": regime, "nepse_close": float(last["close"]), "ema21": float(last["ema21"]), "adx": adx}
     except Exception as e:
         print(f"[REGIME] Could not determine regime: {e}")
     print("[REGIME] NEPSE index not found in data — regime UNKNOWN (buys unrestricted).")
-    return "UNKNOWN"
+    return {"regime": "UNKNOWN", "nepse_close": None, "ema21": None, "adx": None}
 
 
 def load_and_prepare_data(ohlcv_file="chukul_data.csv", held_symbols=None):

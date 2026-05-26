@@ -90,7 +90,7 @@ def scrape_available_fund(page: Page):
         return None
 
 
-def parse_holding_grid(page: Page) -> list:
+def parse_holding_grid(page: Page, grid_timeout: int = 15000) -> list:
     """
     Parse holdings from the current Holding Report page (#GridDiv).
     Assumes navigation to the holding report is already done.
@@ -98,7 +98,7 @@ def parse_holding_grid(page: Page) -> list:
     holdings: list = []
 
     try:
-        wait_holding_grid_ready(page, timeout=15000)
+        wait_holding_grid_ready(page, timeout=grid_timeout)
 
         if holding_no_data(page).is_visible():
             print("Status: No holdings data available (Server returned 'No data').")
