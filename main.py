@@ -276,31 +276,59 @@ def _clean_portfolio(portfolio_data, states, placed_orders):
 
 
 def _backfill_missing_avg_prices(page, portfolio_data: dict) -> None:
-    """If any holding has no avg price, scrape ORDERBOOK history to fill gaps."""
+    """Fill missing avg prices and refresh prices for symbols bought within last 2 days."""
     from signals_mr import _load_avg_prices, _get_holding_symbol
     from fetch_trade_history import scrape_trade_history_avg_prices
 
     holdings = portfolio_data.get("holdings", [])
     if not holdings:
         return
+
     avg_prices = _load_avg_prices()
-    missing = [_get_holding_symbol(h) for h in holdings
-               if _get_holding_symbol(h) and _get_holding_symbol(h) not in avg_prices]
-    if not missing:
+    states = load_states()
+    today = datetime.now().date()
+
+    missing = []
+    recent = []  # bought today or yesterday — MKT fill price may differ from signal price
+    for h in holdings:
+        sym = _get_holding_symbol(h)
+        if not sym:
+            continue
+        if sym not in avg_prices:
+            missing.append(sym)
+        else:
+            entry_date_str = states.get(sym, {}).get("entry_date")
+            if entry_date_str:
+                try:
+                    entry_date = datetime.strptime(entry_date_str, "%Y-%m-%d").date()
+                    if (today - entry_date).days <= 1:
+                        recent.append(sym)
+                except ValueError:
+                    pass
+
+    to_refresh = list(set(missing + recent))
+    if not to_refresh:
         return
-    print(f"[AVG PRICE] Missing avg prices for: {missing}. Scraping trade history...")
+
+    if missing:
+        print(f"[AVG PRICE] Missing avg prices for: {missing}. Scraping trade history...")
+    if recent:
+        print(f"[AVG PRICE] Refreshing recent buys (MKT fill correction): {recent}")
+
     try:
         computed = scrape_trade_history_avg_prices(page)
         updated = []
-        for sym in missing:
+        for sym in to_refresh:
             if sym in computed:
+                old = avg_prices.get(sym)
                 avg_prices[sym] = computed[sym]
-                updated.append(f"{sym}={computed[sym]:.2f}")
+                tag = f"{sym}={computed[sym]:.2f}" + (f" (was {old:.2f})" if old and old != computed[sym] else "")
+                updated.append(tag)
         if updated:
             import json as _json
             with open("avg_prices.json", "w") as f:
                 _json.dump(avg_prices, f, indent=4, sort_keys=True)
-            print(f"[AVG PRICE] Auto-filled: {', '.join(updated)}")
+            print(f"[AVG PRICE] Updated: {', '.join(updated)}")
         still_missing = [s for s in missing if s not in avg_prices]
         if still_missing:
             print(f"[AVG PRICE] Still missing after scrape: {still_missing}")
@@ -425,8 +453,19 @@ def _sync_state_from_portfolio(portfolio_data):
             changed.append(f"{sym}: in_position={old_pos}→True, qty={old_qty}→{qty}")
 
     # Mark symbols no longer in portfolio as exited
+    # Skip symbols bought within T+2 days — they won't appear in holdings yet
+    today = datetime.now().date()
     for sym, state in states.items():
         if sym not in live and state.get("in_position"):
+            entry_date_str = state.get("entry_date")
+            if entry_date_str:
+                try:
+                    entry_date = datetime.strptime(entry_date_str, "%Y-%m-%d").date()
+                    if (today - entry_date).days <= 2:
+                        print(f"[PORTFOLIO SYNC] {sym}: bought {entry_date_str} (T+{(today - entry_date).days}), skipping exit — not settled yet.")
+                        continue
+                except ValueError:
+                    pass
             state["in_position"] = False
             changed.append(f"{sym}: in_position=True→False (not in portfolio)")
 
@@ -818,6 +857,10 @@ def main():
                             if trader.last_outcome == "unconfirmed":
                                 # Order was submitted but UI gave no confirmation — could have executed.
                                 # Keep in placed_orders to avoid double-execution. Manual check required.
+                                # Also mark in_position=True so the bot doesn't re-signal on next restart.
+                                symbol_state = states.get(symbol, {})
+                                new_symbol_state = update_state_for_trade(symbol_state, signal, order_signal['price'], signal['quantity'])
+                                states[symbol] = new_symbol_state
                                 notify_error(f"place_order failed: {side} {symbol} ({signal_type})\n{trader.last_error}")
                             else:
                                 # Order definitively failed before reaching broker — safe to retry next cycle.
