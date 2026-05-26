@@ -1,15 +1,6 @@
 {
-    "generated_at": "2026-05-26 05:14",
+    "generated_at": "2026-05-26 08:22",
     "context": "live",
     "regime": "SIDEWAYS",
-    "signals": [
-        {
-            "side": "BUY",
-            "symbol": "USHEC",
-            "price": 511.0,
-            "type": "INITIAL",
-            "quantity": 50,
-            "reason": "EMA9>498 EMA21=494 ADX=22.0 RSI=64.1 vol=14165"
-        }
-    ]
+    "signals": []
 }
