@@ -1,8 +1,8 @@
 {
-    "date": "2026-05-26",
+    "date": "2026-05-27",
     "orders": [
         {
-            "symbol": "USHEC",
+            "symbol": "TAMOR",
             "side": "BUY",
             "type": "INITIAL",
             "quantity": 50
