@@ -281,7 +281,7 @@ HELP_TEXT = (
 )
 
 
-def poll_and_handle(page, trader, states, portfolio_data, available_fund, dry_run):
+def poll_and_handle(page, trader, states, portfolio_data, available_fund, dry_run, market_open=True):
     """
     Poll Telegram for new messages and process any commands found.
     Call this once per main loop cycle.
@@ -292,6 +292,7 @@ def poll_and_handle(page, trader, states, portfolio_data, available_fund, dry_ru
     portfolio_data  — current portfolio dict
     available_fund  — float or None
     dry_run         — bool
+    market_open     — bool; if False, /buy and /sell commands are rejected
     """
     offset = _load_offset()
     updates = _get_updates(offset)
@@ -329,10 +330,16 @@ def poll_and_handle(page, trader, states, portfolio_data, available_fund, dry_ru
             _handle_status(portfolio_data, available_fund)
 
         elif cmd == "/sell":
-            _handle_sell(parts, page, trader, states, portfolio_data, dry_run)
+            if not market_open:
+                _reply("❌ Market is closed. Cannot place sell order.")
+            else:
+                _handle_sell(parts, page, trader, states, portfolio_data, dry_run)
 
         elif cmd == "/buy":
-            _handle_buy(parts, page, trader, states, portfolio_data, available_fund, dry_run)
+            if not market_open:
+                _reply("❌ Market is closed. Cannot place buy order.")
+            else:
+                _handle_buy(parts, page, trader, states, portfolio_data, available_fund, dry_run)
 
         elif cmd == "/tradelog":
             from trade_logger import get_summary

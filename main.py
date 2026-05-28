@@ -688,7 +688,7 @@ def main():
                     try:
                         _states_for_poll = load_states()
                         trader_closed = Trader(page, dry_run=DRY_RUN)
-                        poll_and_handle(page, trader_closed, _states_for_poll, portfolio_data, available_fund, DRY_RUN)
+                        poll_and_handle(page, trader_closed, _states_for_poll, portfolio_data, available_fund, DRY_RUN, market_open=False)
                     except Exception as e:
                         print(f"Telegram command poll error: {e}")
 
