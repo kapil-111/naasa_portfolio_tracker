@@ -1,0 +1,9 @@
+# Bot-owned state files — always keep the bot's version on merge conflict
+signals.json             merge=ours
+placed_orders_today.json merge=ours
+fortress_state.json      merge=ours
+avg_prices.json          merge=ours
+available_fund.json      merge=ours
+portfolio_data.csv       merge=ours
+portfolio_summary.json   merge=ours
+chukul_data.csv          merge=ours
