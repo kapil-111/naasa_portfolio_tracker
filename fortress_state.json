@@ -159,7 +159,7 @@
         "entry_date": "2026-03-11",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 20,
+        "ema_cross_days": 21,
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
@@ -172,7 +172,7 @@
         "entry_date": "2026-03-11",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 35,
+        "ema_cross_days": 36,
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
@@ -361,7 +361,7 @@
         "initial_entry": 396.0,
         "ema_cross_days": 0,
         "last_known_qty": 50,
-        "peak_price": 402.1
+        "peak_price": 402.9
     },
     "USHEC": {
         "in_position": true,
@@ -372,22 +372,6 @@
         "last_known_qty": 50,
         "peak_price": 522.9
     },
-    "TAMOR": {
-        "in_position": true,
-        "half_sold": false,
-        "initial_entry": 508.2,
-        "entry_price": 508.2,
-        "entry_date": "2026-06-01",
-        "position_count": 1,
-        "trades": 0
-    },
-    "API": {
-        "in_position": true,
-        "half_sold": false,
-        "initial_entry": 365.1,
-        "entry_price": 365.1,
-        "entry_date": "2026-06-01",
-        "position_count": 1,
-        "trades": 0
-    }
+    "TAMOR": {},
+    "API": {}
 }
