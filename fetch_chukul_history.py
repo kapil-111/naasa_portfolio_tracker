@@ -21,7 +21,8 @@ def fetch_chukul_history(symbol, since_date=None):
 
     if since_date is not None and 'date' in df.columns:
         df['date'] = pd.to_datetime(df['date'], errors='coerce')
-        df = df[df['date'] > since_date]
+        # Use >= so today's candle is always re-fetched and overwrites any partial/stale row
+        df = df[df['date'] >= since_date]
 
     return df if not df.empty else None
 
