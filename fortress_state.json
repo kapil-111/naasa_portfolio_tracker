@@ -372,6 +372,17 @@
         "last_known_qty": 50,
         "peak_price": 522.9
     },
-    "TAMOR": {},
+    "TAMOR": {
+        "in_position": true,
+        "entry_date": "2026-05-27",
+        "entry_price": 478.0,
+        "initial_entry": 478.0,
+        "ema_cross_days": 0,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0,
+        "last_known_qty": 50,
+        "peak_price": 508.2
+    },
     "API": {}
 }

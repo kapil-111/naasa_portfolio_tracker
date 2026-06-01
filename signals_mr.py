@@ -132,6 +132,63 @@ def get_nepse_regime(ohlcv_file="chukul_data.csv"):
     return {"regime": "UNKNOWN", "nepse_close": None, "ema21": None, "adx": None}
 
 
+def check_data_freshness(ohlcv_file="chukul_data.csv", max_stale_days=3):
+    """
+    Verify chukul_data.csv contains recent data before signal generation.
+
+    Returns (is_fresh: bool, latest_date: str, age_days: int).
+    Uses Chukul market-status API to get the last confirmed trading date;
+    falls back to calendar-based estimate if API is unavailable.
+
+    max_stale_days: how many calendar days behind the last trading session
+    we tolerate before blocking signals (3 covers weekends + 1 holiday buffer).
+    """
+    if not os.path.exists(ohlcv_file):
+        return False, "missing", 9999
+
+    try:
+        df = pd.read_csv(ohlcv_file, usecols=["date"])
+        df["date"] = pd.to_datetime(df["date"], errors="coerce")
+        latest = df["date"].max()
+        if pd.isna(latest):
+            return False, "unknown", 9999
+        latest_date_str = latest.strftime("%Y-%m-%d")
+    except Exception as e:
+        return False, f"error({e})", 9999
+
+    # Try to get last trading date from Chukul API
+    last_trading_date = None
+    try:
+        from chukul_client import BASE_URL, _get as chukul_get
+        status = chukul_get(f"{BASE_URL}/tools/market/status/")
+        if status:
+            as_of = status.get("as_of_live") or status.get("as_of") or ""
+            if as_of:
+                last_trading_date = pd.to_datetime(as_of, errors="coerce")
+                if pd.isna(last_trading_date):
+                    last_trading_date = None
+    except Exception:
+        pass
+
+    today = pd.Timestamp.today().normalize()
+
+    if last_trading_date is not None:
+        # If market is currently open, last confirmed session is yesterday or today's open
+        # Use the API date directly as the reference
+        ref_date = last_trading_date.normalize()
+    else:
+        # Fallback: walk back from today skipping Fri/Sat (NEPSE weekend)
+        ref_date = today
+        for _ in range(7):
+            if ref_date.weekday() not in (4, 5):  # 4=Fri, 5=Sat
+                break
+            ref_date -= pd.Timedelta(days=1)
+
+    age_days = (ref_date - latest).days
+    is_fresh = age_days <= max_stale_days
+    return is_fresh, latest_date_str, age_days
+
+
 def load_and_prepare_data(ohlcv_file="chukul_data.csv", held_symbols=None):
     """Loads OHLCV data, adjusts for corporate actions, and calculates Fortress indicators."""
     print("Loading and preparing data for Fortress strategy...")
@@ -145,6 +202,26 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv", held_symbols=None):
     if "symbol" not in df.columns and "stock" in df.columns:
         df.rename(columns={"stock": "symbol"}, inplace=True)
     df.sort_values(["symbol", "date"], inplace=True)
+
+    # Drop today's candle if market is currently open — it's partial and unreliable.
+    # After market close (15:00 Nepal time) the candle is confirmed and kept.
+    try:
+        import pytz
+        from datetime import time as dt_time
+        tz = pytz.timezone("Asia/Kathmandu")
+        now_nst = pd.Timestamp.now(tz=tz)
+        market_open  = dt_time(11, 0)
+        market_close = dt_time(15, 0)
+        is_market_hours = market_open <= now_nst.time() <= market_close and now_nst.weekday() not in (4, 5)
+        if is_market_hours:
+            today = pd.Timestamp.today().normalize()
+            before = len(df)
+            df = df[df["date"] < today]
+            dropped = before - len(df)
+            if dropped:
+                print(f"[DATA] Dropped {dropped} partial today-candle rows (market open — using yesterday's close).")
+    except Exception:
+        pass
 
     df_adjusted = _adjust_prices(df.copy())
 

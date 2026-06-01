@@ -9,6 +9,7 @@ from naasa_locators import (
     holding_header_cells,
     holding_next_page,
     holding_no_data,
+    naasa_amo_orderbook_report,
     naasa_holding_report,
     naasa_order,
     naasa_orderbook_report,
@@ -231,6 +232,68 @@ def scrape_orderbook(page: Page) -> list:
         })
 
     print(f"[ORDERBOOK] Scraped {len(result)} orders.")
+    return result
+
+
+def scrape_amo_orderbook(page: Page) -> list:
+    """
+    Scrape active AMO orders from /TradeBook?Report=AMOORDERBOOK.
+    Returns a list of dicts with keys: symbol, side, quantity, price,
+    range_price, traded_qty, status, valid_till.
+    """
+    print("Scraping AMO orderbook...")
+    goto_broker_page(page, naasa_amo_orderbook_report())
+
+    rows = parse_holding_grid(page)
+    if not rows:
+        print("[AMO ORDERBOOK] No rows found.")
+        return []
+
+    _COL_SYMBOL     = ("Scrip", "Symbol", "Stock Symbol", "Script", "SYM")
+    _COL_SIDE       = ("BuySellText", "Buy/Sell", "Side", "TYPE", "Type")
+    _COL_PRICE      = ("Price",)
+    _COL_QTY        = ("Quantity", "Qty", "Order Qty", "QTY")
+    _COL_TRADED     = ("TradedQuantity", "Traded Qty", "Traded Quantity", "TRADED QTY")
+    _COL_RANGE      = ("RangePrice", "Range Price", "RANGE PRICE")
+    _COL_STATUS     = ("StatusText", "Status", "STATUS")
+    _COL_VALID_TILL = ("ValidTill", "Valid Till", "VALID TILL")
+
+    def _get(row, keys):
+        for k in keys:
+            v = row.get(k)
+            if v is not None and str(v).strip():
+                return str(v).strip()
+        return ""
+
+    def _int(val):
+        try:
+            return int(float(str(val).replace(",", "")))
+        except (ValueError, TypeError):
+            return 0
+
+    def _float(val):
+        try:
+            return float(str(val).replace(",", ""))
+        except (ValueError, TypeError):
+            return 0.0
+
+    result = []
+    for row in rows:
+        symbol = _get(row, _COL_SYMBOL)
+        if not symbol or symbol.lower().startswith("total"):
+            continue
+        result.append({
+            "symbol":      symbol,
+            "side":        _get(row, _COL_SIDE).upper(),
+            "price":       _float(_get(row, _COL_PRICE)),
+            "order_qty":   _int(_get(row, _COL_QTY)),
+            "traded_qty":  _int(_get(row, _COL_TRADED)),
+            "range_price": _float(_get(row, _COL_RANGE)),
+            "status":      _get(row, _COL_STATUS).upper(),
+            "valid_till":  _get(row, _COL_VALID_TILL),
+        })
+
+    print(f"[AMO ORDERBOOK] Scraped {len(result)} AMO orders.")
     return result
 
 

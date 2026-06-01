@@ -7,10 +7,10 @@ from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 from auth import login
 from session import SessionExpiredError, raise_if_login_page
-from scraper import scrape_portfolio, scrape_available_fund
+from scraper import scrape_portfolio, scrape_available_fund, scrape_amo_orderbook
 from storage import save_to_csv, save_to_json
 from trader import Trader
-from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals, save_avg_price, get_nepse_regime
+from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals, save_avg_price, get_nepse_regime, check_data_freshness
 from state_manager import load_states, save_states, update_state_for_trade
 from fetch_live_data import fetch_live_data
 from fetch_chukul_history import update_chukul_data
@@ -700,18 +700,61 @@ def main():
 
                 from signals_mr import _get_holding_symbol
                 _held = {_get_holding_symbol(h) for h in portfolio_data.get('holdings', [])} - {None, ''}
-                latest_data = load_and_prepare_data(held_symbols=_held)
-                if latest_data is not None:
-                    states = load_states()
-                    placed_orders = load_placed_orders()
-                    portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)
-                    regime_info = get_nepse_regime()
-                    regime = regime_info["regime"]
-                    signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
-                    save_states(states)  # persist orphan re-seeds so next cycle doesn't start blind
-                    save_signals(signals, regime=regime, context="premarket")
-                    print(f"Generated {len(signals)} potential signals for next open.")
-                    notify_premarket_report(portfolio_data, available_fund, signals, regime_info=regime_info)
+
+                is_fresh, latest_date, age_days = check_data_freshness()
+                if not is_fresh:
+                    msg = (f"Stale data: chukul_data.csv latest bar is {latest_date} "
+                           f"({age_days}d old). Skipping signal generation to avoid bad signals.")
+                    print(f"[DATA FRESHNESS] {msg}")
+                    notify_error(msg)
+                else:
+                    print(f"[DATA FRESHNESS] OK — latest bar {latest_date} ({age_days}d old).")
+                    latest_data = load_and_prepare_data(held_symbols=_held)
+                    if latest_data is not None:
+                        states = load_states()
+                        placed_orders = load_placed_orders()
+                        portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)
+                        regime_info = get_nepse_regime()
+                        regime = regime_info["regime"]
+                        signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
+                        save_states(states)  # persist orphan re-seeds so next cycle doesn't start blind
+                        save_signals(signals, regime=regime, context="premarket")
+                        print(f"Generated {len(signals)} potential signals for next open.")
+                        notify_premarket_report(portfolio_data, available_fund, signals, regime_info=regime_info)
+
+                        # --- AMO: place conditional buy orders for premarket BUY signals ---
+                        amo_buy_signals = [s for s in signals if s.get("side") == "BUY" and s.get("type") == "INITIAL"]
+                        if amo_buy_signals and not DRY_RUN:
+                            try:
+                                existing_amo = scrape_amo_orderbook(page)
+                                existing_amo_syms = {r["symbol"] for r in existing_amo if r.get("status") in ("ACTIVE", "")}
+                            except Exception as e:
+                                print(f"[AMO] Could not scrape existing AMO orders: {e}")
+                                existing_amo_syms = set()
+
+                            trader_amo = Trader(page, dry_run=False)
+                            for sig in amo_buy_signals:
+                                sym = sig["symbol"]
+                                sym_state = load_states().get(sym, {})
+                                if sym_state.get("in_position"):
+                                    print(f"[AMO] {sym} already in position — skipping.")
+                                    continue
+                                if sym in existing_amo_syms:
+                                    print(f"[AMO] {sym} already has an active AMO order — skipping.")
+                                    continue
+                                amo_signal = dict(sig)
+                                amo_signal["amo_range_price"] = round(sig["price"] * 1.02, 1)
+                                print(f"[AMO] Placing AMO BUY {sym} x{sig['quantity']} @ {sig['price']} trigger {amo_signal['amo_range_price']}")
+                                success = trader_amo.place_amo_order(amo_signal)
+                                if success:
+                                    save_placed_order(sym, "BUY", "INITIAL", quantity=sig["quantity"])
+                                    sym_state_updated = update_state_for_trade(load_states().get(sym, {}), sig, sig["price"], sig["quantity"])
+                                    _states = load_states()
+                                    _states[sym] = sym_state_updated
+                                    save_states(_states)
+                                    notify_order(amo_signal, is_dry_run=False)
+                                else:
+                                    notify_error(f"AMO order failed: BUY {sym}\n{trader_amo.last_error}")
             except SessionExpiredError as e:
                 print(f"Session / auth error (analysis cycle): {e}")
                 notify_error(e)
@@ -778,7 +821,18 @@ def main():
                 # --- NEW SIGNAL GENERATION ---
                 from signals_mr import _get_holding_symbol
                 _held = {_get_holding_symbol(h) for h in portfolio_data.get('holdings', [])} - {None, ''}
-                latest_data = load_and_prepare_data(held_symbols=_held)
+
+                is_fresh, latest_date, age_days = check_data_freshness()
+                if not is_fresh:
+                    msg = (f"Stale data: chukul_data.csv latest bar is {latest_date} "
+                           f"({age_days}d old). Skipping signal generation to avoid bad signals.")
+                    print(f"[DATA FRESHNESS] {msg}")
+                    notify_error(msg)
+                    signals = []
+                else:
+                    print(f"[DATA FRESHNESS] OK — latest bar {latest_date} ({age_days}d old).")
+
+                latest_data = load_and_prepare_data(held_symbols=_held) if is_fresh else None
                 if latest_data is not None:
                     placed_orders = load_placed_orders()
                     portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)
@@ -825,6 +879,14 @@ def main():
                         if already_placed:
                             print(f"[STATE CHECK] Order for {side} {symbol} ({signal_type}) already placed today. Skipping.")
                             continue
+
+                        # Guard: skip INITIAL BUY if fortress_state already shows in_position
+                        # (handles multi-day market closures where placed_orders_today.json resets)
+                        if side == 'BUY' and signal_type == 'INITIAL':
+                            sym_state = states.get(symbol, {})
+                            if sym_state.get('in_position'):
+                                print(f"[STATE CHECK] {symbol} already in position (fortress_state). Skipping duplicate INITIAL BUY.")
+                                continue
                         
                         # Portfolio size limits only for INITIAL buys
                         if signal_type == "INITIAL":

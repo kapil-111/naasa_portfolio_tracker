@@ -31,6 +31,10 @@ def naasa_orderbook_report() -> str:
     return f"{NAASA_BASE}/TradeBook?Report=ORDERBOOK"
 
 
+def naasa_amo_orderbook_report() -> str:
+    return f"{NAASA_BASE}/TradeBook?Report=AMOORDERBOOK"
+
+
 def naasa_market_watch() -> str:
     return f"{NAASA_BASE}/MarketWatch"
 
@@ -72,6 +76,15 @@ def order_symbol_input(page: Page) -> Locator:
 def order_type_mkt(page: Page) -> Locator:
     # Keep label first (original behavior); generic "MKT" text is fallback only.
     return page.locator("label:has-text('MKT')").or_(page.get_by_text("MKT", exact=True))
+
+
+def order_type_amo(page: Page) -> Locator:
+    return page.locator("label[for='chkOrderTypeAMO']").or_(page.locator("label:has-text('AMO')"))
+
+
+def order_amo_range_price(page: Page) -> Locator:
+    """Range/trigger price input that appears after selecting AMO order type."""
+    return page.locator("#OrdertxtRangePrice").or_(page.locator("input[id*='RangePrice'], input[name*='RangePrice'], input[placeholder*='Range'], input[placeholder*='range']").first)
 
 
 def order_quantity_input(page: Page) -> Locator:
