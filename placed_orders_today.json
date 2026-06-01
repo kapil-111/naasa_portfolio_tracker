@@ -1,6 +1,12 @@
 {
-    "date": "2026-05-27",
+    "date": "2026-06-01",
     "orders": [
+        {
+            "symbol": "API",
+            "side": "BUY",
+            "type": "INITIAL",
+            "quantity": 50
+        },
         {
             "symbol": "TAMOR",
             "side": "BUY",

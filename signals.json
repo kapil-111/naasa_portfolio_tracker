@@ -1,15 +1,23 @@
 {
-    "generated_at": "2026-05-29 12:31",
-    "context": "premarket",
+    "generated_at": "2026-06-01 05:16",
+    "context": "live",
     "regime": "SIDEWAYS",
     "signals": [
         {
             "side": "BUY",
-            "symbol": "TAMOR",
-            "price": 478.0,
+            "symbol": "API",
+            "price": 365.1,
             "type": "INITIAL",
             "quantity": 50,
-            "reason": "EMA9>453 EMA21=447 ADX=23.6 RSI=69.2 vol=137225"
+            "reason": "EMA9>353 EMA21=348 ADX=26.8 RSI=61.4 vol=412730"
+        },
+        {
+            "side": "BUY",
+            "symbol": "TAMOR",
+            "price": 508.2,
+            "type": "INITIAL",
+            "quantity": 50,
+            "reason": "EMA9>458 EMA21=450 ADX=25.8 RSI=71.3 vol=99301"
         }
     ]
 }
