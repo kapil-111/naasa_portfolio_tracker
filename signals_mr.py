@@ -566,7 +566,11 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
 
         # --- Generate SELL Signals (existing positions) ---
         else:
-            days_held      = (pd.to_datetime('today') - pd.to_datetime(state['entry_date'])).days
+            entry_date_raw = state.get('entry_date')
+            if not entry_date_raw:
+                print(f"[{symbol}] Skipping exit check — entry_date missing in state.")
+                continue
+            days_held      = (pd.to_datetime('today') - pd.to_datetime(entry_date_raw)).days
             entry_price    = state['entry_price']
             initial_entry  = state.get('initial_entry', entry_price)
             if entry_price <= 0 or initial_entry <= 0:
