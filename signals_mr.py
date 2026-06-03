@@ -203,8 +203,10 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv", held_symbols=None):
         df.rename(columns={"stock": "symbol"}, inplace=True)
     df.sort_values(["symbol", "date"], inplace=True)
 
-    # Drop today's candle if market is currently open — it's partial and unreliable.
-    # After market close (15:00 Nepal time) the candle is confirmed and kept.
+    # Detect if market is currently open — today's candle is partial/incomplete.
+    # Sell/exit signals are still valid on partial candles (act on live breakdown).
+    # BUY signals must not fire on partial candles — flagged via 'partial_candle' column.
+    partial_candle_today = False
     try:
         import pytz
         from datetime import time as dt_time
@@ -215,13 +217,16 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv", held_symbols=None):
         is_market_hours = market_open <= now_nst.time() <= market_close and now_nst.weekday() not in (4, 5)
         if is_market_hours:
             today = pd.Timestamp.today().normalize()
-            before = len(df)
-            df = df[df["date"] < today]
-            dropped = before - len(df)
-            if dropped:
-                print(f"[DATA] Dropped {dropped} partial today-candle rows (market open — using yesterday's close).")
+            partial_candle_today = df["date"].max() >= today
+            if partial_candle_today:
+                print(f"[DATA] Market open — today's candle is partial. BUY signals suppressed, SELL signals active.")
     except Exception:
         pass
+
+    df["partial_candle"] = False
+    if partial_candle_today:
+        today = pd.Timestamp.today().normalize()
+        df.loc[df["date"] >= today, "partial_candle"] = True
 
     df_adjusted = _adjust_prices(df.copy())
 
@@ -539,6 +544,9 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             )
 
             if fortress_buy:
+                if row.get("partial_candle", False):
+                    print(f"[{symbol}] BUY suppressed — today's candle is incomplete (market still open).")
+                    continue
                 if regime == "BEAR":
                     sig_type = "BLOCKED_BEAR"
                     print(f"[{symbol}] *** BLOCKED BUY (BEAR) *** price={close:.2f} EMA9={ema9:.2f} EMA21={ema21:.2f} EMA50={ema50:.2f} ADX={adx:.1f} RSI={rsi:.1f} drop3d={drop_3d:.1f}%")
