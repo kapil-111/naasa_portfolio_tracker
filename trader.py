@@ -193,25 +193,20 @@ class Trader:
             order_type_amo(self.page).click()
             self.page.wait_for_timeout(500)
 
-            # Step 5: Fill limit price (if price field is enabled in AMO mode)
+            # Step 5: Fill price field (AMO uses limit price — no separate trigger field)
+            print(f"Step 5: Price {price}")
             try:
-                price_field = self.page.locator("#OrdertxtPrice").or_(self.page.locator("input[id*='txtPrice']")).first
-                if price_field.is_visible() and price_field.is_enabled():
+                price_field = self.page.locator("#OrdertxtPrice").or_(
+                    self.page.locator("input[id*='txtPrice']:not([disabled])")
+                ).first
+                price_field.wait_for(state="visible", timeout=5_000)
+                if price_field.is_enabled():
                     price_field.click()
                     price_field.fill("")
                     price_field.type(price)
                     self.page.wait_for_timeout(300)
-            except Exception:
-                pass
-
-            # Step 6: Fill range/trigger price
-            print(f"Step 6: Range price {range_price}")
-            rp = order_amo_range_price(self.page)
-            rp.wait_for(state="visible", timeout=5_000)
-            rp.click()
-            rp.fill("")
-            rp.type(range_price)
-            self.page.wait_for_timeout(300)
+            except Exception as e:
+                print(f"[AMO] Price field fill skipped: {e}")
 
             submit_button = order_submit_button(self.page)
 

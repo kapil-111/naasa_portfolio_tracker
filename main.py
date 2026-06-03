@@ -672,17 +672,28 @@ def main():
                     else:
                         portfolio_data = _load_cached_portfolio()
 
-                    # TEST MODE: force an order while browser is still open
+                    # TEST MODE: force an AMO order while browser is still open
                     test_order = os.getenv("TEST_ORDER")
                     if test_order:
                         parts = test_order.split(":")
                         if len(parts) == 3:
                             t_side, t_sym, t_qty = parts[0].upper(), parts[1].upper(), int(parts[2])
-                            ltp = _get_live_ltp(t_sym) or 100.0
-                            test_signal = {"symbol": t_sym, "side": t_side, "quantity": t_qty, "price": ltp, "type": "TEST"}
-                            print(f"[TEST MODE] Forcing order: {t_side} {t_sym} x{t_qty} @ {ltp}")
-                            trader_test = Trader(page, dry_run=False)
-                            trader_test.place_order(test_signal)
+                            # Use last close from chukul_data as price (no live LTP when market closed)
+                            try:
+                                _cdf = pd.read_csv("chukul_data.csv")
+                                _cdf["date"] = pd.to_datetime(_cdf["date"], errors="coerce")
+                                _crow = _cdf[_cdf["stock"] == t_sym].sort_values("date").iloc[-1]
+                                ltp = float(_crow["close"])
+                            except Exception:
+                                ltp = _get_live_ltp(t_sym) or 100.0
+                            test_signal = {
+                                "symbol": t_sym, "side": t_side, "quantity": t_qty,
+                                "price": ltp, "type": "TEST",
+                                "amo_range_price": round(ltp * 1.02, 1),
+                            }
+                            print(f"[TEST MODE AMO] Forcing AMO order: {t_side} {t_sym} x{t_qty} @ {ltp} trigger {test_signal['amo_range_price']}")
+                            trader_test = Trader(page, dry_run=DRY_RUN)
+                            trader_test.place_amo_order(test_signal)
 
                     # Poll Telegram for manual commands before closing browser
                     try:
