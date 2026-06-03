@@ -381,8 +381,11 @@
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
-        "last_known_qty": 50,
+        "last_known_qty": 100,
         "peak_price": 508.2
     },
-    "API": {}
+    "API": {
+        "in_position": true,
+        "last_known_qty": 50
+    }
 }
