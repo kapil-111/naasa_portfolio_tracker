@@ -41,7 +41,7 @@
     },
     "MEN": {
         "in_position": true,
-        "entry_date": "2026-04-01",
+        "entry_date": "2025-09-01",
         "entry_price": 519.38,
         "initial_entry": 519.38,
         "ema_cross_days": 8,
@@ -313,7 +313,7 @@
     },
     "SWBBL": {
         "in_position": true,
-        "entry_date": "2026-04-01",
+        "entry_date": "2025-09-01",
         "entry_price": 884.53,
         "initial_entry": 884.53,
         "ema_cross_days": 8,
