@@ -695,77 +695,73 @@ def main():
                             trader_test = Trader(page, dry_run=DRY_RUN)
                             trader_test.place_amo_order(test_signal)
 
-                    # Poll Telegram for manual commands before closing browser
+                    holdings_count = len(portfolio_data.get("holdings", []))
+                    fund_str = f"NPR {available_fund:,.2f}" if available_fund is not None else "N/A"
+                    print(f"Portfolio: {holdings_count} holdings | Fund: {fund_str}")
+
+                    from signals_mr import _get_holding_symbol
+                    _held = {_get_holding_symbol(h) for h in portfolio_data.get('holdings', [])} - {None, ''}
+
+                    is_fresh, latest_date, age_days = check_data_freshness()
+                    if not is_fresh:
+                        msg = (f"Stale data: chukul_data.csv latest bar is {latest_date} "
+                               f"({age_days}d old). Skipping signal generation to avoid bad signals.")
+                        print(f"[DATA FRESHNESS] {msg}")
+                        notify_error(msg)
+                    else:
+                        print(f"[DATA FRESHNESS] OK — latest bar {latest_date} ({age_days}d old).")
+                        latest_data = load_and_prepare_data(held_symbols=_held)
+                        if latest_data is not None:
+                            states = load_states()
+                            placed_orders = load_placed_orders()
+                            portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)
+                            regime_info = get_nepse_regime()
+                            regime = regime_info["regime"]
+                            signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
+                            save_states(states)  # persist orphan re-seeds so next cycle doesn't start blind
+                            save_signals(signals, regime=regime, context="premarket")
+                            print(f"Generated {len(signals)} potential signals for next open.")
+                            notify_premarket_report(portfolio_data, available_fund, signals, regime_info=regime_info)
+
+                            # --- AMO: place conditional buy orders for premarket BUY signals ---
+                            amo_buy_signals = [s for s in signals if s.get("side") == "BUY" and s.get("type") == "INITIAL"]
+                            if amo_buy_signals and not DRY_RUN:
+                                try:
+                                    existing_amo = scrape_amo_orderbook(page)
+                                    existing_amo_syms = {r["symbol"] for r in existing_amo if r.get("status") in ("ACTIVE", "")}
+                                except Exception as e:
+                                    print(f"[AMO] Could not scrape existing AMO orders: {e}")
+                                    existing_amo_syms = set()
+
+                                trader_amo = Trader(page, dry_run=False)
+                                for sig in amo_buy_signals:
+                                    sym = sig["symbol"]
+                                    sym_state = load_states().get(sym, {})
+                                    if sym_state.get("in_position"):
+                                        print(f"[AMO] {sym} already in position — skipping.")
+                                        continue
+                                    if sym in existing_amo_syms:
+                                        print(f"[AMO] {sym} already has an active AMO order — skipping.")
+                                        continue
+                                    print(f"[AMO] Placing AMO BUY {sym} x{sig['quantity']} @ {sig['price']}")
+                                    success = trader_amo.place_amo_order(sig)
+                                    if success:
+                                        save_placed_order(sym, "BUY", "INITIAL", quantity=sig["quantity"])
+                                        sym_state_updated = update_state_for_trade(load_states().get(sym, {}), sig, sig["price"], sig["quantity"])
+                                        _states = load_states()
+                                        _states[sym] = sym_state_updated
+                                        save_states(_states)
+                                        notify_order(sig, is_dry_run=False)
+                                    else:
+                                        notify_error(f"AMO order failed: BUY {sym}\n{trader_amo.last_error}")
+
+                    # Poll Telegram for manual commands before browser closes
                     try:
                         _states_for_poll = load_states()
                         trader_closed = Trader(page, dry_run=DRY_RUN)
                         poll_and_handle(page, trader_closed, _states_for_poll, portfolio_data, available_fund, DRY_RUN, market_open=False)
                     except Exception as e:
                         print(f"Telegram command poll error: {e}")
-
-                    browser.close()
-
-                holdings_count = len(portfolio_data.get("holdings", []))
-                fund_str = f"NPR {available_fund:,.2f}" if available_fund is not None else "N/A"
-                print(f"Portfolio: {holdings_count} holdings | Fund: {fund_str}")
-
-                from signals_mr import _get_holding_symbol
-                _held = {_get_holding_symbol(h) for h in portfolio_data.get('holdings', [])} - {None, ''}
-
-                is_fresh, latest_date, age_days = check_data_freshness()
-                if not is_fresh:
-                    msg = (f"Stale data: chukul_data.csv latest bar is {latest_date} "
-                           f"({age_days}d old). Skipping signal generation to avoid bad signals.")
-                    print(f"[DATA FRESHNESS] {msg}")
-                    notify_error(msg)
-                else:
-                    print(f"[DATA FRESHNESS] OK — latest bar {latest_date} ({age_days}d old).")
-                    latest_data = load_and_prepare_data(held_symbols=_held)
-                    if latest_data is not None:
-                        states = load_states()
-                        placed_orders = load_placed_orders()
-                        portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)
-                        regime_info = get_nepse_regime()
-                        regime = regime_info["regime"]
-                        signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
-                        save_states(states)  # persist orphan re-seeds so next cycle doesn't start blind
-                        save_signals(signals, regime=regime, context="premarket")
-                        print(f"Generated {len(signals)} potential signals for next open.")
-                        notify_premarket_report(portfolio_data, available_fund, signals, regime_info=regime_info)
-
-                        # --- AMO: place conditional buy orders for premarket BUY signals ---
-                        amo_buy_signals = [s for s in signals if s.get("side") == "BUY" and s.get("type") == "INITIAL"]
-                        if amo_buy_signals and not DRY_RUN:
-                            try:
-                                existing_amo = scrape_amo_orderbook(page)
-                                existing_amo_syms = {r["symbol"] for r in existing_amo if r.get("status") in ("ACTIVE", "")}
-                            except Exception as e:
-                                print(f"[AMO] Could not scrape existing AMO orders: {e}")
-                                existing_amo_syms = set()
-
-                            trader_amo = Trader(page, dry_run=False)
-                            for sig in amo_buy_signals:
-                                sym = sig["symbol"]
-                                sym_state = load_states().get(sym, {})
-                                if sym_state.get("in_position"):
-                                    print(f"[AMO] {sym} already in position — skipping.")
-                                    continue
-                                if sym in existing_amo_syms:
-                                    print(f"[AMO] {sym} already has an active AMO order — skipping.")
-                                    continue
-                                amo_signal = dict(sig)
-                                amo_signal["amo_range_price"] = round(sig["price"] * 1.02, 1)
-                                print(f"[AMO] Placing AMO BUY {sym} x{sig['quantity']} @ {sig['price']} trigger {amo_signal['amo_range_price']}")
-                                success = trader_amo.place_amo_order(amo_signal)
-                                if success:
-                                    save_placed_order(sym, "BUY", "INITIAL", quantity=sig["quantity"])
-                                    sym_state_updated = update_state_for_trade(load_states().get(sym, {}), sig, sig["price"], sig["quantity"])
-                                    _states = load_states()
-                                    _states[sym] = sym_state_updated
-                                    save_states(_states)
-                                    notify_order(amo_signal, is_dry_run=False)
-                                else:
-                                    notify_error(f"AMO order failed: BUY {sym}\n{trader_amo.last_error}")
             except SessionExpiredError as e:
                 print(f"Session / auth error (analysis cycle): {e}")
                 notify_error(e)
