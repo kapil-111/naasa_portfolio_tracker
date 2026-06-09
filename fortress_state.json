@@ -395,5 +395,17 @@
         "trades": 0,
         "last_known_qty": 50,
         "peak_price": 365.1
+    },
+    "UHEWA": {
+        "in_position": true,
+        "entry_date": "2026-06-09",
+        "entry_price": 625.0,
+        "initial_entry": 625.0,
+        "ema_cross_days": 0,
+        "half_sold": false,
+        "position_count": 1,
+        "trades": 0,
+        "last_known_qty": 28,
+        "peak_price": 625.0
     }
 }
