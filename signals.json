@@ -1,6 +1,15 @@
 {
-    "generated_at": "2026-06-09 08:42",
-    "context": "live",
+    "generated_at": "2026-06-09 12:16",
+    "context": "premarket",
     "regime": "SIDEWAYS",
-    "signals": []
+    "signals": [
+        {
+            "side": "BUY",
+            "symbol": "UHEWA",
+            "price": 635.0,
+            "type": "INITIAL",
+            "quantity": 28,
+            "reason": "EMA9>590 EMA21=584 ADX=28.1 RSI=58.5 vol=28632"
+        }
+    ]
 }
