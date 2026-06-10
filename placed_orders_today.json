@@ -1,17 +1,11 @@
 {
-    "date": "2026-06-01",
+    "date": "2026-06-10",
     "orders": [
         {
-            "symbol": "API",
+            "symbol": "UHEWA",
             "side": "BUY",
             "type": "INITIAL",
-            "quantity": 50
-        },
-        {
-            "symbol": "TAMOR",
-            "side": "BUY",
-            "type": "INITIAL",
-            "quantity": 50
+            "quantity": 28
         }
     ]
 }
