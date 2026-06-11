@@ -56,66 +56,17 @@ def _tg_send_photo(path: str, caption: str = "") -> bool:
 
 
 
-# ─────────────────────────────────────────
-# Facebook Page Posts
-# ─────────────────────────────────────────
-
-def _fb_post(text):
-    """Publish a text post to the Facebook Page feed."""
-    token   = os.getenv("FB_PAGE_ACCESS_TOKEN")
-    page_id = os.getenv("FB_PAGE_ID")
-    if not token or not page_id:
-        return False
-    try:
-        url  = f"https://graph.facebook.com/v19.0/{page_id}/feed"
-        resp = requests.post(url, json={"message": text, "access_token": token}, timeout=10)
-        if resp.status_code != 200:
-            print(f"Facebook post failed: {resp.status_code} {resp.text}")
-            return False
-        return True
-    except Exception as e:
-        print(f"Facebook post error: {type(e).__name__}: {e}")
-        return False
-
-
-def _fb_post_photo(path: str, caption: str = "") -> bool:
-    """Publish a photo post to the Facebook Page feed."""
-    token   = os.getenv("FB_PAGE_ACCESS_TOKEN")
-    page_id = os.getenv("FB_PAGE_ID")
-    if not token or not page_id:
-        return False
-    if not os.path.exists(path):
-        return False
-    try:
-        url = f"https://graph.facebook.com/v19.0/{page_id}/photos"
-        with open(path, "rb") as f:
-            resp = requests.post(
-                url,
-                data={"caption": caption, "access_token": token},
-                files={"source": f},
-                timeout=20,
-            )
-        if resp.status_code != 200:
-            print(f"Facebook photo post failed: {resp.status_code} {resp.text}")
-            return False
-        return True
-    except Exception as e:
-        print(f"Facebook photo post error: {type(e).__name__}: {e}")
-        return False
+# Facebook removed — token expired, notifications via Telegram only
 
 # ─────────────────────────────────────────
 # Universal Notification Wrappers
 # ─────────────────────────────────────────
 
 def _send_text(text):
-    tg_ok = _tg_send(text)
-    fb_ok = _fb_post(text)
-    return tg_ok or fb_ok
+    return _tg_send(text)
 
 def _send_photo(path: str, caption: str = "") -> bool:
-    tg_ok = _tg_send_photo(path, caption)
-    fb_ok = _fb_post_photo(path, caption)
-    return tg_ok or fb_ok
+    return _tg_send_photo(path, caption)
 
 def notify_order_screenshot(path: str, label: str, symbol: str, side: str) -> None:
     """Send an order form screenshot to Telegram with a descriptive caption."""
@@ -326,45 +277,6 @@ def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNK
         lines.append("\nSignals: None for today")
 
     tg_ok = _tg_send("\n".join(lines))
-
-    # Facebook: post only signals (no portfolio/holdings)
-    active_buys  = [s for s in signals if s["side"] == "BUY" and s.get("type") != "BLOCKED_BEAR"]
-    blocked_buys = [s for s in signals if s["side"] == "BUY" and s.get("type") == "BLOCKED_BEAR"]
-    sells_fb     = [s for s in signals if s["side"] == "SELL"]
-    if active_buys or blocked_buys or sells_fb:
-        fb_lines = [f"📊 NEPSE Daily Signals — {_now_npt()}", f"Market: {regime_emoji} {regime}"]
-
-        if regime == "BEAR":
-            nepse_close = regime_info.get("nepse_close") if regime_info else None
-            ema21       = regime_info.get("ema21") if regime_info else None
-            if nepse_close and ema21:
-                fb_lines.append(f"\n⚠️ NEPSE is in a BEAR trend (Index: {nepse_close:,.2f} | EMA21: {ema21:,.2f}). Avoid opening new BUY positions until the index recovers above EMA21.")
-            else:
-                fb_lines.append("\n⚠️ NEPSE is in a BEAR trend. Avoid opening new BUY positions until the market recovers.")
-
-        if active_buys:
-            fb_lines.append("\n✅ BUY Signals:")
-            for s in active_buys:
-                reason = s.get('reason', '').replace(' (BLOCKED: BEAR)', '')
-                fb_lines.append(f"  🟢 {s['symbol']} @{s['price']:.2f}  |  {reason}")
-
-        if blocked_buys:
-            fb_lines.append("\n🚫 Watch List (DO NOT BUY — Bear Market):")
-            for s in blocked_buys:
-                reason = s.get('reason', '').replace(' (BLOCKED: BEAR)', '')
-                fb_lines.append(f"  👁 {s['symbol']} @{s['price']:.2f}  |  {reason}")
-            fb_lines.append("  → These stocks show technical strength but buying is not advised while NEPSE remains bearish.")
-
-        if sells_fb:
-            fb_lines.append("\n📤 SELL / Exit Signals:")
-            for s in sells_fb:
-                pnl = f"  P&L {s.get('profit_pct', 0):+.1f}%" if s.get('profit_pct') is not None else ""
-                reason = s.get('reason', '')
-                fb_lines.append(f"  🔴 {s['symbol']} ({s.get('type','?')}) @{s['price']:.2f}{pnl}  |  {reason}")
-
-        fb_lines.append("\n📌 Disclaimer: This information is for educational purposes only and should not be considered financial advice. Always do your own research before buying or selling any stock.")
-        _fb_post("\n".join(fb_lines))
-
     print(f"Morning report Alerts send: {'OK' if tg_ok else 'FAILED'}")
 
 
