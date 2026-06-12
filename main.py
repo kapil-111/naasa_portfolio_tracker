@@ -93,39 +93,6 @@ def _get_live_ltp(symbol):
     return None
 
 
-def _adjust_order_price(signal):
-    """
-    Adjust order price using live LTP before placement:
-    - BUY : live price falling (negative day) → place 1% below LTP for better fill
-    - SELL: live price rising (positive day)  → place 1% above LTP for better fill
-    Returns a copy of signal with adjusted price (original unchanged).
-    """
-    symbol    = signal['symbol']
-    side      = signal['side'].upper()
-    base_price = float(signal['price'])
-
-    ltp = _get_live_ltp(symbol)
-    if ltp is None or ltp <= 0:
-        return signal  # no live data — use signal price as-is
-
-    daily_chg = (ltp - base_price) / base_price if base_price > 0 else 0
-
-    if side == 'BUY' and daily_chg < 0:
-        # Price falling today — place order 1% below LTP to get a better entry
-        adjusted = round(ltp * 0.99, 2)
-        print(f"[PRICE ADJ] BUY {symbol}: LTP={ltp:.2f} (day {daily_chg:+.1%}) → order @ {adjusted:.2f}")
-    elif side == 'SELL' and daily_chg > 0:
-        # Price rising today — place order 1% above LTP to get a better exit
-        adjusted = round(ltp * 1.01, 2)
-        print(f"[PRICE ADJ] SELL {symbol}: LTP={ltp:.2f} (day {daily_chg:+.1%}) → order @ {adjusted:.2f}")
-    else:
-        return signal  # no favourable condition — keep original price
-
-    adjusted_signal = dict(signal)
-    adjusted_signal['price'] = adjusted
-    return adjusted_signal
-
-
 def save_signals(signals, regime="UNKNOWN", context="premarket"):
     """Persist latest signals to signals.json for the dashboard."""
     from datetime import datetime
@@ -442,8 +409,18 @@ def _sync_state_from_portfolio(portfolio_data):
     changed = []
 
     # Mark held symbols as in_position with correct qty
+    today = datetime.now().date()
     for sym, qty in live.items():
         state = states.setdefault(sym, {})
+        
+        # T+3 Guard: If recently sold, don't re-sync to in_position=True
+        last_exit = state.get("last_exit_date")
+        if last_exit:
+            days_since_exit = (today - datetime.strptime(last_exit, "%Y-%m-%d").date()).days
+            if days_since_exit <= 3:
+                print(f"[PORTFOLIO SYNC] {sym}: sold {last_exit} ({days_since_exit}d ago), ignoring T+3 ghost.")
+                continue
+
         old_pos = state.get("in_position")
         old_qty = state.get("last_known_qty")
 
@@ -454,7 +431,6 @@ def _sync_state_from_portfolio(portfolio_data):
 
     # Mark symbols no longer in portfolio as exited
     # Skip symbols bought within T+2 days — they won't appear in holdings yet
-    today = datetime.now().date()
     for sym, state in states.items():
         if sym not in live and state.get("in_position"):
             entry_date_str = state.get("entry_date")
@@ -847,19 +823,20 @@ def main():
                                 print(f"[SKIP] BUY {symbol} qty={qty} cost={order_cost:,.0f} (incl. commission) > fund={available_fund:,.0f}.")
                                 continue
 
-                        order_signal = _adjust_order_price(signal)
                         raise_if_login_page(page, f"open market: before order {side} {symbol}")
                         # Record BEFORE submitting — prevents retry on any failure/crash
                         # (MKT orders: once submitted, broker executes regardless of our state)
                         save_placed_order(symbol, side, signal_type, quantity=qty)
-                        success = trader.place_order(order_signal)
+                        
+                        # Note: Trader always clicks MKT label, so price in signal is for logging only
+                        success = trader.place_order(signal)
                         if not success:
                             if trader.last_outcome == "unconfirmed":
                                 # Order was submitted but UI gave no confirmation — could have executed.
                                 # Keep in placed_orders to avoid double-execution. Manual check required.
                                 # Also mark in_position=True so the bot doesn't re-signal on next restart.
                                 symbol_state = states.get(symbol, {})
-                                new_symbol_state = update_state_for_trade(symbol_state, signal, order_signal['price'], signal['quantity'])
+                                new_symbol_state = update_state_for_trade(symbol_state, signal, signal['price'], signal['quantity'])
                                 states[symbol] = new_symbol_state
                                 notify_error(f"place_order failed: {side} {symbol} ({signal_type})\n{trader.last_error}")
                             else:
@@ -869,7 +846,7 @@ def main():
                         else:
                             # --- UPDATE STATE on successful trade ---
                             symbol_state = states.get(symbol, {})
-                            new_symbol_state = update_state_for_trade(symbol_state, signal, order_signal['price'], signal['quantity'])
+                            new_symbol_state = update_state_for_trade(symbol_state, signal, signal['price'], signal['quantity'])
                             # Persist sideways half-sell flag so BEAR can finish the exit
                             if signal.get('sideways_half_sold'):
                                 new_symbol_state['sideways_half_sold'] = True
@@ -888,7 +865,14 @@ def main():
                                     {}
                                 )
                                 existing_qty = _get_holding_qty(existing_holding)
-                                save_avg_price(symbol, order_signal['price'], qty, existing_qty)
+                                save_avg_price(symbol, signal['price'], qty, existing_qty)
+                                
+                                # Dynamic Fund Tracking: subtract cost from balance for remaining signals in cycle
+                                if available_fund is not None:
+                                    ltp_exec = _get_live_ltp(symbol) or signal['price']
+                                    exec_cost = ltp_exec * qty * 1.005
+                                    available_fund -= exec_cost
+                                    print(f"[FUND UPDATE] Deducted NPR {exec_cost:,.0f} from available balance. Remaining: NPR {available_fund:,.0f}")
                             elif side == 'SELL' and signal_type in ('FULL_EXIT', 'CUT_LOSS', 'RSI_OB'):
                                 _clear_avg_price(symbol)
 

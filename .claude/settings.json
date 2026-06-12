@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m py_compile trader.py)",
+      "Bash(TEST_ORDER=\"BUY:NABIL:50\" DRY_RUN=True RUN_ONCE=True POLL_INTERVAL=3600 SLEEP_INTERVAL_CLOSED=3600 SKIP_DATA_FETCH=True venv/bin/python3 main.py)"
+    ]
+  }
+}

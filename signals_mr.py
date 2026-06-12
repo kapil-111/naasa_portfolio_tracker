@@ -372,12 +372,11 @@ MIN_SELL_QTY          = 10
 # Kelly position sizing
 # Based on hardcore-v5 GLUE backtest: win_rate=55.7%, avg_win=10.3%, avg_loss=7.8%
 # Kelly fraction = (win_rate * avg_win - loss_rate * avg_loss) / avg_win
-# Half-Kelly used for safety. Result clipped to [MIN_BUY_QTY, MAX_BUY_QTY].
+# Half-Kelly used for safety. Result clipped to [MIN_BUY_QTY, ...].
 _KELLY_WIN_RATE  = 0.557
 _KELLY_AVG_WIN   = 0.103
 _KELLY_AVG_LOSS  = 0.078
 MIN_BUY_QTY      = 10
-MAX_BUY_QTY      = 50
 
 
 def kelly_qty(available_fund, price, default_qty=20):
@@ -393,7 +392,7 @@ def kelly_qty(available_fund, price, default_qty=20):
         kelly_half = max(kelly_full / 2, 0.02)   # minimum 2% of fund
         capital_to_deploy = available_fund * kelly_half
         qty = int(capital_to_deploy / price)
-        qty = max(MIN_BUY_QTY, min(qty, MAX_BUY_QTY))
+        qty = max(MIN_BUY_QTY, qty)
         print(f"[KELLY] Kelly={kelly_full:.1%} HalfKelly={kelly_half:.1%} → deploy NPR {capital_to_deploy:,.0f} → qty={qty} @ {price:.2f}")
         return qty
     except Exception:
