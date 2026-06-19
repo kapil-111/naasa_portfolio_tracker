@@ -1,11 +1,11 @@
 {
-    "date": "2026-06-10",
+    "date": "2026-06-19",
     "orders": [
         {
-            "symbol": "UHEWA",
-            "side": "BUY",
-            "type": "INITIAL",
-            "quantity": 28
+            "symbol": "API",
+            "side": "SELL",
+            "type": "EMA_CROSS_HALF",
+            "quantity": 25
         }
     ]
 }

@@ -1,6 +1,23 @@
 {
-    "generated_at": "2026-06-18 10:50",
-    "context": "premarket",
+    "generated_at": "2026-06-19 05:26",
+    "context": "live",
     "regime": "SIDEWAYS",
-    "signals": []
+    "signals": [
+        {
+            "side": "SELL",
+            "symbol": "API",
+            "price": 342.0,
+            "type": "EMA_CROSS_HALF",
+            "quantity": 25,
+            "reason": "EMA cross half: SIDEWAYS, EMA9=347 < EMA21=348 for 3d"
+        },
+        {
+            "side": "SELL",
+            "symbol": "SBL",
+            "price": 390.1,
+            "type": "WEAKNESS",
+            "quantity": 50,
+            "reason": "Weakness: RSI=41.7 < 42 after 38d"
+        }
+    ]
 }
