@@ -1,10 +1,10 @@
 {
-    "date": "2026-06-19",
+    "date": "2026-06-22",
     "orders": [
         {
             "symbol": "API",
             "side": "SELL",
-            "type": "EMA_CROSS_HALF",
+            "type": "FULL_EXIT",
             "quantity": 25
         }
     ]
