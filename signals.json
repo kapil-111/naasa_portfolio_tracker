@@ -1,31 +1,31 @@
 {
-    "generated_at": "2026-06-23 04:21",
+    "generated_at": "2026-06-23 10:04",
     "context": "premarket",
     "regime": "SIDEWAYS",
     "signals": [
         {
             "side": "SELL",
             "symbol": "SBL",
-            "price": 393.5,
+            "price": 393.0,
             "type": "WEAKNESS",
             "quantity": 50,
-            "reason": "Weakness: RSI=41.7 < 50 after 42d"
+            "reason": "Weakness: RSI=40.7 < 50 after 42d"
         },
         {
             "side": "SELL",
             "symbol": "TAMOR",
-            "price": 453.0,
+            "price": 449.8,
             "type": "WEAKNESS",
             "quantity": 100,
-            "reason": "Weakness: RSI=48.7 < 50 after 27d"
+            "reason": "Weakness: RSI=48.8 < 50 after 27d"
         },
         {
             "side": "SELL",
             "symbol": "USHEC",
-            "price": 500.0,
+            "price": 492.6,
             "type": "WEAKNESS",
             "quantity": 50,
-            "reason": "Weakness: RSI=44.3 < 50 after 37d"
+            "reason": "Weakness: RSI=46.6 < 50 after 37d"
         }
     ]
 }
