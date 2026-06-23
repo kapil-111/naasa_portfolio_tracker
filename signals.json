@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-06-22 12:28",
+    "generated_at": "2026-06-23 04:21",
     "context": "premarket",
     "regime": "SIDEWAYS",
     "signals": [
@@ -9,23 +9,23 @@
             "price": 393.5,
             "type": "WEAKNESS",
             "quantity": 50,
-            "reason": "Weakness: RSI=41.7 < 42 after 41d"
+            "reason": "Weakness: RSI=41.7 < 50 after 42d"
         },
         {
             "side": "SELL",
             "symbol": "TAMOR",
             "price": 453.0,
-            "type": "EMA_CROSS_HALF",
-            "quantity": 50,
-            "reason": "EMA cross half: SIDEWAYS, EMA9=454 < EMA21=455 for 3d"
+            "type": "WEAKNESS",
+            "quantity": 100,
+            "reason": "Weakness: RSI=48.7 < 50 after 27d"
         },
         {
             "side": "SELL",
             "symbol": "USHEC",
             "price": 500.0,
-            "type": "EMA_CROSS_HALF",
-            "quantity": 25,
-            "reason": "EMA cross half: SIDEWAYS, EMA9=503 < EMA21=504 for 3d"
+            "type": "WEAKNESS",
+            "quantity": 50,
+            "reason": "Weakness: RSI=44.3 < 50 after 37d"
         }
     ]
 }
