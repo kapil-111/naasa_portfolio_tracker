@@ -881,7 +881,7 @@ def main():
                             notify_order(signal, is_dry_run=DRY_RUN)
                             from signals_mr import _load_avg_prices
                             avg_cost = _load_avg_prices().get(symbol) if side == 'SELL' else None
-                            log_trade(symbol, side, signal_type, qty, order_signal['price'], avg_cost=avg_cost)
+                            log_trade(symbol, side, signal_type, qty, signal['price'], avg_cost=avg_cost)
                 else:
                     print("No trading signals generated.")
 
