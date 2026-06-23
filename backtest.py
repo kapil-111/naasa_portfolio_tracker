@@ -839,16 +839,16 @@ def backtest_hardcore_v5(sym_df, symbol, sector_id=None, sector_regime_series=No
     if len(sym_df) < MIN_HISTORY:
         return []
 
-    ADX_MIN        = 15
-    RSI_LO         = 50
-    RSI_HI         = 72
-    VOL_MULT       = 1.13
-    DROP_3D_LIMIT  = -3.7
-    HH_LOOKBACK    = 7
-    WEAKNESS_HOLD  = 11
-    WEAKNESS_RSI   = 42
-    TRAIL_STOP_PCT = 0.20
-    HARD_STOP_PCT  = 0.106
+    ADX_MIN        = 35
+    RSI_LO         = 46
+    RSI_HI         = 69
+    VOL_MULT       = 1.88
+    DROP_3D_LIMIT  = -8.0
+    HH_LOOKBACK    = 17
+    WEAKNESS_HOLD  = 6
+    WEAKNESS_RSI   = 50
+    TRAIL_STOP_PCT = 0.188
+    HARD_STOP_PCT  = 0.088
     BREAKOUT_DAYS  = 60
 
     sector_series = (sector_regime_series or {}).get(sector_id) if sector_id is not None else None

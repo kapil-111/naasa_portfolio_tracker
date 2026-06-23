@@ -280,10 +280,11 @@ def main():
     parser.add_argument("--cores",   type=int, default=4,   help="Parallel workers (default: 4)")
     parser.add_argument("--seed",    type=int, default=42,  help="Random seed")
     parser.add_argument("--top",     type=float, default=BEHAVIORAL_TOP_PCT, help="Top fraction to keep as behavioral (default: 0.20)")
+    parser.add_argument("--file",    type=str, default="merged_data.csv", help="OHLCV CSV file (default: merged_data.csv)")
     args = parser.parse_args()
 
     print("Loading data...")
-    df, sector_regime_series = load_data("merged_data.csv")
+    df, sector_regime_series = load_data(args.file)
 
     sector_map = {}
     if os.path.exists("chukul_fundamental.csv"):

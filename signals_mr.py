@@ -356,26 +356,26 @@ def _get_holding_rate(h, avg_prices=None):
     return None
 
 
-# Hardcore v4 Signal constants — GLUE-calibrated (500-run Monte Carlo, top 20% behavioral)
-FORTRESS_ADX_MIN      = 21     # v5 GLUE: was 15
-FORTRESS_RSI_MIN      = 46     # v5 GLUE: was 50 — SENSITIVE, slight loosening
-FORTRESS_RSI_MAX      = 72     # v5 GLUE: unchanged — SENSITIVE
-FORTRESS_VOL_FACTOR   = 1.07   # v5 GLUE: was 1.13 — slightly looser
+# Hardcore v5 Signal constants — GLUE-calibrated (1000-run Monte Carlo, top 20% behavioral)
+FORTRESS_ADX_MIN      = 35     # v5 GLUE: was 21 — only trade strong trends
+FORTRESS_RSI_MIN      = 46     # v5 GLUE: unchanged — SENSITIVE
+FORTRESS_RSI_MAX      = 69     # v5 GLUE: was 72 — SENSITIVE, slightly tighter
+FORTRESS_VOL_FACTOR   = 1.88   # v5 GLUE: was 1.07 — higher volume conviction required
 FORTRESS_TP_PCT       = 20.0   # kept — resistance-based TP used in live logic
-FORTRESS_SL_PCT       = -11.7  # v5 GLUE: was -10.6
-FORTRESS_RSI_OB       = 42     # v5 GLUE: unchanged
-FORTRESS_MIN_HOLD     = 8      # v5 GLUE: was 11
+FORTRESS_SL_PCT       = -8.8   # v5 GLUE: was -11.7 — tighter stop
+FORTRESS_RSI_OB       = 50     # v5 GLUE: was 42 — exit weakness sooner
+FORTRESS_MIN_HOLD     = 6      # v5 GLUE: was 8 — exit weakness sooner
 FORTRESS_EMA_CONFIRM  = 3      # unchanged
-FORTRESS_TRAIL_PCT    = 16.1   # v5 GLUE: was 20.0
+FORTRESS_TRAIL_PCT    = 18.8   # v5 GLUE: was 16.1
 MIN_SELL_QTY          = 10
 
 # Kelly position sizing
-# Based on hardcore-v5 GLUE backtest: win_rate=55.7%, avg_win=10.3%, avg_loss=7.8%
+# Based on hardcore-v5 GLUE backtest: win_rate=53.8%, avg_win=8.6%, avg_loss=7.4%
 # Kelly fraction = (win_rate * avg_win - loss_rate * avg_loss) / avg_win
 # Half-Kelly used for safety. Result clipped to [MIN_BUY_QTY, ...].
-_KELLY_WIN_RATE  = 0.557
-_KELLY_AVG_WIN   = 0.103
-_KELLY_AVG_LOSS  = 0.078
+_KELLY_WIN_RATE  = 0.538
+_KELLY_AVG_WIN   = 0.086
+_KELLY_AVG_LOSS  = 0.074
 MIN_BUY_QTY      = 10
 
 
