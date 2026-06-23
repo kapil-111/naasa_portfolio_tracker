@@ -280,7 +280,7 @@ def goto_broker_page(page: Page, url: str, timeout: float = 30_000) -> None:
             return
         except PlaywrightTimeoutError:
             # Last-resort fallback for pages that never reach DOMContentLoaded cleanly.
-            page.goto(url, wait_until="commit", timeout=10_000)
+            page.goto(url, wait_until="commit", timeout=timeout)
             return
         except Exception as e:
             err_str = str(e)
