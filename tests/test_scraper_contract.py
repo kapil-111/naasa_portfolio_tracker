@@ -70,6 +70,6 @@ def test_goto_broker_page_falls_back_from_domcontentloaded_timeout():
     assert page.goto.call_args_list[0].args == ("https://example.test/path",)
     assert page.goto.call_args_list[1].kwargs == {
         "wait_until": "commit",
-        "timeout": 10_000,
+        "timeout": 12345,
     }
     assert page.goto.call_args_list[1].args == ("https://example.test/path",)
