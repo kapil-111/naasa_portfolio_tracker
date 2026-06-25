@@ -1,11 +1,23 @@
 {
-    "date": "2026-06-22",
+    "date": "2026-06-25",
     "orders": [
         {
-            "symbol": "API",
+            "symbol": "SBL",
             "side": "SELL",
-            "type": "FULL_EXIT",
-            "quantity": 25
+            "type": "WEAKNESS",
+            "quantity": 50
+        },
+        {
+            "symbol": "TAMOR",
+            "side": "SELL",
+            "type": "WEAKNESS",
+            "quantity": 100
+        },
+        {
+            "symbol": "USHEC",
+            "side": "SELL",
+            "type": "WEAKNESS",
+            "quantity": 50
         }
     ]
 }
