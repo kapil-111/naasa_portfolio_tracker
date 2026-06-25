@@ -1,31 +1,6 @@
 {
-    "generated_at": "2026-06-25 05:21",
+    "generated_at": "2026-06-25 07:55",
     "context": "live",
     "regime": "BEAR",
-    "signals": [
-        {
-            "side": "SELL",
-            "symbol": "SBL",
-            "price": 391.5,
-            "type": "WEAKNESS",
-            "quantity": 50,
-            "reason": "Weakness: RSI=39.7 < 50 after 44d"
-        },
-        {
-            "side": "SELL",
-            "symbol": "TAMOR",
-            "price": 444.7,
-            "type": "WEAKNESS",
-            "quantity": 100,
-            "reason": "Weakness: RSI=45.7 < 50 after 29d"
-        },
-        {
-            "side": "SELL",
-            "symbol": "USHEC",
-            "price": 485.0,
-            "type": "WEAKNESS",
-            "quantity": 50,
-            "reason": "Weakness: RSI=36.7 < 50 after 39d"
-        }
-    ]
+    "signals": []
 }
