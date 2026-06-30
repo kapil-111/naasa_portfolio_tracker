@@ -29,6 +29,7 @@ from notifications import (
 )
 from telegram_commands import poll_and_handle
 from trade_logger import log_trade
+from market_snapshot import generate_market_snapshot
 
 from datetime import datetime, time as dt_time
 import pytz
@@ -608,6 +609,10 @@ def main():
 
         if not os.getenv("SKIP_DATA_FETCH"):
             _fetch_chukul_data()
+            try:
+                generate_market_snapshot()
+            except Exception as e:
+                print(f"[MARKET SNAPSHOT] Failed: {e}")
 
         # Run analysis cycle when market is closed
         if not open_status:

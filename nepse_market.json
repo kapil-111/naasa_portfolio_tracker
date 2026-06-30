@@ -1,0 +1,105 @@
+{
+  "generated_at": "2026-06-30 18:14",
+  "nepse": {
+    "close": 2608.33,
+    "change": -24.63,
+    "change_pct": -0.94,
+    "date": "2026-06-30"
+  },
+  "market_status": {
+    "is_open": false,
+    "as_of": "2026-06-30T14:59:59"
+  },
+  "sectors": [
+    {
+      "name": "Banking",
+      "symbol": "BANKINGIND",
+      "close": 1404.49,
+      "change": -10.39,
+      "change_pct": -0.73
+    },
+    {
+      "name": "Dev. Bank",
+      "symbol": "DEVBANKIND",
+      "close": 5591.27,
+      "change": -0.87,
+      "change_pct": -0.02
+    },
+    {
+      "name": "Finance",
+      "symbol": "FINANCEIND",
+      "close": 2393.78,
+      "change": -24.37,
+      "change_pct": -1.01
+    },
+    {
+      "name": "Life Ins.",
+      "symbol": "LIFEINSUIND",
+      "close": 11996.07,
+      "change": -67.77,
+      "change_pct": -0.56
+    },
+    {
+      "name": "Non-Life Ins.",
+      "symbol": "NONLIFEIND",
+      "close": 10659.79,
+      "change": -66.36,
+      "change_pct": -0.62
+    },
+    {
+      "name": "Hydropower",
+      "symbol": "HYDROPOWIND",
+      "close": 3608.74,
+      "change": -52.66,
+      "change_pct": -1.44
+    },
+    {
+      "name": "Microfinance",
+      "symbol": "MICROFININD",
+      "close": 4612.21,
+      "change": -26.29,
+      "change_pct": -0.57
+    },
+    {
+      "name": "Trading",
+      "symbol": "TRADINGIND",
+      "close": 3298.37,
+      "change": -58.52,
+      "change_pct": -1.74
+    },
+    {
+      "name": "Hotels",
+      "symbol": "HOTELIND",
+      "close": 7287.6,
+      "change": -68.86,
+      "change_pct": -0.94
+    },
+    {
+      "name": "Mfg & Proc.",
+      "symbol": "MANUFACTUREIND",
+      "close": 10447.58,
+      "change": -127.96,
+      "change_pct": -1.21
+    },
+    {
+      "name": "Mutual Fund",
+      "symbol": "MUTUALIND",
+      "close": 21.55,
+      "change": -0.06,
+      "change_pct": -0.28
+    },
+    {
+      "name": "Investment",
+      "symbol": "INVIDX",
+      "close": 96.33,
+      "change": -0.72,
+      "change_pct": -0.74
+    }
+  ],
+  "breadth": {
+    "increased": 31,
+    "decreased": 243,
+    "unchanged": 10,
+    "date": "2026-06-23"
+  }
+}
