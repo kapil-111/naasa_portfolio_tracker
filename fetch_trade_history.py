@@ -31,7 +31,10 @@ from scraper import parse_holding_grid
 _AVG_PRICES_FILE = "avg_prices.json"
 
 # NAASA TradeBook report param candidates for filled trade history
+# CONTRACTNOTE has historical data; ORDERBOOK is today-only
 _REPORT_CANDIDATES = [
+    "CONTRACTNOTE",
+    "TRADEBOOK",
     "ORDERBOOK",
 ]
 
@@ -134,14 +137,15 @@ def compute_avg_prices(rows: list[dict]) -> dict[str, float]:
         side = _get(row, _COL_SIDE).upper()
         if "BUY" not in side:
             continue
+        traded_qty = _int(_get(row, ("TRADED QTY", "TradedQuantity", "Traded Qty", "Traded Quantity")))
         status = _get(row, _COL_STATUS).upper()
-        if status and "COMPLETE" not in status and "PARTIAL" not in status:
+        # Allow CANCELLED rows if shares were actually traded (partial fill then cancelled at close)
+        if status and "COMPLETE" not in status and "PARTIAL" not in status and traded_qty == 0:
             continue
         symbol = _get(row, _COL_SYMBOL)
         if not symbol or symbol.lower().startswith("total"):
             continue
         price = _float(_get(row, _COL_PRICE))
-        traded_qty = _int(_get(row, ("TRADED QTY", "TradedQuantity", "Traded Qty", "Traded Quantity")))
         qty = traded_qty if traded_qty > 0 else _int(_get(row, _COL_QTY))
         if price <= 0 or qty <= 0:
             continue
@@ -164,8 +168,11 @@ def scrape_trade_history_avg_prices(page, days: int = 180) -> dict[str, float]:
     today     = date.today()
     to_date   = today.strftime("%d-%m-%Y")
     from_date = (today - timedelta(days=days)).strftime("%d-%m-%Y")
-    rows = _try_report(page, "ORDERBOOK", from_date, to_date)
-    return compute_avg_prices(rows)
+    for report in _REPORT_CANDIDATES:
+        rows = _try_report(page, report, from_date, to_date)
+        if rows:
+            return compute_avg_prices(rows)
+    return {}
 
 
 def main():
