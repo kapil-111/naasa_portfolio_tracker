@@ -31,6 +31,7 @@ from telegram_commands import poll_and_handle
 from trade_logger import log_trade
 from market_snapshot import generate_market_snapshot
 from fetch_broker_summary import fetch_broker_summary
+from fetch_broker_stocks import fetch_broker_stocks
 
 from datetime import datetime, time as dt_time
 import pytz
@@ -618,6 +619,10 @@ def main():
                 fetch_broker_summary()
             except Exception as e:
                 print(f"[BROKER SUMMARY] Failed: {e}")
+            try:
+                fetch_broker_stocks()
+            except Exception as e:
+                print(f"[BROKER STOCKS] Failed: {e}")
 
         # Run analysis cycle when market is closed
         if not open_status:

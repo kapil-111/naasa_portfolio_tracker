@@ -26,3 +26,5 @@ env/
 !trade_log.csv
 # Exception: daily broker summary — persistent historical record for analysis
 !chukul_broker_summary.csv
+# Exception: daily broker stock accumulation/release — persistent record for analysis
+!chukul_broker_stocks.csv
