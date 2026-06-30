@@ -1,0 +1,67 @@
+{
+  "date": "2026-06-30",
+  "top_accumulating": [
+    {
+      "symbol": "SJLICP",
+      "total_amount": 72030000.0,
+      "total_quantity": 300000,
+      "broker_count": 1
+    },
+    {
+      "symbol": "API",
+      "total_amount": 18582324.4,
+      "total_quantity": 56113,
+      "broker_count": 6
+    },
+    {
+      "symbol": "PBLD84",
+      "total_amount": 15700950.0,
+      "total_quantity": 14365,
+      "broker_count": 2
+    },
+    {
+      "symbol": "GBIME",
+      "total_amount": 13915947.9,
+      "total_quantity": 58325,
+      "broker_count": 4
+    },
+    {
+      "symbol": "SBL",
+      "total_amount": 13335253.4,
+      "total_quantity": 34349,
+      "broker_count": 9
+    }
+  ],
+  "top_releasing": [
+    {
+      "symbol": "NRN",
+      "total_amount": 61462044.6,
+      "total_quantity": 43725,
+      "broker_count": 8
+    },
+    {
+      "symbol": "SAHAS",
+      "total_amount": 58378506.6,
+      "total_quantity": 91832,
+      "broker_count": 6
+    },
+    {
+      "symbol": "YMHL",
+      "total_amount": 32011767.0,
+      "total_quantity": 48330,
+      "broker_count": 4
+    },
+    {
+      "symbol": "SHPC",
+      "total_amount": 31690923.2,
+      "total_quantity": 65108,
+      "broker_count": 3
+    },
+    {
+      "symbol": "TPKHL",
+      "total_amount": 30832396.0,
+      "total_quantity": 49333,
+      "broker_count": 4
+    }
+  ]
+}

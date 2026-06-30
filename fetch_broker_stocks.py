@@ -104,5 +104,54 @@ def fetch_broker_stocks(output_file: str = _OUTPUT_FILE) -> bool:
     return True
 
 
+def generate_broker_insights(stocks_file: str = _OUTPUT_FILE, output: str = "broker_insights.json") -> bool:
+    import json
+    from collections import defaultdict
+
+    today_str = date.today().isoformat()
+    if not os.path.exists(stocks_file):
+        return False
+
+    acc: dict[str, dict] = defaultdict(lambda: {"total_amount": 0.0, "total_quantity": 0, "brokers": set()})
+    rel: dict[str, dict] = defaultdict(lambda: {"total_amount": 0.0, "total_quantity": 0, "brokers": set()})
+
+    with open(stocks_file, newline="") as f:
+        for row in csv.DictReader(f):
+            if row.get("date") != today_str:
+                continue
+            sym = row.get("symbol", "")
+            amt = float(row.get("amount", 0) or 0)
+            qty = float(row.get("quantity", 0) or 0)
+            broker = row.get("broker", "")
+            if row.get("type") == "holding":
+                acc[sym]["total_amount"]   += amt
+                acc[sym]["total_quantity"] += qty
+                acc[sym]["brokers"].add(broker)
+            elif row.get("type") == "released":
+                rel[sym]["total_amount"]   += amt
+                rel[sym]["total_quantity"] += qty
+                rel[sym]["brokers"].add(broker)
+
+    def top5(d):
+        return [
+            {"symbol": sym, "total_amount": round(v["total_amount"], 2),
+             "total_quantity": int(v["total_quantity"]), "broker_count": len(v["brokers"])}
+            for sym, v in sorted(d.items(), key=lambda x: -x[1]["total_amount"])[:5]
+        ]
+
+    insights = {
+        "date": today_str,
+        "top_accumulating": top5(acc),
+        "top_releasing":    top5(rel),
+    }
+
+    with open(output, "w") as f:
+        json.dump(insights, f, indent=2)
+
+    print(f"[BROKER INSIGHTS] Saved → {output}")
+    return True
+
+
 if __name__ == "__main__":
     fetch_broker_stocks()
+    generate_broker_insights()

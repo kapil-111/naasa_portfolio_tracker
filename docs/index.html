@@ -185,6 +185,33 @@
     .sector-close { font-size: 0.88rem; font-weight: 700; color: var(--text); }
     .sector-chg   { font-size: 0.7rem; font-weight: 600; }
 
+    /* ── Broker Insights ── */
+    .broker-insights {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 520px) { .broker-insights { grid-template-columns: 1fr; } }
+    .broker-col-title {
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; margin-bottom: 10px;
+    }
+    .broker-col-title.acc { color: var(--green); }
+    .broker-col-title.rel { color: var(--red); }
+    .broker-stock-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 0; border-bottom: 1px solid var(--muted); font-size: 0.78rem;
+    }
+    .broker-stock-row:last-child { border-bottom: none; }
+    .broker-sym { font-weight: 700; color: var(--text); min-width: 70px; }
+    .broker-amt { color: var(--subtle); font-size: 0.72rem; }
+    .broker-brokers { font-size: 0.65rem; color: var(--subtle); margin-left: 6px; }
+
     /* ── Misc ── */
     .loading { color: var(--subtle); font-size: 0.85rem; padding: 32px 0; text-align: center; }
     .error-msg { color: var(--red); font-size: 0.8rem; padding: 10px 14px; background: #3a1a1a; border-radius: 8px; margin-bottom: 16px; }
@@ -264,6 +291,18 @@
     <span class="breadth-pill"><span class="breadth-count"       id="b-unc">—</span>&nbsp;<span style="color:var(--subtle)">Unchanged</span></span>
   </div>
   <div class="sectors-grid" id="sectors-grid"></div>
+</div>
+
+<!-- Broker Insights -->
+<div class="broker-insights" id="broker-insights" style="display:none">
+  <div>
+    <div class="broker-col-title acc">▲ Accumulating</div>
+    <div id="broker-acc-list"></div>
+  </div>
+  <div>
+    <div class="broker-col-title rel">▼ Releasing</div>
+    <div id="broker-rel-list"></div>
+  </div>
 </div>
 
 <!-- Summary Cards -->
@@ -357,6 +396,33 @@ function allocBar(share) {
   return `<span class="alloc-bar-bg"><span class="alloc-bar-fill" style="width:${w}%"></span></span> ${w}%`;
 }
 
+function renderBrokerInsights(data) {
+  const sec = document.getElementById("broker-insights");
+  if (!data || !data.top_accumulating) { sec.style.display = "none"; return; }
+  sec.style.display = "grid";
+
+  function fmtCr(amt) {
+    if (amt >= 1e7) return (amt / 1e7).toFixed(2) + " Cr";
+    if (amt >= 1e5) return (amt / 1e5).toFixed(1) + " L";
+    return amt.toLocaleString();
+  }
+
+  function rows(list) {
+    return list.map(s =>
+      `<div class="broker-stock-row">
+        <span class="broker-sym">${s.symbol}</span>
+        <span>
+          <span class="broker-amt">${fmtCr(s.total_amount)}</span>
+          <span class="broker-brokers">${s.broker_count}b</span>
+        </span>
+      </div>`
+    ).join("");
+  }
+
+  document.getElementById("broker-acc-list").innerHTML = rows(data.top_accumulating);
+  document.getElementById("broker-rel-list").innerHTML = rows(data.top_releasing);
+}
+
 function renderMarket(mkt) {
   if (!mkt) return;
   const sec = document.getElementById("market-section");
@@ -406,7 +472,7 @@ function renderMarket(mkt) {
 
 async function render() {
   try {
-    const [avgPrices, ordersData, csvText, stateData, fundData, tradeText, signalsData, marketData] = await Promise.all([
+    const [avgPrices, ordersData, csvText, stateData, fundData, tradeText, signalsData, marketData, brokerInsights] = await Promise.all([
       getJSON("avg_prices.json"),
       getJSON("placed_orders_today.json").catch(() => ({ orders: [], date: "—" })),
       getText("portfolio_data.csv"),
@@ -415,9 +481,11 @@ async function render() {
       getText("trade_log.csv").catch(() => ""),
       getJSON("signals.json").catch(() => null),
       getJSON("nepse_market.json").catch(() => null),
+      getJSON("broker_insights.json").catch(() => null),
     ]);
 
     renderMarket(marketData);
+    renderBrokerInsights(brokerInsights);
 
     const holdings = parseCSV(csvText).filter(h => h.Symbol && !h.Symbol.toLowerCase().startsWith("total"));
     const availFund = fundData.available_fund;
