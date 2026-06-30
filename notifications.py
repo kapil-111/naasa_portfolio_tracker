@@ -228,7 +228,7 @@ def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNK
                     except (ValueError, TypeError):
                         pass
             if sym:
-                avg = avg_prices.get(sym)
+                avg = avg_prices.get(sym) or 100.0
                 if avg and qty and ltp:
                     market_val = ltp * qty
                     cost_val   = avg * qty

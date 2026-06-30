@@ -472,8 +472,8 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             holding = held_symbols[symbol]
             avg_rate = _get_holding_rate(holding, avg_prices)
             if avg_rate is None:
-                avg_rate = float(row['close'])
-                print(f"[{symbol}] Orphan: no avg_prices.json entry, using current price as entry.")
+                avg_rate = 100.0
+                print(f"[{symbol}] Orphan: no avg_prices.json entry, using Rs. 100 face value as entry.")
             reseeded = {
                 'in_position':    True,
                 'entry_date':     (pd.to_datetime('today') - pd.Timedelta(days=10)).strftime('%Y-%m-%d'),

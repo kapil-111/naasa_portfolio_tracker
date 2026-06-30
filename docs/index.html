@@ -458,7 +458,7 @@ async function render() {
       const sym  = h["Symbol"];
       const qty  = parseFloat(h["CDS Total Balance"] || h["NAASA Balance"] || h["Quantity"] || 0);
       const ltp  = parseFloat(h["LTP"] || h["Close Price Price"] || 0);
-      const avg  = parseFloat(avgPrices[sym] || 0);
+      const avg  = parseFloat(avgPrices[sym] || 100);
       const val  = qty * ltp;
       const cost = qty * avg;
       const pl   = val - cost;
