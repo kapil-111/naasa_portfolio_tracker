@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-01",
+  "date": "2026-07-02",
   "top_accumulating": [
     {
-      "symbol": "SJLICP",
-      "total_amount": 72030000.0,
-      "total_quantity": 300000,
+      "symbol": "NIMBD90",
+      "total_amount": 141185900.0,
+      "total_quantity": 111170,
       "broker_count": 1
     },
     {
-      "symbol": "API",
-      "total_amount": 18582324.4,
-      "total_quantity": 56113,
+      "symbol": "RADHI",
+      "total_amount": 49187302.5,
+      "total_quantity": 69104,
+      "broker_count": 5
+    },
+    {
+      "symbol": "AKJCL",
+      "total_amount": 19353873.9,
+      "total_quantity": 52914,
       "broker_count": 6
     },
     {
-      "symbol": "PBLD84",
-      "total_amount": 15700950.0,
-      "total_quantity": 14365,
-      "broker_count": 2
+      "symbol": "BFC",
+      "total_amount": 14325654.4,
+      "total_quantity": 28638,
+      "broker_count": 6
     },
     {
-      "symbol": "GBIME",
-      "total_amount": 13915947.9,
-      "total_quantity": 58325,
-      "broker_count": 4
-    },
-    {
-      "symbol": "SBL",
-      "total_amount": 13335253.4,
-      "total_quantity": 34349,
-      "broker_count": 9
+      "symbol": "CITY",
+      "total_amount": 14072858.4,
+      "total_quantity": 34859,
+      "broker_count": 7
     }
   ],
   "top_releasing": [
     {
-      "symbol": "NRN",
-      "total_amount": 61462044.6,
-      "total_quantity": 43725,
-      "broker_count": 8
+      "symbol": "NIMBD90",
+      "total_amount": 282487000.0,
+      "total_quantity": 222430,
+      "broker_count": 2
     },
     {
-      "symbol": "SAHAS",
-      "total_amount": 58378506.6,
-      "total_quantity": 91832,
-      "broker_count": 6
-    },
-    {
-      "symbol": "YMHL",
-      "total_amount": 32011767.0,
-      "total_quantity": 48330,
+      "symbol": "SADBL",
+      "total_amount": 156854732.8,
+      "total_quantity": 389896,
       "broker_count": 4
     },
     {
-      "symbol": "SHPC",
-      "total_amount": 31690923.2,
-      "total_quantity": 65108,
+      "symbol": "RADHI",
+      "total_amount": 90898769.6,
+      "total_quantity": 128062,
+      "broker_count": 4
+    },
+    {
+      "symbol": "KBLPO",
+      "total_amount": 74660600.0,
+      "total_quantity": 746606,
+      "broker_count": 1
+    },
+    {
+      "symbol": "DDBL",
+      "total_amount": 60514436.0,
+      "total_quantity": 73306,
       "broker_count": 3
-    },
-    {
-      "symbol": "TPKHL",
-      "total_amount": 30832396.0,
-      "total_quantity": 49333,
-      "broker_count": 4
     }
   ]
 }
