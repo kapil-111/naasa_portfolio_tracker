@@ -1,105 +1,105 @@
 {
-  "generated_at": "2026-07-02 11:54",
+  "generated_at": "2026-07-03 07:35",
   "nepse": {
-    "close": 2661.71,
-    "change": 8.78,
-    "change_pct": 0.33,
-    "date": "2026-07-02"
+    "close": 2656.33,
+    "change": -5.38,
+    "change_pct": -0.2,
+    "date": "2026-07-03"
   },
   "market_status": {
-    "is_open": false,
-    "as_of": "2026-07-02T14:59:59"
+    "is_open": true,
+    "as_of": "2026-07-03T13:20:06.114152"
   },
   "sectors": [
     {
       "name": "Banking",
       "symbol": "BANKINGIND",
-      "close": 1449.65,
-      "change": 29.06,
-      "change_pct": 2.05
+      "close": 1440.94,
+      "change": -8.71,
+      "change_pct": -0.6
     },
     {
       "name": "Dev. Bank",
       "symbol": "DEVBANKIND",
-      "close": 5649.54,
-      "change": -6.36,
-      "change_pct": -0.11
+      "close": 5664.98,
+      "change": 15.44,
+      "change_pct": 0.27
     },
     {
       "name": "Finance",
       "symbol": "FINANCEIND",
-      "close": 2436.4,
-      "change": 6.92,
-      "change_pct": 0.28
+      "close": 2446.4,
+      "change": 10.0,
+      "change_pct": 0.41
     },
     {
       "name": "Life Ins.",
       "symbol": "LIFEINSUIND",
-      "close": 12194.86,
-      "change": 20.14,
-      "change_pct": 0.17
+      "close": 12125.67,
+      "change": -69.19,
+      "change_pct": -0.57
     },
     {
       "name": "Non-Life Ins.",
       "symbol": "NONLIFEIND",
-      "close": 10839.38,
-      "change": -37.82,
-      "change_pct": -0.35
+      "close": 10805.95,
+      "change": -33.43,
+      "change_pct": -0.31
     },
     {
       "name": "Hydropower",
       "symbol": "HYDROPOWIND",
-      "close": 3686.66,
-      "change": -9.64,
-      "change_pct": -0.26
+      "close": 3693.85,
+      "change": 7.19,
+      "change_pct": 0.2
     },
     {
       "name": "Microfinance",
       "symbol": "MICROFININD",
-      "close": 4666.23,
-      "change": 2.8,
-      "change_pct": 0.06
+      "close": 4660.75,
+      "change": -5.48,
+      "change_pct": -0.12
     },
     {
       "name": "Trading",
       "symbol": "TRADINGIND",
-      "close": 3367.18,
-      "change": -17.02,
-      "change_pct": -0.5
+      "close": 3358.62,
+      "change": -8.56,
+      "change_pct": -0.25
     },
     {
       "name": "Hotels",
       "symbol": "HOTELIND",
-      "close": 7398.56,
-      "change": -10.18,
-      "change_pct": -0.14
+      "close": 7374.43,
+      "change": -24.13,
+      "change_pct": -0.33
     },
     {
       "name": "Mfg & Proc.",
       "symbol": "MANUFACTUREIND",
-      "close": 10600.3,
-      "change": -92.45,
-      "change_pct": -0.86
+      "close": 10561.78,
+      "change": -38.52,
+      "change_pct": -0.36
     },
     {
       "name": "Mutual Fund",
       "symbol": "MUTUALIND",
-      "close": 21.68,
-      "change": 0.01,
-      "change_pct": 0.05
+      "close": 21.54,
+      "change": -0.14,
+      "change_pct": -0.65
     },
     {
       "name": "Investment",
       "symbol": "INVIDX",
-      "close": 97.89,
-      "change": -0.03,
-      "change_pct": -0.03
+      "close": 97.87,
+      "change": -0.02,
+      "change_pct": -0.02
     }
   ],
   "breadth": {
-    "increased": 114,
+    "increased": 111,
     "decreased": 155,
     "unchanged": 13,
-    "date": "2026-07-02"
+    "date": "2026-07-03"
   }
 }

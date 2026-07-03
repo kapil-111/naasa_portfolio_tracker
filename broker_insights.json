@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-02",
+  "date": "2026-07-03",
   "top_accumulating": [
     {
-      "symbol": "NIMBD90",
-      "total_amount": 141185900.0,
-      "total_quantity": 111170,
-      "broker_count": 1
-    },
-    {
-      "symbol": "RADHI",
-      "total_amount": 49187302.5,
-      "total_quantity": 69104,
+      "symbol": "NICAD85/86",
+      "total_amount": 407143291.5,
+      "total_quantity": 360300,
       "broker_count": 5
     },
     {
-      "symbol": "AKJCL",
-      "total_amount": 19353873.9,
-      "total_quantity": 52914,
+      "symbol": "SBLD84",
+      "total_amount": 89798940.0,
+      "total_quantity": 82764,
+      "broker_count": 1
+    },
+    {
+      "symbol": "NABIL",
+      "total_amount": 58317494.0,
+      "total_quantity": 110973,
       "broker_count": 6
     },
     {
-      "symbol": "BFC",
-      "total_amount": 14325654.4,
-      "total_quantity": 28638,
-      "broker_count": 6
+      "symbol": "RSML",
+      "total_amount": 48483662.8,
+      "total_quantity": 15234,
+      "broker_count": 8
     },
     {
-      "symbol": "CITY",
-      "total_amount": 14072858.4,
-      "total_quantity": 34859,
-      "broker_count": 7
+      "symbol": "EBL",
+      "total_amount": 46875426.7,
+      "total_quantity": 66933,
+      "broker_count": 8
     }
   ],
   "top_releasing": [
     {
-      "symbol": "NIMBD90",
-      "total_amount": 282487000.0,
-      "total_quantity": 222430,
-      "broker_count": 2
-    },
-    {
-      "symbol": "SADBL",
-      "total_amount": 156854732.8,
-      "total_quantity": 389896,
-      "broker_count": 4
-    },
-    {
-      "symbol": "RADHI",
-      "total_amount": 90898769.6,
-      "total_quantity": 128062,
-      "broker_count": 4
-    },
-    {
-      "symbol": "KBLPO",
-      "total_amount": 74660600.0,
-      "total_quantity": 746606,
+      "symbol": "NICAD85/86",
+      "total_amount": 815498528.0,
+      "total_quantity": 721670,
       "broker_count": 1
     },
     {
-      "symbol": "DDBL",
-      "total_amount": 60514436.0,
-      "total_quantity": 73306,
+      "symbol": "SBLD84",
+      "total_amount": 179597880.0,
+      "total_quantity": 165528,
+      "broker_count": 1
+    },
+    {
+      "symbol": "NABIL",
+      "total_amount": 99766227.9,
+      "total_quantity": 193300,
+      "broker_count": 2
+    },
+    {
+      "symbol": "CITY",
+      "total_amount": 83065770.6,
+      "total_quantity": 210272,
       "broker_count": 3
+    },
+    {
+      "symbol": "LSL",
+      "total_amount": 64482936.2,
+      "total_quantity": 294594,
+      "broker_count": 5
     }
   ]
 }
