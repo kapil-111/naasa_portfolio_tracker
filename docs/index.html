@@ -526,6 +526,9 @@ async function render() {
       const sym  = h["Symbol"];
       const qty  = parseFloat(h["CDS Total Balance"] || h["NAASA Balance"] || h["Quantity"] || 0);
       const ltp  = parseFloat(h["LTP"] || h["Close Price Price"] || 0);
+      const prevClose = parseFloat(h["Close Price Price"] || 0);
+      const dayChg  = prevClose > 0 ? ltp - prevClose : 0;
+      const dayChgP = prevClose > 0 ? dayChg / prevClose * 100 : 0;
       const avg  = parseFloat(avgPrices[sym] || 100);
       const val  = qty * ltp;
       const cost = qty * avg;
@@ -533,7 +536,7 @@ async function render() {
       const plP  = cost > 0 ? pl / cost * 100 : 0;
       totalValue += val;
       totalCost  += cost;
-      return { sym, qty, ltp, avg, val, cost, pl, plP };
+      return { sym, qty, ltp, prevClose, dayChg, dayChgP, avg, val, cost, pl, plP };
     }).sort((a, b) => b.val - a.val);
 
     const totalPL  = totalValue - totalCost;
@@ -639,7 +642,7 @@ async function render() {
       ? `<div class="loading" style="padding:16px">No holdings</div>`
       : `<table>
           <thead><tr>
-            <th>Symbol</th><th>Qty</th><th>Avg Cost</th><th>LTP</th>
+            <th>Symbol</th><th>Qty</th><th>Avg Cost</th><th>LTP</th><th>Day Chg</th>
             <th>Value</th><th>P&amp;L</th><th>P&amp;L %</th><th>Allocation</th>
           </tr></thead>
           <tbody>
@@ -648,6 +651,7 @@ async function render() {
               <td>${r.qty}</td>
               <td>${r.avg > 0 ? fmt(r.avg) : "—"}</td>
               <td>${fmt(r.ltp)}</td>
+              <td class="${cls(r.dayChg)}">${r.prevClose > 0 ? (r.dayChg >= 0 ? "+" : "") + r.dayChg.toFixed(2) + " (" + pct(r.dayChgP) + ")" : "—"}</td>
               <td>NPR ${fmt(r.val)}</td>
               <td class="${cls(r.pl)}">${fmtN(r.pl)}</td>
               <td class="${cls(r.plP)}">${pct(r.plP)}</td>
@@ -655,7 +659,7 @@ async function render() {
             </tr>`).join("")}
           </tbody>
           <tfoot><tr>
-            <td colspan="4">Total</td>
+            <td colspan="5">Total</td>
             <td>NPR ${fmt(totalValue)}</td>
             <td class="${cls(totalPL)}">${fmtN(totalPL)}</td>
             <td class="${cls(totalPLP)}">${pct(totalPLP)}</td>
