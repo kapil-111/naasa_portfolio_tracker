@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-06",
+  "date": "2026-07-07",
   "top_accumulating": [
     {
-      "symbol": "ADBLB",
-      "total_amount": 430000000.0,
-      "total_quantity": 430000,
+      "symbol": "NIBD84",
+      "total_amount": 539425567.2,
+      "total_quantity": 486018,
       "broker_count": 1
     },
     {
-      "symbol": "KBLD89",
-      "total_amount": 369908641.9,
-      "total_quantity": 294702,
-      "broker_count": 5
+      "symbol": "GBILD86/87",
+      "total_amount": 86073814.5,
+      "total_quantity": 79950,
+      "broker_count": 6
     },
     {
-      "symbol": "SCBD",
-      "total_amount": 44147280.0,
-      "total_quantity": 38058,
+      "symbol": "NIMBD90",
+      "total_amount": 62832406.0,
+      "total_quantity": 49319,
       "broker_count": 1
     },
     {
-      "symbol": "ICFCD89",
-      "total_amount": 22741659.0,
-      "total_quantity": 19957,
-      "broker_count": 1
+      "symbol": "CFCL",
+      "total_amount": 48438579.3,
+      "total_quantity": 76321,
+      "broker_count": 3
     },
     {
-      "symbol": "SBD87",
-      "total_amount": 21823833.0,
-      "total_quantity": 19905,
-      "broker_count": 2
+      "symbol": "NABILD87",
+      "total_amount": 27174375.0,
+      "total_quantity": 24155,
+      "broker_count": 1
     }
   ],
   "top_releasing": [
     {
-      "symbol": "ADBLB",
-      "total_amount": 860000000.0,
-      "total_quantity": 860000,
-      "broker_count": 1
+      "symbol": "NIBD84",
+      "total_amount": 1078061038.4,
+      "total_quantity": 971316,
+      "broker_count": 2
     },
     {
-      "symbol": "SBI",
-      "total_amount": 83005243.6,
-      "total_quantity": 215388,
+      "symbol": "NRN",
+      "total_amount": 87889546.6,
+      "total_quantity": 62563,
       "broker_count": 4
     },
     {
       "symbol": "CITY",
-      "total_amount": 76436423.4,
-      "total_quantity": 194360,
+      "total_amount": 81092530.8,
+      "total_quantity": 211262,
       "broker_count": 3
     },
     {
-      "symbol": "SHIVM",
-      "total_amount": 74883347.4,
-      "total_quantity": 118848,
-      "broker_count": 3
+      "symbol": "CFCL",
+      "total_amount": 75536649.1,
+      "total_quantity": 119033,
+      "broker_count": 7
     },
     {
-      "symbol": "NRN",
-      "total_amount": 74840504.6,
-      "total_quantity": 52504,
-      "broker_count": 6
+      "symbol": "API",
+      "total_amount": 47186387.7,
+      "total_quantity": 142227,
+      "broker_count": 7
     }
   ]
 }
