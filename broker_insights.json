@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-07",
+  "date": "2026-07-08",
   "top_accumulating": [
     {
-      "symbol": "NIBD84",
-      "total_amount": 539425567.2,
-      "total_quantity": 486018,
-      "broker_count": 1
+      "symbol": "KBLD90",
+      "total_amount": 207525825.0,
+      "total_quantity": 169817,
+      "broker_count": 2
     },
     {
-      "symbol": "GBILD86/87",
-      "total_amount": 86073814.5,
-      "total_quantity": 79950,
-      "broker_count": 6
+      "symbol": "GBBD85",
+      "total_amount": 167670491.0,
+      "total_quantity": 152842,
+      "broker_count": 2
     },
     {
-      "symbol": "NIMBD90",
-      "total_amount": 62832406.0,
-      "total_quantity": 49319,
-      "broker_count": 1
+      "symbol": "EBLD85",
+      "total_amount": 146516512.0,
+      "total_quantity": 129661,
+      "broker_count": 5
     },
     {
-      "symbol": "CFCL",
-      "total_amount": 48438579.3,
-      "total_quantity": 76321,
+      "symbol": "GBIME",
+      "total_amount": 100924013.9,
+      "total_quantity": 411183,
       "broker_count": 3
     },
     {
-      "symbol": "NABILD87",
-      "total_amount": 27174375.0,
-      "total_quantity": 24155,
-      "broker_count": 1
+      "symbol": "EBL",
+      "total_amount": 51203511.8,
+      "total_quantity": 72733,
+      "broker_count": 5
     }
   ],
   "top_releasing": [
     {
-      "symbol": "NIBD84",
-      "total_amount": 1078061038.4,
-      "total_quantity": 971316,
+      "symbol": "KBLD90",
+      "total_amount": 415174250.0,
+      "total_quantity": 339734,
       "broker_count": 2
     },
     {
-      "symbol": "NRN",
-      "total_amount": 87889546.6,
-      "total_quantity": 62563,
-      "broker_count": 4
+      "symbol": "EBLD85",
+      "total_amount": 293572034.0,
+      "total_quantity": 259802,
+      "broker_count": 1
     },
     {
-      "symbol": "CITY",
-      "total_amount": 81092530.8,
-      "total_quantity": 211262,
-      "broker_count": 3
+      "symbol": "GBBD85",
+      "total_amount": 225513557.0,
+      "total_quantity": 205659,
+      "broker_count": 2
     },
     {
-      "symbol": "CFCL",
-      "total_amount": 75536649.1,
-      "total_quantity": 119033,
-      "broker_count": 7
+      "symbol": "GBILD86/87",
+      "total_amount": 168556439.0,
+      "total_quantity": 155030,
+      "broker_count": 1
     },
     {
-      "symbol": "API",
-      "total_amount": 47186387.7,
-      "total_quantity": 142227,
-      "broker_count": 7
+      "symbol": "ADBLD83",
+      "total_amount": 139893661.4,
+      "total_quantity": 130742,
+      "broker_count": 2
     }
   ]
 }
