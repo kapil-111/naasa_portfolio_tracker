@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-08",
+  "date": "2026-07-09",
   "top_accumulating": [
     {
-      "symbol": "KBLD90",
-      "total_amount": 207525825.0,
-      "total_quantity": 169817,
-      "broker_count": 2
-    },
-    {
-      "symbol": "GBBD85",
-      "total_amount": 167670491.0,
-      "total_quantity": 152842,
-      "broker_count": 2
-    },
-    {
-      "symbol": "EBLD85",
-      "total_amount": 146516512.0,
-      "total_quantity": 129661,
-      "broker_count": 5
-    },
-    {
-      "symbol": "GBIME",
-      "total_amount": 100924013.9,
-      "total_quantity": 411183,
+      "symbol": "KBLD89",
+      "total_amount": 620990105.0,
+      "total_quantity": 494771,
       "broker_count": 3
     },
     {
-      "symbol": "EBL",
-      "total_amount": 51203511.8,
-      "total_quantity": 72733,
-      "broker_count": 5
+      "symbol": "NCCD86",
+      "total_amount": 350012858.0,
+      "total_quantity": 300183,
+      "broker_count": 3
+    },
+    {
+      "symbol": "SBD87",
+      "total_amount": 219338086.0,
+      "total_quantity": 199980,
+      "broker_count": 3
+    },
+    {
+      "symbol": "CIZBD90",
+      "total_amount": 94615252.8,
+      "total_quantity": 84799,
+      "broker_count": 6
+    },
+    {
+      "symbol": "MBLD2085",
+      "total_amount": 93200000.0,
+      "total_quantity": 80000,
+      "broker_count": 1
     }
   ],
   "top_releasing": [
     {
-      "symbol": "KBLD90",
-      "total_amount": 415174250.0,
-      "total_quantity": 339734,
+      "symbol": "KBLD89",
+      "total_amount": 1238536944.0,
+      "total_quantity": 986882,
       "broker_count": 2
     },
     {
-      "symbol": "EBLD85",
-      "total_amount": 293572034.0,
-      "total_quantity": 259802,
+      "symbol": "NCCD86",
+      "total_amount": 819141061.0,
+      "total_quantity": 702526,
+      "broker_count": 2
+    },
+    {
+      "symbol": "SBD87",
+      "total_amount": 438720022.0,
+      "total_quantity": 400000,
       "broker_count": 1
     },
     {
-      "symbol": "GBBD85",
-      "total_amount": 225513557.0,
-      "total_quantity": 205659,
-      "broker_count": 2
-    },
-    {
-      "symbol": "GBILD86/87",
-      "total_amount": 168556439.0,
-      "total_quantity": 155030,
+      "symbol": "CIZBD90",
+      "total_amount": 207052148.8,
+      "total_quantity": 186190,
       "broker_count": 1
     },
     {
-      "symbol": "ADBLD83",
-      "total_amount": 139893661.4,
-      "total_quantity": 130742,
-      "broker_count": 2
+      "symbol": "GBILD84/85",
+      "total_amount": 195809256.0,
+      "total_quantity": 177790,
+      "broker_count": 1
     }
   ]
 }
