@@ -567,7 +567,7 @@ async function render() {
     const winRate  = closedWithPL.length > 0 ? wins.length / closedWithPL.length * 100 : null;
     const avgWin   = wins.length   > 0 ? wins.reduce((s, c) => s + c.plP, 0) / wins.length   : null;
     const avgLoss  = losses.length > 0 ? losses.reduce((s, c) => s + c.plP, 0) / losses.length : null;
-    const dayPL    = holdings.reduce((s, h) => s + parseFloat(h["Day Profit Loss"] || 0), 0);
+    const dayPL    = rows.reduce((s, r) => s + r.qty * r.dayChg, 0);
 
     document.getElementById("stats-row").innerHTML = `
       <div class="stat-card">
