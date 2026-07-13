@@ -173,18 +173,24 @@ def scrape_orderbook(page: Page) -> list:
         print("[ORDERBOOK] No rows found.")
         return []
 
-    # Normalise column names — the grid may use different header text
-    _COL_SYMBOL   = ("Scrip", "Symbol", "Stock Symbol", "Script")
-    _COL_SIDE     = ("BuySellText", "Buy/Sell", "Side")
-    _COL_PRICE    = ("Price",)
-    _COL_QTY      = ("Quantity", "Qty", "Order Qty")
-    _COL_TRADED   = ("TradedQuantity", "Traded Qty", "Traded Quantity")
-    _COL_REMAIN   = ("RemainingQty", "Remaining Qty", "Remaining Quantity")
-    _COL_STATUS   = ("StatusText", "Status")
+    # Normalise column names — matched case-insensitively since the live ORDERBOOK
+    # report renders headers as "SYMBOL", "TYPE" (side), "QTY", "TRADED QTY",
+    # "REM QTY", "STATUS", not the mixed-case names these tuples used to assume.
+    _COL_SYMBOL   = ("SYMBOL", "SCRIP", "STOCK SYMBOL", "SCRIPT")
+    _COL_SIDE     = ("TYPE", "BUYSELLTEXT", "BUY/SELL", "SIDE")
+    _COL_PRICE    = ("PRICE",)
+    _COL_QTY      = ("QTY", "QUANTITY", "ORDER QTY")
+    _COL_TRADED   = ("TRADED QTY", "TRADEDQUANTITY", "TRADED QUANTITY")
+    _COL_REMAIN   = ("REM QTY", "REMAININGQTY", "REMAINING QTY", "REMAINING QUANTITY")
+    _COL_STATUS   = ("STATUS", "STATUSTEXT")
+
+    def _norm_key(k):
+        return re.sub(r'\s+', ' ', k.strip().upper())
 
     def _get(row, keys):
+        norm_row = {_norm_key(k): v for k, v in row.items()}
         for k in keys:
-            v = row.get(k)
+            v = norm_row.get(k)
             if v is not None and str(v).strip():
                 return str(v).strip()
         return ""

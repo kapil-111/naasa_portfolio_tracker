@@ -672,15 +672,6 @@ def main():
                     page = context.new_page()
                     login(page, username, password)
 
-                    # EOD fill reconciliation — run once on the first closed cycle after market close
-                    if eod_reconciled_date != today_str and load_placed_orders().get("orders"):
-                        try:
-                            _reconcile_eod_fills(page)
-                            eod_reconciled_date = today_str
-                        except Exception as e:
-                            print(f"[EOD] Reconciliation error: {e}")
-                            notify_error(f"EOD reconciliation failed: {e}")
-
                     portfolio_data = scrape_portfolio(page)
                     raise_if_login_page(page, "closed market: after holding report")
                     available_fund = scrape_available_fund(page)
@@ -694,6 +685,18 @@ def main():
                         _backfill_missing_avg_prices(page, portfolio_data)
                     else:
                         portfolio_data = _load_cached_portfolio()
+
+                    # EOD fill reconciliation — run once on the first closed cycle after market close.
+                    # Placed after the holding-report scrape above (not immediately after login) since
+                    # the orderbook page has been observed to time out when hit as the very first
+                    # navigation post-login, while the same URL loads fine once the session has settled.
+                    if eod_reconciled_date != today_str and load_placed_orders().get("orders"):
+                        try:
+                            _reconcile_eod_fills(page)
+                            eod_reconciled_date = today_str
+                        except Exception as e:
+                            print(f"[EOD] Reconciliation error: {e}")
+                            notify_error(f"EOD reconciliation failed: {e}")
 
                     # TEST MODE: force an order while browser is still open
                     test_order = os.getenv("TEST_ORDER")

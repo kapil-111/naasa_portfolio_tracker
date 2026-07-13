@@ -17,3 +17,4 @@ date,symbol,side,type,qty,price,avg_cost,pnl_pct,pnl_npr,notes
 2026-04-30 17:55,RLEL,BUY,INITIAL,10,100.0,,,,IPO allotment
 2026-04-30 17:55,SOHL,BUY,INITIAL,10,100.0,,,,IPO allotment
 2026-04-30 17:55,MEN,SELL,EMA_CROSS_HALF,30,583.5,519.38,12.35,1923.6,pre-log backfill
+2026-07-13 19:03,BNHC,SELL,WEAKNESS,18,289.6,100.0,189.6,3412.8,EOD corrected from 20

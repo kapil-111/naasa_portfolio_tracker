@@ -1,17 +1,17 @@
 {
     "BNHC": {
-        "in_position": false,
+        "in_position": true,
         "entry_date": null,
-        "entry_price": 0,
-        "initial_entry": 0,
+        "entry_price": 100.0,
+        "initial_entry": 100.0,
         "ema_cross_days": 1,
-        "last_known_qty": 20,
-        "peak_price": 290.0,
-        "half_sold": false,
-        "last_exit_price": 290.0,
-        "last_exit_date": "2026-07-13",
+        "last_known_qty": 2,
+        "peak_price": 289.6,
+        "half_sold": true,
+        "last_exit_price": null,
+        "last_exit_date": null,
         "trades": 1,
-        "position_count": 0
+        "position_count": 1
     },
     "CHCL": {
         "in_position": false,
