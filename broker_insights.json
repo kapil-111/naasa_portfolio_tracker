@@ -1,66 +1,66 @@
 {
-  "date": "2026-07-10",
+  "date": "2026-07-13",
   "top_accumulating": [
     {
-      "symbol": "GBILD86/87",
-      "total_amount": 350297820.0,
-      "total_quantity": 310600,
+      "symbol": "NBLD87",
+      "total_amount": 899104980.0,
+      "total_quantity": 781151,
+      "broker_count": 3
+    },
+    {
+      "symbol": "RBBD83",
+      "total_amount": 582193367.0,
+      "total_quantity": 548206,
       "broker_count": 2
     },
     {
-      "symbol": "SBLD89",
-      "total_amount": 280060000.0,
-      "total_quantity": 220000,
-      "broker_count": 2
-    },
-    {
-      "symbol": "BOKD86",
-      "total_amount": 208606635.0,
-      "total_quantity": 185318,
+      "symbol": "SBD87",
+      "total_amount": 284831363.5,
+      "total_quantity": 250425,
       "broker_count": 1
     },
     {
-      "symbol": "NMBD87/88",
-      "total_amount": 144066615.0,
-      "total_quantity": 127155,
+      "symbol": "NMBD89/90",
+      "total_amount": 183313182.0,
+      "total_quantity": 139614,
       "broker_count": 1
     },
     {
-      "symbol": "ADBLD83",
-      "total_amount": 141709152.0,
-      "total_quantity": 130728,
-      "broker_count": 1
+      "symbol": "SCBD",
+      "total_amount": 182602468.0,
+      "total_quantity": 159424,
+      "broker_count": 4
     }
   ],
   "top_releasing": [
     {
-      "symbol": "GBILD86/87",
-      "total_amount": 670572690.0,
-      "total_quantity": 594390,
-      "broker_count": 4
-    },
-    {
-      "symbol": "SBLD89",
-      "total_amount": 573130613.8,
-      "total_quantity": 450220,
-      "broker_count": 2
-    },
-    {
-      "symbol": "BOKD86",
-      "total_amount": 411530426.0,
-      "total_quantity": 365488,
-      "broker_count": 2
-    },
-    {
-      "symbol": "GBILD84/85",
-      "total_amount": 400293200.0,
-      "total_quantity": 362200,
+      "symbol": "NBLD87",
+      "total_amount": 1796610084.0,
+      "total_quantity": 1560912,
       "broker_count": 1
     },
     {
-      "symbol": "NMBD87/88",
-      "total_amount": 287829586.0,
-      "total_quantity": 254042,
+      "symbol": "RBBD83",
+      "total_amount": 1376424012.0,
+      "total_quantity": 1296269,
+      "broker_count": 5
+    },
+    {
+      "symbol": "SBD87",
+      "total_amount": 569785040.0,
+      "total_quantity": 500946,
+      "broker_count": 3
+    },
+    {
+      "symbol": "SCBD",
+      "total_amount": 414219286.0,
+      "total_quantity": 362798,
+      "broker_count": 2
+    },
+    {
+      "symbol": "SBLD89",
+      "total_amount": 411691678.4,
+      "total_quantity": 330590,
       "broker_count": 1
     }
   ]

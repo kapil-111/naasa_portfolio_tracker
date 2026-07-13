@@ -1,6 +1,15 @@
 {
-    "generated_at": "2026-07-10 12:17",
-    "context": "premarket",
+    "generated_at": "2026-07-13 05:36",
+    "context": "live",
     "regime": "BEAR",
-    "signals": []
+    "signals": [
+        {
+            "side": "SELL",
+            "symbol": "BNHC",
+            "price": 290.0,
+            "type": "WEAKNESS",
+            "quantity": 20,
+            "reason": "Weakness: RSI=24.0 < 50 after 10d"
+        }
+    ]
 }

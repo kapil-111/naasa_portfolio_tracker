@@ -1,23 +1,11 @@
 {
-    "date": "2026-06-25",
+    "date": "2026-07-13",
     "orders": [
         {
-            "symbol": "SBL",
+            "symbol": "BNHC",
             "side": "SELL",
             "type": "WEAKNESS",
-            "quantity": 50
-        },
-        {
-            "symbol": "TAMOR",
-            "side": "SELL",
-            "type": "WEAKNESS",
-            "quantity": 100
-        },
-        {
-            "symbol": "USHEC",
-            "side": "SELL",
-            "type": "WEAKNESS",
-            "quantity": 50
+            "quantity": 20
         }
     ]
 }
