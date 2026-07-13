@@ -472,7 +472,7 @@ function renderMarket(mkt) {
 
 async function render() {
   try {
-    const [avgPrices, ordersData, csvText, stateData, fundData, tradeText, signalsData, marketData, brokerInsights] = await Promise.all([
+    const [avgPrices, ordersData, csvText, stateData, fundData, tradeText, signalsData, marketData, brokerInsights, prevCloseData] = await Promise.all([
       getJSON("avg_prices.json"),
       getJSON("placed_orders_today.json").catch(() => ({ orders: [], date: "—" })),
       getText("portfolio_data.csv"),
@@ -482,6 +482,7 @@ async function render() {
       getJSON("signals.json").catch(() => null),
       getJSON("nepse_market.json").catch(() => null),
       getJSON("broker_insights.json").catch(() => null),
+      getJSON("prev_close.json").catch(() => ({})),
     ]);
 
     renderMarket(marketData);
@@ -526,7 +527,8 @@ async function render() {
       const sym  = h["Symbol"];
       const qty  = parseFloat(h["CDS Total Balance"] || h["NAASA Balance"] || h["Quantity"] || 0);
       const ltp  = parseFloat(h["LTP"] || h["Close Price Price"] || 0);
-      const prevClose = parseFloat(h["Close Price Price"] || 0);
+      // prev_close.json = last completed trading day close; NAASA's own CP column collapses to LTP after close
+      const prevClose = parseFloat(prevCloseData[sym] ?? h["Close Price Price"] ?? 0);
       const dayChg  = prevClose > 0 ? ltp - prevClose : 0;
       const dayChgP = prevClose > 0 ? dayChg / prevClose * 100 : 0;
       const avg  = parseFloat(avgPrices[sym] || 100);

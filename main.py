@@ -176,6 +176,36 @@ def _load_cached_portfolio():
     return {"holdings": [], "summary": {}}
 
 
+def _update_prev_close(holdings, csv_path="chukul_data.csv", out_path="prev_close.json"):
+    """
+    Persist each held symbol's last completed trading day close, sourced from
+    Chukul OHLCV history rather than NAASA X's own "Close Price" column — that
+    column reflects the previous close only while the market is open, then
+    collapses to equal LTP once the session settles, making any Day Chg derived
+    from it read as zero for the rest of the day.
+    """
+    from signals_mr import _get_holding_symbol
+
+    symbols = {_get_holding_symbol(h) for h in holdings} - {None, ''}
+    if not symbols or not os.path.exists(csv_path):
+        return
+    try:
+        df = pd.read_csv(csv_path, usecols=['date', 'symbol', 'close'])
+    except Exception as e:
+        print(f"[PREV CLOSE] Failed to read {csv_path}: {e}")
+        return
+
+    today_str = datetime.now(pytz.timezone('Asia/Kathmandu')).strftime("%Y-%m-%d")
+    prev_closes = {}
+    for sym in symbols:
+        rows = df[(df['symbol'] == sym) & (df['date'] < today_str)]
+        if not rows.empty:
+            prev_closes[sym] = float(rows.sort_values('date').iloc[-1]['close'])
+
+    if prev_closes:
+        save_to_json(prev_closes, out_path)
+
+
 def _clean_portfolio(portfolio_data, states, placed_orders):
     """
     Remove or adjust holdings that are already settled/sold but still show in the
@@ -659,6 +689,7 @@ def main():
                         save_to_json({"available_fund": available_fund}, "available_fund.json")
                     if portfolio_data and portfolio_data.get("holdings"):
                         save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
+                        _update_prev_close(portfolio_data.get("holdings", []))
                         _sync_state_from_portfolio(portfolio_data)
                         _backfill_missing_avg_prices(page, portfolio_data)
                     else:
@@ -761,6 +792,7 @@ def main():
                 if portfolio_data and portfolio_data.get("holdings"):
                     save_to_json(portfolio_data.get("summary", {}), "portfolio_summary.json")
                     save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
+                    _update_prev_close(portfolio_data.get("holdings", []))
                     _sync_state_from_portfolio(portfolio_data)
                     _backfill_missing_avg_prices(page, portfolio_data)
                 else:
