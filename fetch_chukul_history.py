@@ -19,7 +19,7 @@ def fetch_chukul_history(symbol, since_date=None):
     df = pd.DataFrame(data)
     df['stock'] = symbol
 
-    if since_date is not None and 'date' in df.columns:
+    if since_date is not None and pd.notna(since_date) and 'date' in df.columns:
         df['date'] = pd.to_datetime(df['date'], errors='coerce')
         # Use >= so today's candle is always re-fetched and overwrites any partial/stale row
         df = df[df['date'] >= since_date]
@@ -117,6 +117,15 @@ def update_chukul_data(symbols=None, input_file="live_market_data.csv",
             combined_df.sort_values([sym_col, date_col], inplace=True)
         else:
             combined_df = new_df
+
+        # Drop rows with an unusable date — a bad API response (missing/null date)
+        # must not get written, since a persisted NaT poisons that symbol's
+        # incremental "latest date" check and silently blocks all future updates.
+        before = len(combined_df)
+        combined_df = combined_df[pd.to_datetime(combined_df['date'], errors='coerce').notna()]
+        dropped = before - len(combined_df)
+        if dropped:
+            print(f"Dropped {dropped} row(s) with invalid/missing date before saving.")
 
         combined_df.to_csv(output_file, index=False)
         print(f"Saved {len(combined_df)} rows to {output_file} "
