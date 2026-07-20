@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-17",
+  "date": "2026-07-20",
   "top_accumulating": [
     {
-      "symbol": "SBD87",
-      "total_amount": 230005910.0,
-      "total_quantity": 200005,
-      "broker_count": 1
+      "symbol": "CORBL",
+      "total_amount": 55112938.5,
+      "total_quantity": 36967,
+      "broker_count": 10
     },
     {
-      "symbol": "CCBD88",
-      "total_amount": 187874375.0,
-      "total_quantity": 149700,
-      "broker_count": 2
+      "symbol": "NGPL",
+      "total_amount": 48491886.8,
+      "total_quantity": 118122,
+      "broker_count": 7
     },
     {
-      "symbol": "CIZBD90",
-      "total_amount": 125039891.5,
-      "total_quantity": 100435,
-      "broker_count": 1
+      "symbol": "NRN",
+      "total_amount": 37471567.4,
+      "total_quantity": 26614,
+      "broker_count": 7
     },
     {
-      "symbol": "NICAD85/86",
-      "total_amount": 115500000.0,
-      "total_quantity": 100000,
-      "broker_count": 1
+      "symbol": "AKJCL",
+      "total_amount": 37229242.6,
+      "total_quantity": 104697,
+      "broker_count": 7
     },
     {
-      "symbol": "NICAD2091",
-      "total_amount": 53453600.0,
-      "total_quantity": 49040,
-      "broker_count": 1
+      "symbol": "UAIL",
+      "total_amount": 19256513.1,
+      "total_quantity": 41498,
+      "broker_count": 3
     }
   ],
   "top_releasing": [
     {
-      "symbol": "SBD87",
-      "total_amount": 460011820.0,
-      "total_quantity": 400010,
+      "symbol": "AKJCL",
+      "total_amount": 47986623.0,
+      "total_quantity": 133255,
+      "broker_count": 4
+    },
+    {
+      "symbol": "CHDC",
+      "total_amount": 43252886.8,
+      "total_quantity": 20360,
+      "broker_count": 5
+    },
+    {
+      "symbol": "SHIVM",
+      "total_amount": 40762561.9,
+      "total_quantity": 63893,
+      "broker_count": 9
+    },
+    {
+      "symbol": "API",
+      "total_amount": 36285110.2,
+      "total_quantity": 109507,
       "broker_count": 2
     },
     {
-      "symbol": "CCBD88",
-      "total_amount": 379113020.0,
-      "total_quantity": 302020,
-      "broker_count": 2
-    },
-    {
-      "symbol": "CIZBD90",
-      "total_amount": 250290503.0,
-      "total_quantity": 201040,
-      "broker_count": 3
-    },
-    {
-      "symbol": "RIDI",
-      "total_amount": 149708217.6,
-      "total_quantity": 457542,
-      "broker_count": 8
-    },
-    {
-      "symbol": "NGPL",
-      "total_amount": 139351356.6,
-      "total_quantity": 350287,
-      "broker_count": 3
+      "symbol": "NRN",
+      "total_amount": 32469701.0,
+      "total_quantity": 23023,
+      "broker_count": 6
     }
   ]
 }
