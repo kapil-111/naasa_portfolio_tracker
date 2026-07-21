@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-20",
+  "date": "2026-07-21",
   "top_accumulating": [
     {
+      "symbol": "AKJCL",
+      "total_amount": 55083242.8,
+      "total_quantity": 148564,
+      "broker_count": 8
+    },
+    {
       "symbol": "CORBL",
-      "total_amount": 55112938.5,
-      "total_quantity": 36967,
-      "broker_count": 10
-    },
-    {
-      "symbol": "NGPL",
-      "total_amount": 48491886.8,
-      "total_quantity": 118122,
-      "broker_count": 7
-    },
-    {
-      "symbol": "NRN",
-      "total_amount": 37471567.4,
-      "total_quantity": 26614,
-      "broker_count": 7
-    },
-    {
-      "symbol": "AKJCL",
-      "total_amount": 37229242.6,
-      "total_quantity": 104697,
-      "broker_count": 7
-    },
-    {
-      "symbol": "UAIL",
-      "total_amount": 19256513.1,
-      "total_quantity": 41498,
-      "broker_count": 3
-    }
-  ],
-  "top_releasing": [
-    {
-      "symbol": "AKJCL",
-      "total_amount": 47986623.0,
-      "total_quantity": 133255,
-      "broker_count": 4
-    },
-    {
-      "symbol": "CHDC",
-      "total_amount": 43252886.8,
-      "total_quantity": 20360,
-      "broker_count": 5
-    },
-    {
-      "symbol": "SHIVM",
-      "total_amount": 40762561.9,
-      "total_quantity": 63893,
+      "total_amount": 52772286.5,
+      "total_quantity": 35896,
       "broker_count": 9
     },
     {
       "symbol": "API",
-      "total_amount": 36285110.2,
-      "total_quantity": 109507,
+      "total_amount": 45739143.0,
+      "total_quantity": 132738,
+      "broker_count": 10
+    },
+    {
+      "symbol": "NGPL",
+      "total_amount": 37750022.6,
+      "total_quantity": 88226,
+      "broker_count": 8
+    },
+    {
+      "symbol": "NHPC",
+      "total_amount": 32323857.7,
+      "total_quantity": 117490,
+      "broker_count": 7
+    }
+  ],
+  "top_releasing": [
+    {
+      "symbol": "API",
+      "total_amount": 124894688.0,
+      "total_quantity": 361915,
       "broker_count": 2
     },
     {
-      "symbol": "NRN",
-      "total_amount": 32469701.0,
-      "total_quantity": 23023,
-      "broker_count": 6
+      "symbol": "RIDI",
+      "total_amount": 90232272.4,
+      "total_quantity": 250895,
+      "broker_count": 8
+    },
+    {
+      "symbol": "SAHAS",
+      "total_amount": 68667191.6,
+      "total_quantity": 103202,
+      "broker_count": 5
+    },
+    {
+      "symbol": "SHIVM",
+      "total_amount": 62354604.6,
+      "total_quantity": 95179,
+      "broker_count": 7
+    },
+    {
+      "symbol": "NABBC",
+      "total_amount": 55824700.4,
+      "total_quantity": 69220,
+      "broker_count": 9
     }
   ]
 }
