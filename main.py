@@ -600,7 +600,6 @@ def main():
     _required = {
         "DRY_RUN":               os.getenv("DRY_RUN"),
         "POLL_INTERVAL":         os.getenv("POLL_INTERVAL"),
-        "SLEEP_INTERVAL_CLOSED": os.getenv("SLEEP_INTERVAL_CLOSED"),
         "RUN_ONCE":              os.getenv("RUN_ONCE"),
         "MAX_DAILY_BUYS":        os.getenv("MAX_DAILY_BUYS"),
         "MAX_PORTFOLIO_STOCKS":  os.getenv("MAX_PORTFOLIO_STOCKS"),
@@ -613,7 +612,6 @@ def main():
 
     DRY_RUN               = _required["DRY_RUN"].lower() == "true"
     POLL_INTERVAL         = int(_required["POLL_INTERVAL"])
-    SLEEP_INTERVAL_CLOSED = int(_required["SLEEP_INTERVAL_CLOSED"])
     RUN_ONCE              = _required["RUN_ONCE"].lower() == "true"
     MAX_DAILY_BUYS        = int(_required["MAX_DAILY_BUYS"])
     MAX_PORTFOLIO_STOCKS  = int(_required["MAX_PORTFOLIO_STOCKS"])
@@ -745,11 +743,11 @@ def main():
                 print(f"Analysis cycle error: {e}")
                 notify_error(e)
 
-            if RUN_ONCE: break
-            elapsed = time.monotonic() - cycle_start
-            wait = max(0, SLEEP_INTERVAL_CLOSED - elapsed)
-            time.sleep(wait)
-            continue
+            # Always exit after one closed-market pass, regardless of RUN_ONCE — the
+            # workflow itself is re-triggered on a schedule, so looping here would just
+            # repeat the same analysis all night and risk overlapping with the next
+            # scheduled run instead of ever ending.
+            break
 
         # --- Market OPEN: full trading cycle ---
         print(f"[{datetime.now().strftime('%H:%M:%S')}] Market is OPEN. Starting trading cycle...")

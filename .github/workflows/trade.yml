@@ -11,6 +11,7 @@ on:
 jobs:
   trade:
     runs-on: ubuntu-latest
+    timeout-minutes: 240
     permissions:
       contents: write
 
@@ -83,9 +84,8 @@ jobs:
           SWING_VOL_MULT: ${{ secrets.SWING_VOL_MULT }}
           SWING_VOL_PERIOD: ${{ secrets.SWING_VOL_PERIOD }}
           FETCH_MAX_WORKERS: ${{ secrets.FETCH_MAX_WORKERS }}
-          RUN_ONCE: "True"
+          RUN_ONCE: "False"
           POLL_INTERVAL: "1800"
-          SLEEP_INTERVAL_CLOSED: "1800"
         run: python main.py
 
       # ── Persist daily order state (no CSVs — all data fetched fresh) ────────
