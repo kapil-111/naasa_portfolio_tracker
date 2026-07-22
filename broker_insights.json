@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-21",
+  "date": "2026-07-22",
   "top_accumulating": [
     {
-      "symbol": "AKJCL",
-      "total_amount": 55083242.8,
-      "total_quantity": 148564,
-      "broker_count": 8
+      "symbol": "RIDI",
+      "total_amount": 79228154.7,
+      "total_quantity": 215759,
+      "broker_count": 2
     },
     {
-      "symbol": "CORBL",
-      "total_amount": 52772286.5,
-      "total_quantity": 35896,
+      "symbol": "JBBD87",
+      "total_amount": 55860000.0,
+      "total_quantity": 49000,
+      "broker_count": 1
+    },
+    {
+      "symbol": "NRN",
+      "total_amount": 50280162.2,
+      "total_quantity": 33568,
+      "broker_count": 5
+    },
+    {
+      "symbol": "HRL",
+      "total_amount": 47163611.9,
+      "total_quantity": 73249,
       "broker_count": 9
     },
     {
-      "symbol": "API",
-      "total_amount": 45739143.0,
-      "total_quantity": 132738,
-      "broker_count": 10
-    },
-    {
-      "symbol": "NGPL",
-      "total_amount": 37750022.6,
-      "total_quantity": 88226,
-      "broker_count": 8
-    },
-    {
-      "symbol": "NHPC",
-      "total_amount": 32323857.7,
-      "total_quantity": 117490,
-      "broker_count": 7
+      "symbol": "NABILD2089",
+      "total_amount": 40965759.0,
+      "total_quantity": 38745,
+      "broker_count": 2
     }
   ],
   "top_releasing": [
     {
-      "symbol": "API",
-      "total_amount": 124894688.0,
-      "total_quantity": 361915,
+      "symbol": "JBBD87",
+      "total_amount": 111742116.0,
+      "total_quantity": 98020,
       "broker_count": 2
     },
     {
+      "symbol": "API",
+      "total_amount": 106989620.6,
+      "total_quantity": 309595,
+      "broker_count": 4
+    },
+    {
       "symbol": "RIDI",
-      "total_amount": 90232272.4,
-      "total_quantity": 250895,
-      "broker_count": 8
-    },
-    {
-      "symbol": "SAHAS",
-      "total_amount": 68667191.6,
-      "total_quantity": 103202,
-      "broker_count": 5
-    },
-    {
-      "symbol": "SHIVM",
-      "total_amount": 62354604.6,
-      "total_quantity": 95179,
+      "total_amount": 98920949.3,
+      "total_quantity": 265354,
       "broker_count": 7
     },
     {
-      "symbol": "NABBC",
-      "total_amount": 55824700.4,
-      "total_quantity": 69220,
-      "broker_count": 9
+      "symbol": "NABILD2089",
+      "total_amount": 81856512.0,
+      "total_quantity": 77420,
+      "broker_count": 1
+    },
+    {
+      "symbol": "NHPC",
+      "total_amount": 75541703.4,
+      "total_quantity": 268472,
+      "broker_count": 8
     }
   ]
 }
