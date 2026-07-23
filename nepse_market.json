@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-23 09:40",
+  "generated_at": "2026-07-23 11:25",
   "nepse": {
     "close": 2726.72,
     "change": 14.18,
@@ -14,9 +14,9 @@
     {
       "name": "Banking",
       "symbol": "BANKINGIND",
-      "close": 1471.72,
-      "change": 5.58,
-      "change_pct": 0.38
+      "close": 1471.79,
+      "change": 5.65,
+      "change_pct": 0.39
     },
     {
       "name": "Dev. Bank",
@@ -35,9 +35,9 @@
     {
       "name": "Life Ins.",
       "symbol": "LIFEINSUIND",
-      "close": 12310.9,
-      "change": 35.97,
-      "change_pct": 0.29
+      "close": 12303.08,
+      "change": 28.15,
+      "change_pct": 0.23
     },
     {
       "name": "Non-Life Ins.",
@@ -63,9 +63,9 @@
     {
       "name": "Trading",
       "symbol": "TRADINGIND",
-      "close": 3374.15,
-      "change": -90.28,
-      "change_pct": -2.61
+      "close": 3461.3,
+      "change": 87.15,
+      "change_pct": 2.58
     },
     {
       "name": "Hotels",
@@ -77,9 +77,9 @@
     {
       "name": "Mfg & Proc.",
       "symbol": "MANUFACTUREIND",
-      "close": 11111.25,
-      "change": 34.81,
-      "change_pct": 0.31
+      "close": 11115.12,
+      "change": 38.68,
+      "change_pct": 0.35
     },
     {
       "name": "Mutual Fund",
@@ -91,9 +91,9 @@
     {
       "name": "Investment",
       "symbol": "INVIDX",
-      "close": 100.59,
-      "change": -0.51,
-      "change_pct": -0.5
+      "close": 100.16,
+      "change": -0.43,
+      "change_pct": -0.43
     }
   ],
   "breadth": {
