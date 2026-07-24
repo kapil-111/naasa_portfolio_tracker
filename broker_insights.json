@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-23",
+  "date": "2026-07-24",
   "top_accumulating": [
     {
-      "symbol": "NHPC",
-      "total_amount": 43287216.7,
-      "total_quantity": 151759,
-      "broker_count": 5
+      "symbol": "RSML",
+      "total_amount": 46528885.1,
+      "total_quantity": 13255,
+      "broker_count": 9
     },
     {
-      "symbol": "NRN",
-      "total_amount": 41799133.3,
-      "total_quantity": 27669,
-      "broker_count": 6
-    },
-    {
-      "symbol": "SAIL",
-      "total_amount": 38553839.4,
-      "total_quantity": 36134,
-      "broker_count": 4
-    },
-    {
-      "symbol": "BFC",
-      "total_amount": 31466904.2,
-      "total_quantity": 57705,
-      "broker_count": 8
+      "symbol": "BUNGAL",
+      "total_amount": 40034953.3,
+      "total_quantity": 62589,
+      "broker_count": 9
     },
     {
       "symbol": "CORBL",
-      "total_amount": 28566942.3,
-      "total_quantity": 20636,
-      "broker_count": 9
+      "total_amount": 39802486.0,
+      "total_quantity": 28757,
+      "broker_count": 10
+    },
+    {
+      "symbol": "KBL",
+      "total_amount": 38357724.2,
+      "total_quantity": 173971,
+      "broker_count": 6
+    },
+    {
+      "symbol": "NRN",
+      "total_amount": 33650867.7,
+      "total_quantity": 22521,
+      "broker_count": 7
     }
   ],
   "top_releasing": [
     {
-      "symbol": "NRN",
-      "total_amount": 98727412.2,
-      "total_quantity": 65082,
-      "broker_count": 6
+      "symbol": "CORBL",
+      "total_amount": 215182071.4,
+      "total_quantity": 154861,
+      "broker_count": 1
     },
     {
-      "symbol": "BFC",
-      "total_amount": 72615867.2,
-      "total_quantity": 133281,
-      "broker_count": 3
+      "symbol": "SOHL",
+      "total_amount": 107429154.3,
+      "total_quantity": 178372,
+      "broker_count": 7
     },
     {
       "symbol": "AKJCL",
-      "total_amount": 62800977.4,
-      "total_quantity": 162926,
-      "broker_count": 8
-    },
-    {
-      "symbol": "API",
-      "total_amount": 57082226.4,
-      "total_quantity": 166348,
+      "total_amount": 107394333.4,
+      "total_quantity": 281066,
       "broker_count": 6
     },
     {
-      "symbol": "NHPC",
-      "total_amount": 55317405.3,
-      "total_quantity": 193731,
-      "broker_count": 6
+      "symbol": "BUNGAL",
+      "total_amount": 92094617.2,
+      "total_quantity": 144046,
+      "broker_count": 1
+    },
+    {
+      "symbol": "NGPL",
+      "total_amount": 78773576.4,
+      "total_quantity": 187626,
+      "broker_count": 5
     }
   ]
 }
