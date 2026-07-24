@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-24 09:38",
+  "generated_at": "2026-07-24 11:18",
   "nepse": {
     "close": 2734.63,
     "change": 7.91,
@@ -97,9 +97,9 @@
     }
   ],
   "breadth": {
-    "increased": 150,
-    "decreased": 115,
-    "unchanged": 18,
+    "increased": 112,
+    "decreased": 156,
+    "unchanged": 15,
     "date": "2026-07-24"
   }
 }
