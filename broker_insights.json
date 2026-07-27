@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-24",
+  "date": "2026-07-27",
   "top_accumulating": [
     {
-      "symbol": "RSML",
-      "total_amount": 46528885.1,
-      "total_quantity": 13255,
-      "broker_count": 9
-    },
-    {
-      "symbol": "BUNGAL",
-      "total_amount": 40034953.3,
-      "total_quantity": 62589,
-      "broker_count": 9
-    },
-    {
-      "symbol": "CORBL",
-      "total_amount": 39802486.0,
-      "total_quantity": 28757,
-      "broker_count": 10
+      "symbol": "RIDI",
+      "total_amount": 80017712.2,
+      "total_quantity": 213428,
+      "broker_count": 3
     },
     {
       "symbol": "KBL",
-      "total_amount": 38357724.2,
-      "total_quantity": 173971,
-      "broker_count": 6
+      "total_amount": 73715973.9,
+      "total_quantity": 323555,
+      "broker_count": 8
     },
     {
       "symbol": "NRN",
-      "total_amount": 33650867.7,
-      "total_quantity": 22521,
+      "total_amount": 38333482.0,
+      "total_quantity": 25861,
+      "broker_count": 6
+    },
+    {
+      "symbol": "CFCL",
+      "total_amount": 33740085.0,
+      "total_quantity": 51438,
       "broker_count": 7
+    },
+    {
+      "symbol": "KBSH",
+      "total_amount": 30569456.8,
+      "total_quantity": 31628,
+      "broker_count": 8
     }
   ],
   "top_releasing": [
     {
-      "symbol": "CORBL",
-      "total_amount": 215182071.4,
-      "total_quantity": 154861,
-      "broker_count": 1
-    },
-    {
-      "symbol": "SOHL",
-      "total_amount": 107429154.3,
-      "total_quantity": 178372,
-      "broker_count": 7
+      "symbol": "RIDI",
+      "total_amount": 126574204.4,
+      "total_quantity": 336639,
+      "broker_count": 8
     },
     {
       "symbol": "AKJCL",
-      "total_amount": 107394333.4,
-      "total_quantity": 281066,
+      "total_amount": 118855890.8,
+      "total_quantity": 311069,
       "broker_count": 6
     },
     {
-      "symbol": "BUNGAL",
-      "total_amount": 92094617.2,
-      "total_quantity": 144046,
-      "broker_count": 1
+      "symbol": "KBSH",
+      "total_amount": 101420090.4,
+      "total_quantity": 104833,
+      "broker_count": 3
     },
     {
-      "symbol": "NGPL",
-      "total_amount": 78773576.4,
-      "total_quantity": 187626,
-      "broker_count": 5
+      "symbol": "EBL",
+      "total_amount": 78039598.0,
+      "total_quantity": 107791,
+      "broker_count": 6
+    },
+    {
+      "symbol": "KKHC",
+      "total_amount": 64778610.0,
+      "total_quantity": 233453,
+      "broker_count": 10
     }
   ]
 }
