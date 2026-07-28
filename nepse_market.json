@@ -1,11 +1,44 @@
 {
-  "generated_at": "2026-07-28 09:39",
-  "nepse": null,
+  "generated_at": "2026-07-28 11:36",
+  "nepse": {
+    "close": 2696.67,
+    "change": -4.65,
+    "change_pct": -0.17,
+    "date": "2026-07-28"
+  },
   "market_status": {
     "is_open": false,
-    "as_of": ""
+    "as_of": "2026-07-28T14:59:59"
   },
   "sectors": [
+    {
+      "name": "Banking",
+      "symbol": "BANKINGIND",
+      "close": 1489.62,
+      "change": -1.13,
+      "change_pct": -0.08
+    },
+    {
+      "name": "Dev. Bank",
+      "symbol": "DEVBANKIND",
+      "close": 5722.99,
+      "change": -10.97,
+      "change_pct": -0.19
+    },
+    {
+      "name": "Finance",
+      "symbol": "FINANCEIND",
+      "close": 2449.52,
+      "change": 1.48,
+      "change_pct": 0.06
+    },
+    {
+      "name": "Life Ins.",
+      "symbol": "LIFEINSUIND",
+      "close": 12093.88,
+      "change": -70.88,
+      "change_pct": -0.58
+    },
     {
       "name": "Non-Life Ins.",
       "symbol": "NONLIFEIND",
@@ -14,17 +47,59 @@
       "change_pct": -0.25
     },
     {
+      "name": "Hydropower",
+      "symbol": "HYDROPOWIND",
+      "close": 3749.73,
+      "change": 5.95,
+      "change_pct": 0.16
+    },
+    {
+      "name": "Microfinance",
+      "symbol": "MICROFININD",
+      "close": 4649.51,
+      "change": -6.24,
+      "change_pct": -0.13
+    },
+    {
+      "name": "Trading",
+      "symbol": "TRADINGIND",
+      "close": 3397.01,
+      "change": 25.0,
+      "change_pct": 0.74
+    },
+    {
+      "name": "Hotels",
+      "symbol": "HOTELIND",
+      "close": 7388.24,
+      "change": 13.68,
+      "change_pct": 0.19
+    },
+    {
+      "name": "Mfg & Proc.",
+      "symbol": "MANUFACTUREIND",
+      "close": 10764.11,
+      "change": -28.7,
+      "change_pct": -0.27
+    },
+    {
+      "name": "Mutual Fund",
+      "symbol": "MUTUALIND",
+      "close": 21.14,
+      "change": -0.1,
+      "change_pct": -0.47
+    },
+    {
       "name": "Investment",
       "symbol": "INVIDX",
-      "close": 99.75,
-      "change": -0.41,
-      "change_pct": -0.41
+      "close": 98.98,
+      "change": -0.77,
+      "change_pct": -0.77
     }
   ],
   "breadth": {
-    "increased": 75,
-    "decreased": 197,
-    "unchanged": 11,
+    "increased": 95,
+    "decreased": 173,
+    "unchanged": 16,
     "date": "2026-07-28"
   }
 }
