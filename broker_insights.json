@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-28",
+  "date": "2026-07-29",
   "top_accumulating": [
     {
-      "symbol": "GBIME",
-      "total_amount": 129893567.2,
-      "total_quantity": 502860,
-      "broker_count": 3
-    },
-    {
-      "symbol": "SAND2085",
-      "total_amount": 52298380.0,
-      "total_quantity": 45477,
-      "broker_count": 1
-    },
-    {
-      "symbol": "NMBD87/88",
-      "total_amount": 48169907.0,
-      "total_quantity": 42254,
-      "broker_count": 1
-    },
-    {
       "symbol": "CFCL",
-      "total_amount": 41640421.8,
-      "total_quantity": 62443,
-      "broker_count": 1
+      "total_amount": 127333951.9,
+      "total_quantity": 194270,
+      "broker_count": 7
+    },
+    {
+      "symbol": "GBIME",
+      "total_amount": 37365487.5,
+      "total_quantity": 143370,
+      "broker_count": 6
     },
     {
       "symbol": "NRN",
-      "total_amount": 38585798.0,
-      "total_quantity": 26488,
+      "total_amount": 28260033.3,
+      "total_quantity": 19792,
+      "broker_count": 7
+    },
+    {
+      "symbol": "ADBL",
+      "total_amount": 26266180.3,
+      "total_quantity": 82181,
+      "broker_count": 2
+    },
+    {
+      "symbol": "RIDI",
+      "total_amount": 23664999.1,
+      "total_quantity": 65017,
       "broker_count": 8
     }
   ],
   "top_releasing": [
     {
-      "symbol": "GBIME",
-      "total_amount": 142848744.2,
-      "total_quantity": 551841,
-      "broker_count": 9
-    },
-    {
-      "symbol": "CFCL",
-      "total_amount": 68039381.0,
-      "total_quantity": 101098,
-      "broker_count": 10
-    },
-    {
-      "symbol": "CGH",
-      "total_amount": 64077821.8,
-      "total_quantity": 82101,
-      "broker_count": 6
-    },
-    {
-      "symbol": "KBL",
-      "total_amount": 61151776.0,
-      "total_quantity": 266186,
+      "symbol": "NRN",
+      "total_amount": 90969922.9,
+      "total_quantity": 63724,
       "broker_count": 5
     },
     {
-      "symbol": "SAIL",
-      "total_amount": 57314523.0,
-      "total_quantity": 53223,
+      "symbol": "SOHL",
+      "total_amount": 79358141.5,
+      "total_quantity": 132654,
       "broker_count": 6
+    },
+    {
+      "symbol": "RIDI",
+      "total_amount": 78920612.0,
+      "total_quantity": 214801,
+      "broker_count": 6
+    },
+    {
+      "symbol": "GBIME",
+      "total_amount": 77134802.8,
+      "total_quantity": 297937,
+      "broker_count": 7
+    },
+    {
+      "symbol": "RSML",
+      "total_amount": 34076190.0,
+      "total_quantity": 10881,
+      "broker_count": 2
     }
   ]
 }
