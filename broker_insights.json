@@ -1,67 +1,67 @@
 {
-  "date": "2026-07-31",
+  "date": "2026-08-03",
   "top_accumulating": [
     {
-      "symbol": "RSML",
-      "total_amount": 41412894.1,
-      "total_quantity": 13714,
-      "broker_count": 7
-    },
-    {
-      "symbol": "CORBL",
-      "total_amount": 36899284.7,
-      "total_quantity": 30510,
-      "broker_count": 10
+      "symbol": "GBIME",
+      "total_amount": 63623782.4,
+      "total_quantity": 244707,
+      "broker_count": 1
     },
     {
       "symbol": "CFCL",
-      "total_amount": 31483997.6,
-      "total_quantity": 48171,
-      "broker_count": 2
+      "total_amount": 34826220.5,
+      "total_quantity": 52536,
+      "broker_count": 3
     },
     {
-      "symbol": "HPPL",
-      "total_amount": 28589377.1,
-      "total_quantity": 74378,
+      "symbol": "RIDI",
+      "total_amount": 27345201.8,
+      "total_quantity": 74487,
       "broker_count": 6
     },
     {
       "symbol": "NRN",
-      "total_amount": 21267788.5,
-      "total_quantity": 15132,
-      "broker_count": 4
+      "total_amount": 26169185.1,
+      "total_quantity": 18670,
+      "broker_count": 8
+    },
+    {
+      "symbol": "UMHL",
+      "total_amount": 23930802.0,
+      "total_quantity": 41285,
+      "broker_count": 7
     }
   ],
   "top_releasing": [
     {
-      "symbol": "RIDI",
-      "total_amount": 71310249.2,
-      "total_quantity": 194749,
-      "broker_count": 6
-    },
-    {
-      "symbol": "KKHC",
-      "total_amount": 59091758.1,
-      "total_quantity": 197745,
-      "broker_count": 10
+      "symbol": "HPPL",
+      "total_amount": 87890593.4,
+      "total_quantity": 231693,
+      "broker_count": 4
     },
     {
       "symbol": "SOHL",
-      "total_amount": 56672204.2,
-      "total_quantity": 96974,
+      "total_amount": 77850196.2,
+      "total_quantity": 133968,
+      "broker_count": 4
+    },
+    {
+      "symbol": "SBL",
+      "total_amount": 62212195.4,
+      "total_quantity": 151510,
       "broker_count": 5
     },
     {
-      "symbol": "CHCL",
-      "total_amount": 45965835.9,
-      "total_quantity": 93225,
-      "broker_count": 10
+      "symbol": "RSML",
+      "total_amount": 61619749.4,
+      "total_quantity": 20618,
+      "broker_count": 3
     },
     {
-      "symbol": "CFCL",
-      "total_amount": 39228974.7,
-      "total_quantity": 60030,
-      "broker_count": 9
+      "symbol": "UMHL",
+      "total_amount": 59743594.0,
+      "total_quantity": 102940,
+      "broker_count": 3
     }
   ]
 }
