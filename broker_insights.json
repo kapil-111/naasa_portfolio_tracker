@@ -1,67 +1,67 @@
 {
-  "date": "2026-08-03",
+  "date": "2026-08-04",
   "top_accumulating": [
     {
-      "symbol": "GBIME",
-      "total_amount": 63623782.4,
-      "total_quantity": 244707,
-      "broker_count": 1
-    },
-    {
-      "symbol": "CFCL",
-      "total_amount": 34826220.5,
-      "total_quantity": 52536,
+      "symbol": "SAIL",
+      "total_amount": 47919246.2,
+      "total_quantity": 42249,
       "broker_count": 3
     },
     {
-      "symbol": "RIDI",
-      "total_amount": 27345201.8,
-      "total_quantity": 74487,
-      "broker_count": 6
-    },
-    {
-      "symbol": "NRN",
-      "total_amount": 26169185.1,
-      "total_quantity": 18670,
-      "broker_count": 8
-    },
-    {
-      "symbol": "UMHL",
-      "total_amount": 23930802.0,
-      "total_quantity": 41285,
+      "symbol": "AKJCL",
+      "total_amount": 38173916.8,
+      "total_quantity": 104251,
       "broker_count": 7
+    },
+    {
+      "symbol": "RSML",
+      "total_amount": 33975072.2,
+      "total_quantity": 11835,
+      "broker_count": 9
+    },
+    {
+      "symbol": "SAHAS",
+      "total_amount": 28096439.2,
+      "total_quantity": 41580,
+      "broker_count": 4
+    },
+    {
+      "symbol": "ADBL",
+      "total_amount": 27665378.3,
+      "total_quantity": 85369,
+      "broker_count": 3
     }
   ],
   "top_releasing": [
     {
-      "symbol": "HPPL",
-      "total_amount": 87890593.4,
-      "total_quantity": 231693,
-      "broker_count": 4
-    },
-    {
-      "symbol": "SOHL",
-      "total_amount": 77850196.2,
-      "total_quantity": 133968,
-      "broker_count": 4
-    },
-    {
-      "symbol": "SBL",
-      "total_amount": 62212195.4,
-      "total_quantity": 151510,
-      "broker_count": 5
+      "symbol": "RIDI",
+      "total_amount": 135652905.0,
+      "total_quantity": 365293,
+      "broker_count": 6
     },
     {
       "symbol": "RSML",
-      "total_amount": 61619749.4,
-      "total_quantity": 20618,
-      "broker_count": 3
+      "total_amount": 132105315.8,
+      "total_quantity": 45534,
+      "broker_count": 2
     },
     {
-      "symbol": "UMHL",
-      "total_amount": 59743594.0,
-      "total_quantity": 102940,
-      "broker_count": 3
+      "symbol": "GBIME",
+      "total_amount": 128194721.5,
+      "total_quantity": 485472,
+      "broker_count": 7
+    },
+    {
+      "symbol": "KBL",
+      "total_amount": 87627952.9,
+      "total_quantity": 390096,
+      "broker_count": 6
+    },
+    {
+      "symbol": "SBL",
+      "total_amount": 52562749.0,
+      "total_quantity": 125279,
+      "broker_count": 6
     }
   ]
 }
