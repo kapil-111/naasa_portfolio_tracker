@@ -1,67 +1,67 @@
 {
-  "date": "2026-08-04",
+  "date": "2026-08-05",
   "top_accumulating": [
     {
-      "symbol": "SAIL",
-      "total_amount": 47919246.2,
-      "total_quantity": 42249,
-      "broker_count": 3
+      "symbol": "NHPC",
+      "total_amount": 74484071.6,
+      "total_quantity": 266914,
+      "broker_count": 2
     },
     {
-      "symbol": "AKJCL",
-      "total_amount": 38173916.8,
-      "total_quantity": 104251,
-      "broker_count": 7
+      "symbol": "CZBILP",
+      "total_amount": 72204200.0,
+      "total_quantity": 722042,
+      "broker_count": 1
     },
     {
-      "symbol": "RSML",
-      "total_amount": 33975072.2,
-      "total_quantity": 11835,
-      "broker_count": 9
-    },
-    {
-      "symbol": "SAHAS",
-      "total_amount": 28096439.2,
-      "total_quantity": 41580,
+      "symbol": "SBL",
+      "total_amount": 37535131.0,
+      "total_quantity": 89952,
       "broker_count": 4
     },
     {
-      "symbol": "ADBL",
-      "total_amount": 27665378.3,
-      "total_quantity": 85369,
-      "broker_count": 3
+      "symbol": "LBBL",
+      "total_amount": 33710338.7,
+      "total_quantity": 67681,
+      "broker_count": 5
+    },
+    {
+      "symbol": "CITY",
+      "total_amount": 25812421.1,
+      "total_quantity": 70454,
+      "broker_count": 8
     }
   ],
   "top_releasing": [
     {
-      "symbol": "RIDI",
-      "total_amount": 135652905.0,
-      "total_quantity": 365293,
-      "broker_count": 6
-    },
-    {
-      "symbol": "RSML",
-      "total_amount": 132105315.8,
-      "total_quantity": 45534,
-      "broker_count": 2
-    },
-    {
-      "symbol": "GBIME",
-      "total_amount": 128194721.5,
-      "total_quantity": 485472,
-      "broker_count": 7
-    },
-    {
-      "symbol": "KBL",
-      "total_amount": 87627952.9,
-      "total_quantity": 390096,
-      "broker_count": 6
+      "symbol": "KKHC",
+      "total_amount": 194011243.8,
+      "total_quantity": 635370,
+      "broker_count": 9
     },
     {
       "symbol": "SBL",
-      "total_amount": 52562749.0,
-      "total_quantity": 125279,
+      "total_amount": 152090118.8,
+      "total_quantity": 364582,
       "broker_count": 6
+    },
+    {
+      "symbol": "CZBILP",
+      "total_amount": 144408400.0,
+      "total_quantity": 1444084,
+      "broker_count": 1
+    },
+    {
+      "symbol": "UPCL",
+      "total_amount": 50142025.8,
+      "total_quantity": 141700,
+      "broker_count": 2
+    },
+    {
+      "symbol": "NRN",
+      "total_amount": 45559788.0,
+      "total_quantity": 32554,
+      "broker_count": 8
     }
   ]
 }
