@@ -1,67 +1,67 @@
 {
-  "date": "2026-08-06",
+  "date": "2026-08-07",
   "top_accumulating": [
     {
+      "symbol": "NHPC",
+      "total_amount": 37718547.8,
+      "total_quantity": 132783,
+      "broker_count": 7
+    },
+    {
+      "symbol": "UMHL",
+      "total_amount": 34236386.1,
+      "total_quantity": 60420,
+      "broker_count": 4
+    },
+    {
       "symbol": "SOHL",
-      "total_amount": 120220963.0,
-      "total_quantity": 193417,
-      "broker_count": 3
-    },
-    {
-      "symbol": "LBBL",
-      "total_amount": 38668526.3,
-      "total_quantity": 76768,
+      "total_amount": 30931172.7,
+      "total_quantity": 45935,
       "broker_count": 4
     },
     {
-      "symbol": "HPPL",
-      "total_amount": 30349522.1,
-      "total_quantity": 79352,
-      "broker_count": 4
+      "symbol": "CHDC",
+      "total_amount": 26985639.4,
+      "total_quantity": 12141,
+      "broker_count": 5
     },
     {
-      "symbol": "SBL",
-      "total_amount": 29966850.6,
-      "total_quantity": 72320,
-      "broker_count": 1
-    },
-    {
-      "symbol": "AKJCL",
-      "total_amount": 18612088.1,
-      "total_quantity": 51542,
-      "broker_count": 8
+      "symbol": "GBIME",
+      "total_amount": 25601574.2,
+      "total_quantity": 100822,
+      "broker_count": 5
     }
   ],
   "top_releasing": [
     {
-      "symbol": "KKHC",
-      "total_amount": 140666158.6,
-      "total_quantity": 435746,
+      "symbol": "AKJCL",
+      "total_amount": 205110207.6,
+      "total_quantity": 545854,
+      "broker_count": 5
+    },
+    {
+      "symbol": "RIDI",
+      "total_amount": 153015823.6,
+      "total_quantity": 391998,
       "broker_count": 9
     },
     {
+      "symbol": "NHPC",
+      "total_amount": 111186253.6,
+      "total_quantity": 391533,
+      "broker_count": 6
+    },
+    {
       "symbol": "SOHL",
-      "total_amount": 106168423.4,
-      "total_quantity": 166429,
-      "broker_count": 6
-    },
-    {
-      "symbol": "NRN",
-      "total_amount": 86184698.0,
-      "total_quantity": 61604,
-      "broker_count": 6
-    },
-    {
-      "symbol": "ECL",
-      "total_amount": 83521543.4,
-      "total_quantity": 49092,
+      "total_amount": 63896290.2,
+      "total_quantity": 94792,
       "broker_count": 7
     },
     {
-      "symbol": "SBL",
-      "total_amount": 78124715.6,
-      "total_quantity": 187972,
-      "broker_count": 8
+      "symbol": "NRN",
+      "total_amount": 57950148.6,
+      "total_quantity": 41774,
+      "broker_count": 5
     }
   ]
 }
