@@ -1,67 +1,67 @@
 {
-  "date": "2026-08-10",
+  "date": "2026-08-11",
   "top_accumulating": [
     {
       "symbol": "SOHL",
-      "total_amount": 48109663.1,
-      "total_quantity": 68054,
-      "broker_count": 4
+      "total_amount": 58063707.7,
+      "total_quantity": 82092,
+      "broker_count": 6
     },
     {
-      "symbol": "FMDBL",
-      "total_amount": 34870571.4,
-      "total_quantity": 43014,
-      "broker_count": 4
-    },
-    {
-      "symbol": "SAPDBL",
-      "total_amount": 34054084.7,
-      "total_quantity": 42136,
-      "broker_count": 9
-    },
-    {
-      "symbol": "SAIL",
-      "total_amount": 26658109.0,
-      "total_quantity": 24208,
+      "symbol": "UHEWA",
+      "total_amount": 43848556.1,
+      "total_quantity": 70124,
       "broker_count": 2
     },
     {
-      "symbol": "MNBBLP",
-      "total_amount": 22832946.3,
-      "total_quantity": 156283,
-      "broker_count": 1
+      "symbol": "FMDBL",
+      "total_amount": 36036987.5,
+      "total_quantity": 43611,
+      "broker_count": 5
+    },
+    {
+      "symbol": "SAHAS",
+      "total_amount": 27788360.2,
+      "total_quantity": 41273,
+      "broker_count": 4
+    },
+    {
+      "symbol": "RIDI",
+      "total_amount": 26270261.0,
+      "total_quantity": 69078,
+      "broker_count": 6
     }
   ],
   "top_releasing": [
     {
-      "symbol": "RIDI",
-      "total_amount": 122973996.5,
-      "total_quantity": 318693,
-      "broker_count": 9
+      "symbol": "SOHL",
+      "total_amount": 127446619.1,
+      "total_quantity": 179683,
+      "broker_count": 7
     },
     {
-      "symbol": "SOHL",
-      "total_amount": 70447243.5,
-      "total_quantity": 98784,
+      "symbol": "RIDI",
+      "total_amount": 113787360.4,
+      "total_quantity": 301217,
+      "broker_count": 5
+    },
+    {
+      "symbol": "NGPL",
+      "total_amount": 78739827.8,
+      "total_quantity": 188945,
       "broker_count": 6
     },
     {
       "symbol": "SAIL",
-      "total_amount": 42309132.8,
-      "total_quantity": 38409,
-      "broker_count": 8
-    },
-    {
-      "symbol": "SHIVM",
-      "total_amount": 40417011.9,
-      "total_quantity": 63658,
+      "total_amount": 76210401.0,
+      "total_quantity": 68714,
       "broker_count": 4
     },
     {
-      "symbol": "NHPC",
-      "total_amount": 37435547.8,
-      "total_quantity": 137472,
-      "broker_count": 3
+      "symbol": "KKHC",
+      "total_amount": 48580611.4,
+      "total_quantity": 153148,
+      "broker_count": 9
     }
   ]
 }
