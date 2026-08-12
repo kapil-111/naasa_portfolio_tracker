@@ -1,67 +1,67 @@
 {
-  "date": "2026-08-11",
+  "date": "2026-08-12",
   "top_accumulating": [
     {
       "symbol": "SOHL",
-      "total_amount": 58063707.7,
-      "total_quantity": 82092,
+      "total_amount": 45515156.9,
+      "total_quantity": 65509,
       "broker_count": 6
     },
     {
-      "symbol": "UHEWA",
-      "total_amount": 43848556.1,
-      "total_quantity": 70124,
-      "broker_count": 2
+      "symbol": "AKJCL",
+      "total_amount": 42926170.2,
+      "total_quantity": 118507,
+      "broker_count": 8
     },
     {
-      "symbol": "FMDBL",
-      "total_amount": 36036987.5,
-      "total_quantity": 43611,
-      "broker_count": 5
+      "symbol": "NRN",
+      "total_amount": 39433951.5,
+      "total_quantity": 27401,
+      "broker_count": 6
     },
     {
-      "symbol": "SAHAS",
-      "total_amount": 27788360.2,
-      "total_quantity": 41273,
+      "symbol": "NGPL",
+      "total_amount": 27214512.2,
+      "total_quantity": 65040,
+      "broker_count": 6
+    },
+    {
+      "symbol": "KBL",
+      "total_amount": 21732028.6,
+      "total_quantity": 98905,
       "broker_count": 4
-    },
-    {
-      "symbol": "RIDI",
-      "total_amount": 26270261.0,
-      "total_quantity": 69078,
-      "broker_count": 6
     }
   ],
   "top_releasing": [
     {
-      "symbol": "SOHL",
-      "total_amount": 127446619.1,
-      "total_quantity": 179683,
-      "broker_count": 7
-    },
-    {
       "symbol": "RIDI",
-      "total_amount": 113787360.4,
-      "total_quantity": 301217,
+      "total_amount": 70556883.4,
+      "total_quantity": 188627,
       "broker_count": 5
     },
     {
-      "symbol": "NGPL",
-      "total_amount": 78739827.8,
-      "total_quantity": 188945,
-      "broker_count": 6
+      "symbol": "HIDCL",
+      "total_amount": 53056044.5,
+      "total_quantity": 211790,
+      "broker_count": 2
     },
     {
-      "symbol": "SAIL",
-      "total_amount": 76210401.0,
-      "total_quantity": 68714,
+      "symbol": "NGPL",
+      "total_amount": 49537369.2,
+      "total_quantity": 118490,
       "broker_count": 4
     },
     {
-      "symbol": "KKHC",
-      "total_amount": 48580611.4,
-      "total_quantity": 153148,
-      "broker_count": 9
+      "symbol": "NRN",
+      "total_amount": 49031630.0,
+      "total_quantity": 34494,
+      "broker_count": 4
+    },
+    {
+      "symbol": "SANIMA",
+      "total_amount": 47868952.4,
+      "total_quantity": 130079,
+      "broker_count": 3
     }
   ]
 }
