@@ -1,101 +1,11 @@
 {
-  "generated_at": "2026-08-12 10:35",
-  "nepse": {
-    "close": 2642.4,
-    "change": 0.55,
-    "change_pct": 0.02,
-    "date": "2026-08-12"
-  },
+  "generated_at": "2026-08-13 09:19",
+  "nepse": null,
   "market_status": {
     "is_open": false,
-    "as_of": "2026-08-12T14:59:59"
+    "as_of": ""
   },
-  "sectors": [
-    {
-      "name": "Banking",
-      "symbol": "BANKINGIND",
-      "close": 1455.41,
-      "change": 0.77,
-      "change_pct": 0.05
-    },
-    {
-      "name": "Dev. Bank",
-      "symbol": "DEVBANKIND",
-      "close": 5572.73,
-      "change": -12.67,
-      "change_pct": -0.23
-    },
-    {
-      "name": "Finance",
-      "symbol": "FINANCEIND",
-      "close": 2392.29,
-      "change": 5.93,
-      "change_pct": 0.25
-    },
-    {
-      "name": "Life Ins.",
-      "symbol": "LIFEINSUIND",
-      "close": 11747.52,
-      "change": -18.32,
-      "change_pct": -0.16
-    },
-    {
-      "name": "Non-Life Ins.",
-      "symbol": "NONLIFEIND",
-      "close": 10576.56,
-      "change": 9.86,
-      "change_pct": 0.09
-    },
-    {
-      "name": "Hydropower",
-      "symbol": "HYDROPOWIND",
-      "close": 3719.7,
-      "change": -15.07,
-      "change_pct": -0.4
-    },
-    {
-      "name": "Microfinance",
-      "symbol": "MICROFININD",
-      "close": 4553.27,
-      "change": -1.91,
-      "change_pct": -0.04
-    },
-    {
-      "name": "Trading",
-      "symbol": "TRADINGIND",
-      "close": 3325.58,
-      "change": -7.07,
-      "change_pct": -0.21
-    },
-    {
-      "name": "Hotels",
-      "symbol": "HOTELIND",
-      "close": 7336.79,
-      "change": 62.31,
-      "change_pct": 0.86
-    },
-    {
-      "name": "Mfg & Proc.",
-      "symbol": "MANUFACTUREIND",
-      "close": 10323.64,
-      "change": -73.91,
-      "change_pct": -0.71
-    },
-    {
-      "name": "Mutual Fund",
-      "symbol": "MUTUALIND",
-      "close": 20.95,
-      "change": 0.06,
-      "change_pct": 0.29
-    },
-    {
-      "name": "Investment",
-      "symbol": "INVIDX",
-      "close": 98.71,
-      "change": 2.14,
-      "change_pct": 2.22
-    }
-  ],
+  "sectors": [],
   "breadth": {
     "increased": 110,
     "decreased": 161,
