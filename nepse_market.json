@@ -1,15 +1,105 @@
 {
-  "generated_at": "2026-08-13 09:19",
-  "nepse": null,
+  "generated_at": "2026-08-13 10:37",
+  "nepse": {
+    "close": 2651.21,
+    "change": 8.81,
+    "change_pct": 0.33,
+    "date": "2026-08-13"
+  },
   "market_status": {
     "is_open": false,
-    "as_of": ""
+    "as_of": "2026-08-13T14:59:59"
   },
-  "sectors": [],
+  "sectors": [
+    {
+      "name": "Banking",
+      "symbol": "BANKINGIND",
+      "close": 1461.15,
+      "change": 5.74,
+      "change_pct": 0.39
+    },
+    {
+      "name": "Dev. Bank",
+      "symbol": "DEVBANKIND",
+      "close": 5602.35,
+      "change": 29.62,
+      "change_pct": 0.53
+    },
+    {
+      "name": "Finance",
+      "symbol": "FINANCEIND",
+      "close": 2392.58,
+      "change": 0.29,
+      "change_pct": 0.01
+    },
+    {
+      "name": "Life Ins.",
+      "symbol": "LIFEINSUIND",
+      "close": 11771.43,
+      "change": 23.91,
+      "change_pct": 0.2
+    },
+    {
+      "name": "Non-Life Ins.",
+      "symbol": "NONLIFEIND",
+      "close": 10631.69,
+      "change": 55.13,
+      "change_pct": 0.52
+    },
+    {
+      "name": "Hydropower",
+      "symbol": "HYDROPOWIND",
+      "close": 3740.77,
+      "change": 21.07,
+      "change_pct": 0.57
+    },
+    {
+      "name": "Microfinance",
+      "symbol": "MICROFININD",
+      "close": 4563.32,
+      "change": 10.05,
+      "change_pct": 0.22
+    },
+    {
+      "name": "Trading",
+      "symbol": "TRADINGIND",
+      "close": 3325.58,
+      "change": 0.0,
+      "change_pct": 0.0
+    },
+    {
+      "name": "Hotels",
+      "symbol": "HOTELIND",
+      "close": 7363.35,
+      "change": 26.56,
+      "change_pct": 0.36
+    },
+    {
+      "name": "Mfg & Proc.",
+      "symbol": "MANUFACTUREIND",
+      "close": 10382.96,
+      "change": 59.32,
+      "change_pct": 0.57
+    },
+    {
+      "name": "Mutual Fund",
+      "symbol": "MUTUALIND",
+      "close": 20.9,
+      "change": -0.05,
+      "change_pct": -0.24
+    },
+    {
+      "name": "Investment",
+      "symbol": "INVIDX",
+      "close": 98.22,
+      "change": -0.49,
+      "change_pct": -0.5
+    }
+  ],
   "breadth": {
-    "increased": 110,
-    "decreased": 161,
-    "unchanged": 10,
-    "date": "2026-08-12"
+    "increased": 173,
+    "decreased": 87,
+    "unchanged": 20,
+    "date": "2026-08-13"
   }
 }

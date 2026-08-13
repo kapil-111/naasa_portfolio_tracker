@@ -1,5 +1,67 @@
 {
   "date": "2026-08-13",
-  "top_accumulating": [],
-  "top_releasing": []
+  "top_accumulating": [
+    {
+      "symbol": "UMHL",
+      "total_amount": 29901876.2,
+      "total_quantity": 53225,
+      "broker_count": 5
+    },
+    {
+      "symbol": "SANIMA",
+      "total_amount": 25999159.1,
+      "total_quantity": 70580,
+      "broker_count": 7
+    },
+    {
+      "symbol": "SOHL",
+      "total_amount": 25784521.7,
+      "total_quantity": 37600,
+      "broker_count": 7
+    },
+    {
+      "symbol": "GHL",
+      "total_amount": 24384746.1,
+      "total_quantity": 97840,
+      "broker_count": 5
+    },
+    {
+      "symbol": "RIDI",
+      "total_amount": 20892342.6,
+      "total_quantity": 56210,
+      "broker_count": 7
+    }
+  ],
+  "top_releasing": [
+    {
+      "symbol": "CFCL",
+      "total_amount": 99542474.0,
+      "total_quantity": 155260,
+      "broker_count": 5
+    },
+    {
+      "symbol": "SOHL",
+      "total_amount": 94395234.2,
+      "total_quantity": 138427,
+      "broker_count": 4
+    },
+    {
+      "symbol": "RIDI",
+      "total_amount": 89282450.2,
+      "total_quantity": 240118,
+      "broker_count": 3
+    },
+    {
+      "symbol": "AKJCL",
+      "total_amount": 62775703.8,
+      "total_quantity": 172474,
+      "broker_count": 4
+    },
+    {
+      "symbol": "GHL",
+      "total_amount": 57074153.6,
+      "total_quantity": 226431,
+      "broker_count": 6
+    }
+  ]
 }
