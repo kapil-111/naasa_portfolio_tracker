@@ -1,67 +1,67 @@
 {
-  "date": "2026-08-13",
+  "date": "2026-08-14",
   "top_accumulating": [
     {
-      "symbol": "UMHL",
-      "total_amount": 29901876.2,
-      "total_quantity": 53225,
-      "broker_count": 5
+      "symbol": "ADBLB87",
+      "total_amount": 708799000.0,
+      "total_quantity": 700000,
+      "broker_count": 2
     },
     {
-      "symbol": "SANIMA",
-      "total_amount": 25999159.1,
-      "total_quantity": 70580,
-      "broker_count": 7
+      "symbol": "RADHI",
+      "total_amount": 44219506.0,
+      "total_quantity": 61155,
+      "broker_count": 4
     },
     {
-      "symbol": "SOHL",
-      "total_amount": 25784521.7,
-      "total_quantity": 37600,
-      "broker_count": 7
+      "symbol": "NGPL",
+      "total_amount": 42271192.9,
+      "total_quantity": 101678,
+      "broker_count": 6
     },
     {
-      "symbol": "GHL",
-      "total_amount": 24384746.1,
-      "total_quantity": 97840,
-      "broker_count": 5
+      "symbol": "HPPL",
+      "total_amount": 25352665.1,
+      "total_quantity": 66407,
+      "broker_count": 4
     },
     {
-      "symbol": "RIDI",
-      "total_amount": 20892342.6,
-      "total_quantity": 56210,
-      "broker_count": 7
+      "symbol": "BHCL",
+      "total_amount": 22179409.4,
+      "total_quantity": 42681,
+      "broker_count": 4
     }
   ],
   "top_releasing": [
     {
-      "symbol": "CFCL",
-      "total_amount": 99542474.0,
-      "total_quantity": 155260,
-      "broker_count": 5
+      "symbol": "ADBLB87",
+      "total_amount": 1417498000.0,
+      "total_quantity": 1399900,
+      "broker_count": 1
     },
     {
-      "symbol": "SOHL",
-      "total_amount": 94395234.2,
-      "total_quantity": 138427,
-      "broker_count": 4
-    },
-    {
-      "symbol": "RIDI",
-      "total_amount": 89282450.2,
-      "total_quantity": 240118,
+      "symbol": "CITY",
+      "total_amount": 80995126.9,
+      "total_quantity": 222251,
       "broker_count": 3
     },
     {
-      "symbol": "AKJCL",
-      "total_amount": 62775703.8,
-      "total_quantity": 172474,
-      "broker_count": 4
+      "symbol": "LEC",
+      "total_amount": 77421670.6,
+      "total_quantity": 341640,
+      "broker_count": 3
     },
     {
-      "symbol": "GHL",
-      "total_amount": 57074153.6,
-      "total_quantity": 226431,
+      "symbol": "RIDI",
+      "total_amount": 60269038.4,
+      "total_quantity": 163756,
       "broker_count": 6
+    },
+    {
+      "symbol": "KKHC",
+      "total_amount": 60220024.8,
+      "total_quantity": 185977,
+      "broker_count": 9
     }
   ]
 }
