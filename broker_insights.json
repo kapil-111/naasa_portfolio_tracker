@@ -1,67 +1,67 @@
 {
-  "date": "2026-08-18",
+  "date": "2026-08-19",
   "top_accumulating": [
     {
-      "symbol": "RSML",
-      "total_amount": 602906910.1,
-      "total_quantity": 229935,
-      "broker_count": 9
-    },
-    {
-      "symbol": "KKHC",
-      "total_amount": 41860010.2,
-      "total_quantity": 125640,
-      "broker_count": 8
-    },
-    {
-      "symbol": "UMHL",
-      "total_amount": 35229287.7,
-      "total_quantity": 60106,
-      "broker_count": 3
-    },
-    {
-      "symbol": "RIDI",
-      "total_amount": 27297151.1,
-      "total_quantity": 74930,
+      "symbol": "NABIL",
+      "total_amount": 40045005.7,
+      "total_quantity": 73003,
       "broker_count": 7
     },
     {
-      "symbol": "CYCL",
-      "total_amount": 17372747.0,
-      "total_quantity": 11967,
-      "broker_count": 2
+      "symbol": "MEHL",
+      "total_amount": 34767666.3,
+      "total_quantity": 138944,
+      "broker_count": 8
+    },
+    {
+      "symbol": "SOHL",
+      "total_amount": 34297297.9,
+      "total_quantity": 50346,
+      "broker_count": 5
+    },
+    {
+      "symbol": "SHIVM",
+      "total_amount": 21652152.8,
+      "total_quantity": 34469,
+      "broker_count": 6
+    },
+    {
+      "symbol": "LEC",
+      "total_amount": 17488180.8,
+      "total_quantity": 79601,
+      "broker_count": 9
     }
   ],
   "top_releasing": [
     {
       "symbol": "RSML",
-      "total_amount": 1324402061.4,
-      "total_quantity": 492832,
+      "total_amount": 141811430.2,
+      "total_quantity": 52615,
+      "broker_count": 7
+    },
+    {
+      "symbol": "NABIL",
+      "total_amount": 81453736.9,
+      "total_quantity": 148480,
       "broker_count": 5
     },
     {
       "symbol": "SOHL",
-      "total_amount": 208690303.2,
-      "total_quantity": 302320,
-      "broker_count": 8
+      "total_amount": 55789865.8,
+      "total_quantity": 81669,
+      "broker_count": 4
     },
     {
-      "symbol": "NLICL",
-      "total_amount": 68757136.8,
-      "total_quantity": 113502,
-      "broker_count": 6
+      "symbol": "TAMOR",
+      "total_amount": 46741346.6,
+      "total_quantity": 101074,
+      "broker_count": 7
     },
     {
-      "symbol": "ADBL",
-      "total_amount": 60015706.2,
-      "total_quantity": 199940,
-      "broker_count": 3
-    },
-    {
-      "symbol": "GHL",
-      "total_amount": 57871664.2,
-      "total_quantity": 236144,
-      "broker_count": 5
+      "symbol": "MEHL",
+      "total_amount": 27383163.8,
+      "total_quantity": 107616,
+      "broker_count": 2
     }
   ]
 }
