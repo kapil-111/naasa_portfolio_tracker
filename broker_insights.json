@@ -1,66 +1,66 @@
 {
-  "date": "2026-08-21",
+  "date": "2026-08-24",
   "top_accumulating": [
     {
-      "symbol": "ADBLB87",
-      "total_amount": 506500000.0,
-      "total_quantity": 500000,
+      "symbol": "RSML",
+      "total_amount": 23661129.7,
+      "total_quantity": 8470,
+      "broker_count": 6
+    },
+    {
+      "symbol": "SHPC",
+      "total_amount": 23105485.9,
+      "total_quantity": 43270,
       "broker_count": 3
+    },
+    {
+      "symbol": "MEHL",
+      "total_amount": 22023745.8,
+      "total_quantity": 90181,
+      "broker_count": 9
     },
     {
       "symbol": "TAMOR",
-      "total_amount": 53585304.4,
-      "total_quantity": 113097,
-      "broker_count": 4
+      "total_amount": 20537361.4,
+      "total_quantity": 42643,
+      "broker_count": 6
     },
     {
-      "symbol": "RSML",
-      "total_amount": 42766292.8,
-      "total_quantity": 15790,
-      "broker_count": 7
-    },
-    {
-      "symbol": "SOHL",
-      "total_amount": 39859560.9,
-      "total_quantity": 58178,
-      "broker_count": 3
-    },
-    {
-      "symbol": "NBL",
-      "total_amount": 31496271.5,
-      "total_quantity": 114290,
-      "broker_count": 4
+      "symbol": "GBIME",
+      "total_amount": 16890656.7,
+      "total_quantity": 68625,
+      "broker_count": 8
     }
   ],
   "top_releasing": [
     {
-      "symbol": "ADBLB87",
-      "total_amount": 1013000000.0,
-      "total_quantity": 1000000,
-      "broker_count": 1
-    },
-    {
-      "symbol": "TAMOR",
-      "total_amount": 129207479.4,
-      "total_quantity": 272988,
-      "broker_count": 5
-    },
-    {
       "symbol": "RSML",
-      "total_amount": 93587074.4,
-      "total_quantity": 34574,
-      "broker_count": 5
-    },
-    {
-      "symbol": "SOHL",
-      "total_amount": 88359885.6,
-      "total_quantity": 127956,
+      "total_amount": 246031696.8,
+      "total_quantity": 88388,
       "broker_count": 7
     },
     {
-      "symbol": "SAHAS",
-      "total_amount": 82444391.4,
-      "total_quantity": 117121,
+      "symbol": "SOHL",
+      "total_amount": 163495738.2,
+      "total_quantity": 235239,
+      "broker_count": 6
+    },
+    {
+      "symbol": "RIDI",
+      "total_amount": 142486891.8,
+      "total_quantity": 393392,
+      "broker_count": 3
+    },
+    {
+      "symbol": "SHPC",
+      "total_amount": 63209541.8,
+      "total_quantity": 119180,
+      "broker_count": 7
+    },
+    {
+      "symbol": "NRN",
+      "total_amount": 60907308.0,
+      "total_quantity": 44311,
       "broker_count": 6
     }
   ]
