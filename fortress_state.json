@@ -70,18 +70,18 @@
     },
     "NLIC": {
         "in_position": true,
-        "entry_date": "2026-07-26",
-        "entry_price": 755.7,
-        "initial_entry": 755.7,
+        "entry_date": "2026-08-25",
+        "entry_price": 100.0,
+        "initial_entry": 100.0,
         "ema_cross_days": 18,
         "last_known_qty": 2,
         "peak_price": 749.9
     },
     "NMB": {
         "in_position": true,
-        "entry_date": "2026-06-20",
-        "entry_price": 237.9,
-        "initial_entry": 237.9,
+        "entry_date": "2026-07-01",
+        "entry_price": 100.0,
+        "initial_entry": 100.0,
         "ema_cross_days": 12,
         "last_known_qty": 2,
         "peak_price": 252.0
@@ -249,9 +249,9 @@
     },
     "NGPL": {
         "in_position": true,
-        "entry_date": "2026-03-05",
-        "entry_price": 400.0,
-        "initial_entry": 400.0,
+        "entry_date": "2026-03-22",
+        "entry_price": 100.0,
+        "initial_entry": 100.0,
         "ema_cross_days": 7,
         "last_known_qty": 2,
         "trades": 0,
