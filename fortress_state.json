@@ -1,7 +1,7 @@
 {
     "BNHC": {
         "in_position": true,
-        "entry_date": null,
+        "entry_date": "2026-07-26",
         "entry_price": 100.0,
         "initial_entry": 100.0,
         "ema_cross_days": 1,
@@ -409,6 +409,12 @@
     },
     "UHEWA": {
         "in_position": true,
-        "last_known_qty": 20
+        "last_known_qty": 20,
+        "entry_price": 644.0,
+        "initial_entry": 644.0,
+        "peak_price": 644.0,
+        "entry_date": "2026-07-26",
+        "position_count": 1,
+        "half_sold": false
     }
 }

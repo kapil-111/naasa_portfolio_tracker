@@ -33,7 +33,7 @@ from market_snapshot import generate_market_snapshot
 from fetch_broker_summary import fetch_broker_summary
 from fetch_broker_stocks import fetch_broker_stocks, generate_broker_insights
 
-from datetime import datetime, time as dt_time
+from datetime import datetime, time as dt_time, timedelta
 import pytz
 
 
@@ -415,7 +415,7 @@ def _sync_state_from_portfolio(portfolio_data):
     mark in_position=False (they've been fully sold/settled).
     Preserves all other state fields untouched.
     """
-    from signals_mr import _get_holding_symbol, _get_holding_qty
+    from signals_mr import _get_holding_symbol, _get_holding_qty, _get_holding_rate, _load_avg_prices
 
     holdings = portfolio_data.get("holdings", [])
     if not holdings:
@@ -433,6 +433,7 @@ def _sync_state_from_portfolio(portfolio_data):
         return _get_holding_qty(h)
 
     live = {}
+    live_rows = {}
     for h in holdings:
         sym = _get_holding_symbol(h)
         if not sym or sym.lower().startswith("total"):
@@ -440,15 +441,17 @@ def _sync_state_from_portfolio(portfolio_data):
         total = _get_cds_total(h)
         if total > 0:
             live[sym] = total  # CDS Total = true qty owned (incl. locked/bonus)
+            live_rows[sym] = h
 
     states = load_states()
+    avg_prices = _load_avg_prices()
     changed = []
 
     # Mark held symbols as in_position with correct qty
     today = datetime.now().date()
     for sym, qty in live.items():
         state = states.setdefault(sym, {})
-        
+
         # T+3 Guard: If recently sold, don't re-sync to in_position=True
         last_exit = state.get("last_exit_date")
         if last_exit:
@@ -464,6 +467,24 @@ def _sync_state_from_portfolio(portfolio_data):
         state["last_known_qty"] = qty
         if old_pos != True or old_qty != qty:
             changed.append(f"{sym}: in_position={old_pos}→True, qty={old_qty}→{qty}")
+
+        # Backfill entry data for holdings the bot never bought itself (e.g. bought
+        # manually on NAASA X) — without entry_date/entry_price, generate_signals()
+        # skips exit evaluation for this symbol forever, so it never gets a stop-loss,
+        # trailing stop, or take-profit applied even though it's a real position.
+        if not state.get("entry_date") or state.get("entry_price", 0) <= 0:
+            rate = _get_holding_rate(live_rows[sym], avg_prices)
+            if rate and rate > 0:
+                backdated = (today - timedelta(days=30)).strftime("%Y-%m-%d")
+                state["entry_price"]   = rate
+                if state.get("initial_entry", 0) <= 0:
+                    state["initial_entry"] = rate
+                if state.get("peak_price", 0) <= 0:
+                    state["peak_price"] = rate
+                state["entry_date"]     = backdated
+                state["position_count"] = state.get("position_count") or 1
+                state["half_sold"]      = state.get("half_sold", False)
+                changed.append(f"{sym}: backfilled entry_price={rate} entry_date={backdated} (was untracked)")
 
     # Mark symbols no longer in portfolio as exited
     # Skip symbols bought within T+2 days — they won't appear in holdings yet
