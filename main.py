@@ -195,7 +195,10 @@ def _update_prev_close(holdings, csv_path="chukul_data.csv", out_path="prev_clos
         print(f"[PREV CLOSE] Failed to read {csv_path}: {e}")
         return
 
-    today_str = datetime.now(pytz.timezone('Asia/Kathmandu')).strftime("%Y-%m-%d")
+    # Naive datetime.now() to match the "today" convention used everywhere else in this
+    # file (e.g. placed_orders_today.json, the T+3 exit guards) — mixing in a tz-aware
+    # NPT date here would disagree with those during part of the day and misdate rows.
+    today_str = datetime.now().strftime("%Y-%m-%d")
     prev_closes = {}
     for sym in symbols:
         rows = df[(df['symbol'] == sym) & (df['date'] < today_str)]
@@ -670,19 +673,28 @@ def main():
                     page = context.new_page()
                     login(page, username, password)
 
-                    portfolio_data = scrape_portfolio(page)
-                    raise_if_login_page(page, "closed market: after holding report")
-                    available_fund = scrape_available_fund(page)
-                    raise_if_login_page(page, "closed market: after wallet")
-                    if available_fund is not None:
-                        save_to_json({"available_fund": available_fund}, "available_fund.json")
-                    if portfolio_data and portfolio_data.get("holdings"):
-                        save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
-                        _update_prev_close(portfolio_data.get("holdings", []))
-                        _sync_state_from_portfolio(portfolio_data)
-                        _backfill_missing_avg_prices(page, portfolio_data)
-                    else:
+                    # Isolated from the reconciliation block below: a scrape failure here
+                    # (e.g. SessionExpiredError) must not skip EOD reconciliation for the
+                    # day, since the closed-market cycle now only gets one pass total.
+                    try:
+                        portfolio_data = scrape_portfolio(page)
+                        raise_if_login_page(page, "closed market: after holding report")
+                        available_fund = scrape_available_fund(page)
+                        raise_if_login_page(page, "closed market: after wallet")
+                        if available_fund is not None:
+                            save_to_json({"available_fund": available_fund}, "available_fund.json")
+                        if portfolio_data and portfolio_data.get("holdings"):
+                            save_to_csv(portfolio_data.get("holdings", []), "portfolio_data.csv")
+                            _update_prev_close(portfolio_data.get("holdings", []))
+                            _sync_state_from_portfolio(portfolio_data)
+                            _backfill_missing_avg_prices(page, portfolio_data)
+                        else:
+                            portfolio_data = _load_cached_portfolio()
+                    except Exception as e:
+                        print(f"[CLOSED CYCLE] Portfolio scrape failed, using cached data: {e}")
+                        notify_error(f"Closed-cycle portfolio scrape failed: {e}")
                         portfolio_data = _load_cached_portfolio()
+                        available_fund = None
 
                     # EOD fill reconciliation — run once on the first closed cycle after market close.
                     # Placed after the holding-report scrape above (not immediately after login) since

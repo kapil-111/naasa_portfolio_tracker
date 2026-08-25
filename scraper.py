@@ -187,8 +187,7 @@ def scrape_orderbook(page: Page) -> list:
     def _norm_key(k):
         return re.sub(r'\s+', ' ', k.strip().upper())
 
-    def _get(row, keys):
-        norm_row = {_norm_key(k): v for k, v in row.items()}
+    def _get(norm_row, keys):
         for k in keys:
             v = norm_row.get(k)
             if v is not None and str(v).strip():
@@ -209,13 +208,14 @@ def scrape_orderbook(page: Page) -> list:
 
     result = []
     for row in rows:
-        symbol = _get(row, _COL_SYMBOL)
+        norm_row = {_norm_key(k): v for k, v in row.items()}
+        symbol = _get(norm_row, _COL_SYMBOL)
         if not symbol or symbol.lower().startswith("total"):
             continue
-        traded_qty   = _int(_get(row, _COL_TRADED))
-        remaining_qty = _int(_get(row, _COL_REMAIN))
-        order_qty    = _int(_get(row, _COL_QTY))
-        status_raw   = _get(row, _COL_STATUS).upper()
+        traded_qty   = _int(_get(norm_row, _COL_TRADED))
+        remaining_qty = _int(_get(norm_row, _COL_REMAIN))
+        order_qty    = _int(_get(norm_row, _COL_QTY))
+        status_raw   = _get(norm_row, _COL_STATUS).upper()
 
         if "COMPLETE" in status_raw:
             fill_status = "COMPLETE"
@@ -228,8 +228,8 @@ def scrape_orderbook(page: Page) -> list:
 
         result.append({
             "symbol":        symbol,
-            "side":          _get(row, _COL_SIDE).upper(),
-            "price":         _float(_get(row, _COL_PRICE)),
+            "side":          _get(norm_row, _COL_SIDE).upper(),
+            "price":         _float(_get(norm_row, _COL_PRICE)),
             "order_qty":     order_qty,
             "traded_qty":    traded_qty,
             "remaining_qty": remaining_qty,
