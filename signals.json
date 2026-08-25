@@ -1,6 +1,43 @@
 {
-    "generated_at": "2026-08-25 10:03",
+    "generated_at": "2026-08-26 01:01 NPT",
     "context": "premarket",
     "regime": "SIDEWAYS",
-    "signals": []
+    "signals": [],
+    "potential": [
+        {
+            "symbol": "EDBL",
+            "price": 581.4,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: 7-day breakout"
+        },
+        {
+            "symbol": "ALBSL",
+            "price": 1100.0,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "CBBL",
+            "price": 936.0,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "EBL",
+            "price": 731.9,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "NBL",
+            "price": 274.8,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: volume surge, 7-day breakout"
+        }
+    ]
 }
