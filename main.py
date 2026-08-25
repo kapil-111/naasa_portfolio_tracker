@@ -99,8 +99,12 @@ def _get_live_ltp(symbol):
 def save_signals(signals, regime="UNKNOWN", context="premarket"):
     """Persist latest signals to signals.json for the dashboard."""
     from datetime import datetime
+    # NPT, not naive datetime.now() (UTC on GitHub Actions) -- the dashboard displays
+    # this raw with no timezone label, so a UTC stamp reads as ~6 hours earlier than
+    # it actually ran (e.g. a real 15:48 NPT post-close run showing as "10:03").
+    npt_now = datetime.now(pytz.timezone('Asia/Kathmandu'))
     data = {
-        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "generated_at": npt_now.strftime("%Y-%m-%d %H:%M") + " NPT",
         "context": context,
         "regime": regime,
         "signals": [
