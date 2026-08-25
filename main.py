@@ -473,7 +473,15 @@ def _sync_state_from_portfolio(portfolio_data):
         # skips exit evaluation for this symbol forever, so it never gets a stop-loss,
         # trailing stop, or take-profit applied even though it's a real position.
         if not state.get("entry_date") or state.get("entry_price", 0) <= 0:
-            rate = _get_holding_rate(live_rows[sym], avg_prices)
+            if sym in avg_prices:
+                rate = _get_holding_rate(live_rows[sym], avg_prices)
+            else:
+                # No recorded cost anywhere — default to par value (100) rather than
+                # falling back to LTP/close-price columns, and persist it so every
+                # other consumer of avg_prices.json (dashboard, exit P&L) agrees.
+                rate = 100.0
+                save_avg_price(sym, rate, qty)
+                avg_prices[sym] = rate
             if rate and rate > 0:
                 backdated = (today - timedelta(days=30)).strftime("%Y-%m-%d")
                 state["entry_price"]   = rate
