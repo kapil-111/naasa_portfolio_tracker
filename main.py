@@ -96,7 +96,7 @@ def _get_live_ltp(symbol):
     return None
 
 
-def save_signals(signals, regime="UNKNOWN", context="premarket"):
+def save_signals(signals, regime="UNKNOWN", context="premarket", potential=None):
     """Persist latest signals to signals.json for the dashboard."""
     from datetime import datetime
     # NPT, not naive datetime.now() (UTC on GitHub Actions) -- the dashboard displays
@@ -110,6 +110,12 @@ def save_signals(signals, regime="UNKNOWN", context="premarket"):
         "signals": [
             {k: v for k, v in s.items() if k in ("symbol", "side", "type", "price", "quantity", "reason")}
             for s in (signals or [])
+        ],
+        # Near-miss BUY candidates (missing at most 2 of 8 entry conditions), shown on
+        # the dashboard when signals is empty so there's still something to look at.
+        "potential": [
+            {k: v for k, v in p.items() if k in ("symbol", "price", "conditions_met", "conditions_total", "reason")}
+            for p in (potential or [])
         ],
     }
     with open("signals.json", "w") as f:
@@ -787,9 +793,9 @@ def main():
                     portfolio_data = _clean_portfolio(portfolio_data, states, placed_orders)
                     regime_info = get_nepse_regime()
                     regime = regime_info["regime"]
-                    signals = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
+                    signals, potential = generate_mr_signals(latest_data, states, portfolio_data, 0, 99, regime=regime, available_fund=available_fund)
                     save_states(states)  # persist orphan re-seeds so next cycle doesn't start blind
-                    save_signals(signals, regime=regime, context="premarket")
+                    save_signals(signals, regime=regime, context="premarket", potential=potential)
                     print(f"Generated {len(signals)} potential signals for next open.")
                     notify_premarket_report(portfolio_data, available_fund, signals, regime_info=regime_info)
             except SessionExpiredError as e:
@@ -867,9 +873,9 @@ def main():
                     regime_info = get_nepse_regime()
                     regime = regime_info["regime"]
 
-                    signals = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS, regime=regime, available_fund=available_fund)
+                    signals, potential = generate_mr_signals(latest_data, states, portfolio_data, buy_count, MAX_DAILY_BUYS, regime=regime, available_fund=available_fund)
                     save_states(states)  # persist orphan re-seeds before order placement
-                    save_signals(signals, regime=regime, context="live")
+                    save_signals(signals, regime=regime, context="live", potential=potential)
                     print(f"Generated {len(signals)} signals.")
 
                     # TEST MODE: inject a forced signal to verify order placement end-to-end

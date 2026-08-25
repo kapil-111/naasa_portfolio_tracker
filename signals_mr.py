@@ -417,8 +417,12 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
     Does NOT modify state; state changes are handled by the main loop after successful trades.
     daily_buy_count / daily_buy_limit  — controls INITIAL buys only (double-down removed)
     regime — 'BULL', 'BEAR', or 'UNKNOWN'. BEAR blocks new buys (sells still execute).
+
+    Returns (signals, potential) — potential is the top 5 BUY candidates missing at
+    most 2 of 8 entry conditions, for display when signals is empty.
     """
     signals = []
+    potential = []  # near-miss BUY candidates, surfaced when no real signal fires
     avg_prices = _load_avg_prices()
 
     if regime == "BEAR":
@@ -534,16 +538,30 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
             if regime != "BEAR" and daily_buy_count >= daily_buy_limit:
                 continue
 
-            fortress_buy = (
-                ema_bullish                                  and  # EMA9 > EMA21 > EMA50
-                close > ema21                                and  # price above mid trend
-                close > ema50                                and  # price above long trend
-                adx > FORTRESS_ADX_MIN                       and  # trend strength
-                FORTRESS_RSI_MIN <= rsi <= FORTRESS_RSI_MAX  and  # momentum sweet spot
-                volume_surge                                 and  # volume confirmation
-                drop_3d > -3.7                               and  # no recent sharp drop
-                higher_high                                       # 7-day breakout
-            )
+            buy_conditions = {
+                "EMA stack (9>21>50)":  ema_bullish,
+                "price > EMA21":        close > ema21,
+                "price > EMA50":        close > ema50,
+                "ADX trend strength":   adx > FORTRESS_ADX_MIN,
+                "RSI sweet spot":       FORTRESS_RSI_MIN <= rsi <= FORTRESS_RSI_MAX,
+                "volume surge":         volume_surge,
+                "no sharp 3d drop":     drop_3d > -3.7,
+                "7-day breakout":       higher_high,
+            }
+            fortress_buy = all(buy_conditions.values())
+
+            if not fortress_buy:
+                met = sum(buy_conditions.values())
+                # "Close" candidates: missing at most 2 of 8 conditions. Surfaced so the
+                # dashboard has something to show even on days with zero real signals.
+                if met >= len(buy_conditions) - 2:
+                    missing = [name for name, ok in buy_conditions.items() if not ok]
+                    potential.append({
+                        "symbol": symbol, "price": close,
+                        "conditions_met": met, "conditions_total": len(buy_conditions),
+                        "missing": missing,
+                        "reason": f"Missing: {', '.join(missing)}",
+                    })
 
             if fortress_buy:
                 if row.get("partial_candle", False):
@@ -741,5 +759,6 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                         "reason": f"EMA cross: EMA9={ema9:.0f} < EMA21={ema21:.0f} for {state['ema_cross_days']}d",
                     })
 
-    return signals
+    potential.sort(key=lambda p: p["conditions_met"], reverse=True)
+    return signals, potential[:5]
 

@@ -502,8 +502,24 @@ async function render() {
       document.getElementById("signals-meta").innerHTML =
         `<span class="badge ${regimeCls}">${regimeLabel}</span>&nbsp; ${signalsData.generated_at || ""} &nbsp;·&nbsp; ${signalsData.context || ""}`;
 
+      const potential = signalsData.potential || [];
       document.getElementById("signals-table").innerHTML = sigs.length === 0
-        ? `<div class="loading" style="padding:16px">No signals generated — ${signalsData.generated_at || ""}</div>`
+        ? (potential.length === 0
+            ? `<div class="loading" style="padding:16px">No signals generated — ${signalsData.generated_at || ""}</div>`
+            : `<div class="loading" style="padding:8px 16px 0">No signals generated — ${signalsData.generated_at || ""}. Closest candidates:</div>
+               <table>
+                 <thead><tr>
+                   <th>Symbol</th><th>Price</th><th>Conditions</th><th>Missing</th>
+                 </tr></thead>
+                 <tbody>
+                   ${potential.map(p => `<tr>
+                     <td>${p.symbol}</td>
+                     <td>${p.price ? fmt(parseFloat(p.price)) : "—"}</td>
+                     <td>${p.conditions_met}/${p.conditions_total}</td>
+                     <td style="text-align:left;color:var(--subtle);font-size:0.72rem">${(p.reason || "—").replace(/^Missing:\s*/, "")}</td>
+                   </tr>`).join("")}
+                 </tbody>
+               </table>`)
         : `<table>
             <thead><tr>
               <th>Symbol</th><th>Side</th><th>Type</th><th>Qty</th><th>Price</th><th>Reason</th>
