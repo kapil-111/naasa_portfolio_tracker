@@ -422,9 +422,11 @@ def _sync_state_from_portfolio(portfolio_data):
         return
 
     # Build map: symbol -> (total_qty, naasa_qty)
-    # CDS Total Balance = total owned (incl. locked); NAASA Balance = tradeable
+    # CDS Total Balance = total owned (incl. locked); NAASA Balance = tradeable.
+    # Both header styles checked: a 2026-08 site redesign dropped the second line
+    # ("CDS Total\nBalance" -> "CDS Total") on some report pages.
     def _get_cds_total(h):
-        v = h.get('CDS Total\nBalance')
+        v = h.get('CDS Total\nBalance', h.get('CDS Total'))
         if v is not None and str(v).strip():
             try:
                 return int(float(str(v).replace(',', '')))

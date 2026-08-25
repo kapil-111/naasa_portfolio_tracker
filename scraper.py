@@ -138,12 +138,20 @@ def parse_holding_grid(page: Page, grid_timeout: int = 15000) -> list:
                         else:
                             print(f"Skipping empty row {i}")
 
-                next_btn = holding_next_page(grid_div)
-                if next_btn.count() > 0:
+                # Pagination lives outside the grid on the newer report pages, so this
+                # is scoped to the whole page rather than grid_div. The new "Go to next
+                # page" button stays in the DOM (just disabled) on the last page, unlike
+                # the old .e-nextpage:not(.e-disable) selector which drops out of the
+                # match entirely — so disabled state must be checked explicitly too.
+                next_btn = holding_next_page(page)
+                if next_btn.count() > 0 and not next_btn.first.is_disabled():
                     print(f"Going to page {page_num + 1}...")
                     next_btn.first.click()
                     page.wait_for_timeout(1500)
                     page_num += 1
+                    if page_num > 50:
+                        print("Safety cap: stopping after 50 pages.")
+                        break
                 else:
                     print("No more pages.")
                     break

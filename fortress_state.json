@@ -324,18 +324,18 @@
         "partial_remaining_qty": 7
     },
     "UAIL": {
-        "in_position": false,
-        "entry_date": null,
-        "entry_price": 0,
-        "initial_entry": 0,
+        "in_position": true,
+        "entry_date": "2026-08-25",
+        "entry_price": 100.0,
+        "initial_entry": 100.0,
         "ema_cross_days": 8,
-        "last_known_qty": 80,
-        "peak_price": 439.7,
+        "last_known_qty": 9,
+        "peak_price": 100.0,
         "half_sold": false,
         "last_exit_price": 436.0,
         "last_exit_date": "2026-05-04",
         "trades": 1,
-        "position_count": 0
+        "position_count": 1
     },
     "NICA": {
         "in_position": false,

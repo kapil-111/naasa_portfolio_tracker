@@ -24,7 +24,9 @@ def naasa_order() -> str:
 
 
 def naasa_holding_report() -> str:
-    return f"{NAASA_BASE}/TradeBook?Report=HOLDINGDATA"
+    # Site redesign (confirmed 2026-08): moved off the old TradeBook report to a
+    # dedicated page. The old URL no longer renders a #GridDiv at all.
+    return f"{NAASA_BASE}/reports/holding-report"
 
 
 def naasa_orderbook_report() -> str:
@@ -212,17 +214,23 @@ def order_available_collateral(page: Page) -> Locator:
 
 
 # --- Holding report grid ---
+# Two generations of markup are supported here: the legacy Syncfusion grid (#GridDiv,
+# .e-* classes) and the 2026-08 redesign's plain shadcn/ui <table> with no #GridDiv at
+# all. Other TradeBook-based report pages (order book, trade history) may still be on
+# the legacy grid, so the old selectors are kept as the first alternative everywhere.
 def holding_grid_root(page: Page) -> Locator:
-    return page.locator("#GridDiv")
+    # For the new table, walk up to its parent so the existing "table thead th" /
+    # "table tbody tr" style selectors below keep matching unchanged.
+    return page.locator("#GridDiv").or_(page.locator('table[data-slot="table"]').locator("xpath=.."))
 
 
 def holding_grid_table_wait(page: Page) -> Locator:
     # #GridDiv often has separate header/content tables — avoid strict-mode violation
-    return page.locator("#GridDiv table").first
+    return page.locator("#GridDiv table").first.or_(page.locator('table[data-slot="table"]').first)
 
 
 def holding_no_data(page: Page) -> Locator:
-    return page.locator("#GridDiv:has-text('No data to display')")
+    return page.locator("#GridDiv:has-text('No data to display')").or_(page.get_by_text("No data", exact=False))
 
 
 def holding_header_cells(grid: Locator) -> Locator:
@@ -233,8 +241,14 @@ def holding_data_rows(grid: Locator) -> Locator:
     return grid.locator(".e-gridcontent table tbody tr").or_(grid.locator("table tbody tr"))
 
 
-def holding_next_page(grid: Locator) -> Locator:
-    return grid.locator(".e-nextpage:not(.e-disable)")
+def holding_next_page(scope: Locator | Page) -> Locator:
+    # Pagination on the new report pages lives outside the table, so callers should
+    # pass the whole `page` here rather than a grid-scoped locator.
+    return scope.locator(".e-nextpage:not(.e-disable)").or_(
+        scope.get_by_label("Go to next page")
+    ).or_(
+        scope.get_by_text("Go to next page", exact=False)
+    )
 
 
 # --- Market watch ---

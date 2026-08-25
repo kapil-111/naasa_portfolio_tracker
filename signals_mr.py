@@ -299,8 +299,11 @@ def load_and_prepare_data(ohlcv_file="chukul_data.csv", held_symbols=None):
 # --- Portfolio column helpers ---
 
 _SYMBOL_KEYS = ['Symbol', 'symbol', 'Stock Symbol', 'Script', 'Scrip']
-_QTY_KEYS    = ['CDS Free\nBalance', 'NAASA\nBalance', 'CDS Total\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']
-_RATE_KEYS   = ['Average Rate', 'Avg Rate', 'Average Cost', 'Cost Price', 'Close Price\nPrice', 'LTP']
+# Both header styles are listed since a 2026-08 site redesign dropped the second line
+# ("CDS Total\nBalance" -> "CDS Total", "Close Price\nPrice" -> "Close Price", etc.) on
+# some report pages but not necessarily all of them.
+_QTY_KEYS    = ['CDS Free\nBalance', 'CDS Free', 'NAASA\nBalance', 'NAASA', 'CDS Total\nBalance', 'CDS Total', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']
+_RATE_KEYS   = ['Average Rate', 'Avg Rate', 'Average Cost', 'Cost Price', 'Close Price\nPrice', 'Close Price', 'LTP']
 _AVG_PRICES_FILE = "avg_prices.json"
 
 def _load_avg_prices():
@@ -587,7 +590,8 @@ def generate_signals(latest_data, states, portfolio, daily_buy_count, daily_buy_
                 # IPO lock-in: CDS Free Balance = 0 for months; CDS Total Balance is the true qty
                 _h = held_symbols.get(symbol, {})
                 try:
-                    current_qty = int(float(str(_h.get('CDS Total\nBalance', 0)).replace(',', '')))
+                    _cds_total = _h.get('CDS Total\nBalance', _h.get('CDS Total', 0))
+                    current_qty = int(float(str(_cds_total).replace(',', '')))
                 except (ValueError, TypeError):
                     current_qty = state.get('last_known_qty', 0)
             else:

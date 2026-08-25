@@ -207,7 +207,9 @@ def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNK
                 if h.get(k):
                     sym = str(h[k]).strip()
                     break
-            for k in ['CDS Free\nBalance', 'NAASA\nBalance', 'CDS Total\nBalance', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']:
+            # Both header styles checked: a 2026-08 site redesign dropped the second
+            # line ("CDS Total\nBalance" -> "CDS Total") on some report pages.
+            for k in ['CDS Free\nBalance', 'CDS Free', 'NAASA\nBalance', 'NAASA', 'CDS Total\nBalance', 'CDS Total', 'Quantity', 'Total Qty', 'Qty', 'Balance Quantity', 'Units', 'Current Balance']:
                 if h.get(k) is not None and str(h.get(k)).strip():
                     try:
                         qty = int(float(str(h[k]).replace(',', '')))
@@ -217,7 +219,8 @@ def notify_premarket_report(portfolio_data, available_fund, signals, regime="UNK
             # IPO lock-in: CDS Free Balance = 0 for months; use CDS Total Balance (actual shares owned)
             if not qty and sym and states.get(sym, {}).get('is_ipo'):
                 try:
-                    qty = int(float(str(h.get('CDS Total\nBalance', 0)).replace(',', ''))) or None
+                    _cds_total = h.get('CDS Total\nBalance', h.get('CDS Total', 0))
+                    qty = int(float(str(_cds_total).replace(',', ''))) or None
                 except (ValueError, TypeError):
                     pass
             for k in ['LTP', 'Close Price', 'Last Traded Price']:

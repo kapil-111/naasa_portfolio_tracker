@@ -525,10 +525,12 @@ async function render() {
     let totalValue = 0, totalCost = 0;
     const rows = holdings.map(h => {
       const sym  = h["Symbol"];
-      const qty  = parseFloat(h["CDS Total Balance"] || h["NAASA Balance"] || h["Quantity"] || 0);
-      const ltp  = parseFloat(h["LTP"] || h["Close Price Price"] || 0);
+      // Both header styles checked: a 2026-08 site redesign dropped the second line
+      // ("CDS Total Balance" -> "CDS Total", "Close Price Price" -> "Close Price").
+      const qty  = parseFloat(h["CDS Total Balance"] || h["CDS Total"] || h["NAASA Balance"] || h["NAASA"] || h["Quantity"] || 0);
+      const ltp  = parseFloat(h["LTP"] || h["Close Price Price"] || h["Close Price"] || 0);
       // prev_close.json = last completed trading day close; NAASA's own CP column collapses to LTP after close
-      const prevClose = parseFloat(prevCloseData[sym] ?? h["Close Price Price"] ?? 0);
+      const prevClose = parseFloat(prevCloseData[sym] ?? h["Close Price Price"] ?? h["Close Price"] ?? 0);
       const dayChg  = prevClose > 0 ? ltp - prevClose : 0;
       const dayChgP = prevClose > 0 ? dayChg / prevClose * 100 : 0;
       const avg  = parseFloat(avgPrices[sym] || 100);
