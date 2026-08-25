@@ -400,8 +400,17 @@ def _fetch_chukul_data(max_retries=3, retry_delay=30):
     fund_file = "chukul_fundamental.csv"
     stale = True
     if os.path.exists(fund_file):
-        age_days_fund = (datetime.now().timestamp() - os.path.getmtime(fund_file)) / 86400
-        stale = age_days_fund > 7
+        # Use the data's own fetched_at column, not filesystem mtime -- GitHub Actions
+        # does a fresh git checkout every run, which resets every file's mtime to "now"
+        # regardless of when it was actually last changed, so an mtime-based staleness
+        # check never trips on CI (this is why fundamental data silently went 76+ days
+        # without refreshing despite the intended 7-day cadence).
+        try:
+            last_fetched = pd.read_csv(fund_file, usecols=["fetched_at"])["fetched_at"].max()
+            age_days_fund = (datetime.now() - pd.to_datetime(last_fetched)).days
+            stale = age_days_fund > 7
+        except Exception as e:
+            print(f"Warning: could not read fetched_at from {fund_file}: {e}. Treating as stale.")
     if stale:
         print("Fetching fundamental data (file missing or >7 days old)...")
         update_fundamental_data(symbols=symbols, verbose=False)
