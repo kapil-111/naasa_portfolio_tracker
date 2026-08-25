@@ -1,67 +1,67 @@
 {
-  "date": "2026-08-24",
+  "date": "2026-08-25",
   "top_accumulating": [
     {
-      "symbol": "RSML",
-      "total_amount": 23661129.7,
-      "total_quantity": 8470,
+      "symbol": "EDBL",
+      "total_amount": 45566741.0,
+      "total_quantity": 78067,
+      "broker_count": 3
+    },
+    {
+      "symbol": "SAHAS",
+      "total_amount": 30728921.0,
+      "total_quantity": 44717,
       "broker_count": 6
     },
     {
       "symbol": "SHPC",
-      "total_amount": 23105485.9,
-      "total_quantity": 43270,
-      "broker_count": 3
+      "total_amount": 25294626.2,
+      "total_quantity": 49035,
+      "broker_count": 4
     },
     {
-      "symbol": "MEHL",
-      "total_amount": 22023745.8,
-      "total_quantity": 90181,
-      "broker_count": 9
+      "symbol": "CYCL",
+      "total_amount": 22769984.0,
+      "total_quantity": 14532,
+      "broker_count": 2
     },
     {
-      "symbol": "TAMOR",
-      "total_amount": 20537361.4,
-      "total_quantity": 42643,
-      "broker_count": 6
-    },
-    {
-      "symbol": "GBIME",
-      "total_amount": 16890656.7,
-      "total_quantity": 68625,
-      "broker_count": 8
+      "symbol": "RSML",
+      "total_amount": 17281224.2,
+      "total_quantity": 6272,
+      "broker_count": 2
     }
   ],
   "top_releasing": [
     {
       "symbol": "RSML",
-      "total_amount": 246031696.8,
-      "total_quantity": 88388,
+      "total_amount": 75309690.0,
+      "total_quantity": 27310,
       "broker_count": 7
     },
     {
-      "symbol": "SOHL",
-      "total_amount": 163495738.2,
-      "total_quantity": 235239,
-      "broker_count": 6
-    },
-    {
-      "symbol": "RIDI",
-      "total_amount": 142486891.8,
-      "total_quantity": 393392,
-      "broker_count": 3
-    },
-    {
-      "symbol": "SHPC",
-      "total_amount": 63209541.8,
-      "total_quantity": 119180,
+      "symbol": "EDBL",
+      "total_amount": 73759223.8,
+      "total_quantity": 126380,
       "broker_count": 7
     },
     {
-      "symbol": "NRN",
-      "total_amount": 60907308.0,
-      "total_quantity": 44311,
+      "symbol": "SAHAS",
+      "total_amount": 52737659.5,
+      "total_quantity": 76562,
       "broker_count": 6
+    },
+    {
+      "symbol": "TAMOR",
+      "total_amount": 46931942.8,
+      "total_quantity": 98298,
+      "broker_count": 8
+    },
+    {
+      "symbol": "NGPL",
+      "total_amount": 43684369.4,
+      "total_quantity": 108115,
+      "broker_count": 8
     }
   ]
 }
