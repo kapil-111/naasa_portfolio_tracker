@@ -1,43 +1,36 @@
 {
-    "generated_at": "2026-08-26 10:41 NPT",
+    "generated_at": "2026-08-26 15:53 NPT",
     "context": "premarket",
-    "regime": "SIDEWAYS",
+    "regime": "BEAR",
     "signals": [],
     "potential": [
         {
-            "symbol": "EDBL",
-            "price": 581.4,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: 7-day breakout"
-        },
-        {
-            "symbol": "ALBSL",
-            "price": 1100.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
-        },
-        {
-            "symbol": "CBBL",
-            "price": 936.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
-        },
-        {
             "symbol": "EBL",
-            "price": 731.9,
+            "price": 730.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
-            "symbol": "NBL",
-            "price": 274.8,
+            "symbol": "NTC",
+            "price": 875.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "SMHL",
+            "price": 518.0,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength, 7-day breakout"
+        },
+        {
+            "symbol": "TAMOR",
+            "price": 480.0,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength, 7-day breakout"
         }
     ]
 }
