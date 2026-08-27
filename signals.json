@@ -1,12 +1,33 @@
 {
-    "generated_at": "2026-08-26 15:53 NPT",
+    "generated_at": "2026-08-27 21:00 NPT",
     "context": "premarket",
     "regime": "BEAR",
     "signals": [],
     "potential": [
         {
+            "symbol": "SAHAS",
+            "price": 682.0,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: 7-day breakout"
+        },
+        {
             "symbol": "EBL",
-            "price": 730.0,
+            "price": 729.5,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "ECL",
+            "price": 1400.0,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "NBL",
+            "price": 272.3,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
@@ -17,20 +38,6 @@
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
-        },
-        {
-            "symbol": "SMHL",
-            "price": 518.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, 7-day breakout"
-        },
-        {
-            "symbol": "TAMOR",
-            "price": 480.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, 7-day breakout"
         }
     ]
 }

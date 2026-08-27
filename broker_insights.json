@@ -1,67 +1,67 @@
 {
-  "date": "2026-08-26",
+  "date": "2026-08-27",
   "top_accumulating": [
     {
-      "symbol": "MAKAR",
-      "total_amount": 387682536.7,
-      "total_quantity": 956053,
-      "broker_count": 10
-    },
-    {
-      "symbol": "SOHL",
-      "total_amount": 32489414.9,
-      "total_quantity": 47633,
-      "broker_count": 7
-    },
-    {
-      "symbol": "TAMOR",
-      "total_amount": 27653031.2,
-      "total_quantity": 57775,
+      "symbol": "SHIVM",
+      "total_amount": 33292459.8,
+      "total_quantity": 51650,
       "broker_count": 6
     },
     {
-      "symbol": "SMHL",
-      "total_amount": 19511646.9,
-      "total_quantity": 37474,
-      "broker_count": 8
+      "symbol": "CHCL",
+      "total_amount": 28828285.8,
+      "total_quantity": 72970,
+      "broker_count": 6
     },
     {
-      "symbol": "SANIMA",
-      "total_amount": 17365534.2,
-      "total_quantity": 47399,
-      "broker_count": 8
+      "symbol": "AKJCL",
+      "total_amount": 25265716.3,
+      "total_quantity": 73827,
+      "broker_count": 6
+    },
+    {
+      "symbol": "SOHL",
+      "total_amount": 15436135.7,
+      "total_quantity": 23162,
+      "broker_count": 5
+    },
+    {
+      "symbol": "GBIME",
+      "total_amount": 11727579.9,
+      "total_quantity": 48956,
+      "broker_count": 6
     }
   ],
   "top_releasing": [
     {
-      "symbol": "MAKAR",
-      "total_amount": 1377606082.2,
-      "total_quantity": 3395055,
-      "broker_count": 1
+      "symbol": "GBIME",
+      "total_amount": 61398140.2,
+      "total_quantity": 255972,
+      "broker_count": 4
     },
     {
-      "symbol": "RSML",
-      "total_amount": 132664934.0,
-      "total_quantity": 48708,
-      "broker_count": 9
+      "symbol": "API",
+      "total_amount": 58067511.4,
+      "total_quantity": 178392,
+      "broker_count": 5
     },
     {
-      "symbol": "SOHL",
-      "total_amount": 129996533.3,
-      "total_quantity": 190986,
+      "symbol": "SAHAS",
+      "total_amount": 44224674.6,
+      "total_quantity": 65040,
+      "broker_count": 5
+    },
+    {
+      "symbol": "HPPL",
+      "total_amount": 43962661.8,
+      "total_quantity": 119852,
+      "broker_count": 5
+    },
+    {
+      "symbol": "CHCL",
+      "total_amount": 43830772.2,
+      "total_quantity": 110798,
       "broker_count": 6
-    },
-    {
-      "symbol": "CGH",
-      "total_amount": 129796976.0,
-      "total_quantity": 168564,
-      "broker_count": 2
-    },
-    {
-      "symbol": "SANIMA",
-      "total_amount": 110422245.4,
-      "total_quantity": 300986,
-      "broker_count": 2
     }
   ]
 }
