@@ -1,43 +1,31 @@
 {
-    "generated_at": "2026-08-29 02:45 NPT",
+    "generated_at": "2026-08-31 15:20 NPT",
     "context": "premarket",
     "regime": "BEAR",
-    "signals": [],
+    "signals": [
+        {
+            "side": "SELL",
+            "symbol": "UHEWA",
+            "price": 590.0,
+            "type": "WEAKNESS",
+            "quantity": 20,
+            "reason": "Weakness: RSI=49.8 < 50 after 36d"
+        }
+    ],
     "potential": [
         {
-            "symbol": "SAHAS",
-            "price": 682.0,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: 7-day breakout"
-        },
-        {
-            "symbol": "EBL",
-            "price": 729.5,
+            "symbol": "SBL",
+            "price": 411.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
-            "symbol": "ECL",
-            "price": 1400.0,
+            "symbol": "SHIVM",
+            "price": 664.0,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
-        },
-        {
-            "symbol": "NBL",
-            "price": 272.3,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
-        },
-        {
-            "symbol": "NTC",
-            "price": 875.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
+            "reason": "Missing: EMA stack (9>21>50), ADX trend strength"
         }
     ]
 }
