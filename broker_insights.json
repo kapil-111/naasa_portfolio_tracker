@@ -1,66 +1,66 @@
 {
-  "date": "2026-09-01",
+  "date": "2026-09-02",
   "top_accumulating": [
     {
       "symbol": "SOHL",
-      "total_amount": 32644015.1,
-      "total_quantity": 49656,
+      "total_amount": 39540535.3,
+      "total_quantity": 60180,
       "broker_count": 8
     },
     {
-      "symbol": "SANIMA",
-      "total_amount": 19958321.1,
-      "total_quantity": 55849,
-      "broker_count": 6
+      "symbol": "AKJCL",
+      "total_amount": 27727265.9,
+      "total_quantity": 81116,
+      "broker_count": 7
     },
     {
-      "symbol": "AKJCL",
-      "total_amount": 18965562.3,
-      "total_quantity": 55568,
+      "symbol": "SANIMA",
+      "total_amount": 19896881.1,
+      "total_quantity": 55679,
       "broker_count": 6
     },
     {
       "symbol": "SHPC",
-      "total_amount": 17048804.2,
-      "total_quantity": 34520,
+      "total_amount": 17542756.0,
+      "total_quantity": 35522,
       "broker_count": 6
     },
     {
-      "symbol": "SAHAS",
-      "total_amount": 14892469.1,
-      "total_quantity": 22051,
+      "symbol": "SHIVM",
+      "total_amount": 16205632.7,
+      "total_quantity": 24632,
       "broker_count": 6
     }
   ],
   "top_releasing": [
     {
       "symbol": "SOHL",
-      "total_amount": 34452183.5,
-      "total_quantity": 52605,
+      "total_amount": 69850844.0,
+      "total_quantity": 106650,
       "broker_count": 3
     },
     {
       "symbol": "TAMOR",
-      "total_amount": 22094880.5,
-      "total_quantity": 44836,
-      "broker_count": 5
+      "total_amount": 47166411.2,
+      "total_quantity": 95757,
+      "broker_count": 7
+    },
+    {
+      "symbol": "SAPIL",
+      "total_amount": 37831930.5,
+      "total_quantity": 29975,
+      "broker_count": 6
     },
     {
       "symbol": "RIDI",
-      "total_amount": 17884777.8,
-      "total_quantity": 51761,
+      "total_amount": 35298353.6,
+      "total_quantity": 102142,
       "broker_count": 5
     },
     {
       "symbol": "SHIVM",
-      "total_amount": 17114716.2,
-      "total_quantity": 26043,
-      "broker_count": 4
-    },
-    {
-      "symbol": "SAPIL",
-      "total_amount": 16988647.0,
-      "total_quantity": 13440,
+      "total_amount": 34320066.4,
+      "total_quantity": 52189,
       "broker_count": 6
     }
   ]
