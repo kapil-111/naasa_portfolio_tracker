@@ -88,6 +88,25 @@ jobs:
           POLL_INTERVAL: "1800"
         run: python main.py
 
+      # ── Debug artifacts (screenshots + full page HTML) from any login/order-page
+      # failure this run hit. Telegram only gets the .png (and only on some paths);
+      # this is what lets us see the actual broker markup after a site redesign
+      # instead of guessing at new selectors blind.
+      - name: Upload broker debug artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: broker-debug-${{ github.run_number }}
+          path: |
+            login_debug.png
+            login_debug.html
+            order_before.png
+            order_result.png
+            order_error.png
+            order_error.html
+          if-no-files-found: ignore
+          retention-days: 5
+
       # ── Persist daily order state (no CSVs — all data fetched fresh) ────────
       - name: Save order state
         env:

@@ -57,6 +57,25 @@ def dashboard_url_glob() -> str:
     return "**/Home/Dashboard"
 
 
+# --- Debugging ---
+def dump_debug(page: Page, base_name: str) -> None:
+    """
+    Best-effort capture of a screenshot + full page HTML for a given failure point.
+    Never raises — callers use this from within except blocks where the page state
+    is already suspect. Written alongside the working dir so it survives to the
+    "Save order state" / artifact-upload steps in CI.
+    """
+    try:
+        page.screenshot(path=f"{base_name}.png")
+    except Exception as e:
+        print(f"[dump_debug] screenshot failed for {base_name}: {e}")
+    try:
+        with open(f"{base_name}.html", "w", encoding="utf-8") as f:
+            f.write(page.content())
+    except Exception as e:
+        print(f"[dump_debug] HTML dump failed for {base_name}: {e}")
+
+
 # --- Order form ---
 # Prefer .sl_by (original NAASA order form) first so .first never grabs another "BUY"/"SELL" on the page.
 def order_side_buy(page: Page) -> Locator:

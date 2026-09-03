@@ -4,6 +4,7 @@ from playwright.sync_api import Page
 
 from naasa_locators import (
     dismiss_any_confirmation,
+    dump_debug,
     goto_broker_page,
     naasa_order,
     order_quantity_input,
@@ -133,8 +134,9 @@ class Trader:
         except Exception as e:
             self.last_error = str(e)
             print(f"Error placing order: {e}")
-            try:
-                self.page.screenshot(path="order_error.png")
-            except Exception:
-                pass
+            # Capture screenshot + full page HTML — this is what let us tell a stale
+            # locator (site redesign moved/renamed an element) apart from a real
+            # network/timeout issue without live access to the broker site.
+            dump_debug(self.page, "order_error")
+            notify_order_screenshot("order_error.png", f"❌ Order FAILED: {e}", symbol, side)
             return False

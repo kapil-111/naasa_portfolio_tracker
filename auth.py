@@ -2,6 +2,7 @@ from playwright.sync_api import Page
 
 from naasa_locators import (
     dashboard_url_glob,
+    dump_debug,
     goto_broker_page,
     login_password,
     login_submit,
@@ -31,5 +32,5 @@ def login(page: Page, username, password):
         print("Login successful! Reached Dashboard.")
     except Exception as e:
         print(f"Warning: Did not detect Dashboard URL immediately. Current URL: {page.url}")
-        page.screenshot(path="login_debug.png")
+        dump_debug(page, "login_debug")
     raise_if_login_page(page, "login")
