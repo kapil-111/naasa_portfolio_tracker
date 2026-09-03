@@ -1,67 +1,67 @@
 {
-  "date": "2026-09-02",
+  "date": "2026-09-03",
   "top_accumulating": [
     {
-      "symbol": "SOHL",
-      "total_amount": 39540535.3,
-      "total_quantity": 60180,
-      "broker_count": 8
+      "symbol": "TAMOR",
+      "total_amount": 53290665.7,
+      "total_quantity": 106397,
+      "broker_count": 6
     },
     {
-      "symbol": "AKJCL",
-      "total_amount": 27727265.9,
-      "total_quantity": 81116,
+      "symbol": "GBBL",
+      "total_amount": 26650030.0,
+      "total_quantity": 61787,
+      "broker_count": 4
+    },
+    {
+      "symbol": "RSML",
+      "total_amount": 26223078.6,
+      "total_quantity": 9269,
       "broker_count": 7
     },
     {
-      "symbol": "SANIMA",
-      "total_amount": 19896881.1,
-      "total_quantity": 55679,
-      "broker_count": 6
-    },
-    {
-      "symbol": "SHPC",
-      "total_amount": 17542756.0,
-      "total_quantity": 35522,
-      "broker_count": 6
-    },
-    {
       "symbol": "SHIVM",
-      "total_amount": 16205632.7,
-      "total_quantity": 24632,
+      "total_amount": 24621942.1,
+      "total_quantity": 37233,
+      "broker_count": 6
+    },
+    {
+      "symbol": "MEN",
+      "total_amount": 21465637.6,
+      "total_quantity": 34125,
       "broker_count": 6
     }
   ],
   "top_releasing": [
     {
-      "symbol": "SOHL",
-      "total_amount": 69850844.0,
-      "total_quantity": 106650,
-      "broker_count": 3
-    },
-    {
       "symbol": "TAMOR",
-      "total_amount": 47166411.2,
-      "total_quantity": 95757,
-      "broker_count": 7
+      "total_amount": 56247893.2,
+      "total_quantity": 112456,
+      "broker_count": 4
     },
     {
-      "symbol": "SAPIL",
-      "total_amount": 37831930.5,
-      "total_quantity": 29975,
+      "symbol": "H8020",
+      "total_amount": 30805016.14,
+      "total_quantity": 2567013,
       "broker_count": 6
     },
     {
-      "symbol": "RIDI",
-      "total_amount": 35298353.6,
-      "total_quantity": 102142,
-      "broker_count": 5
+      "symbol": "UMHL",
+      "total_amount": 30438915.0,
+      "total_quantity": 54330,
+      "broker_count": 2
     },
     {
       "symbol": "SHIVM",
-      "total_amount": 34320066.4,
-      "total_quantity": 52189,
+      "total_amount": 24232892.6,
+      "total_quantity": 36588,
       "broker_count": 6
+    },
+    {
+      "symbol": "NGPL",
+      "total_amount": 24003826.6,
+      "total_quantity": 61338,
+      "broker_count": 2
     }
   ]
 }
