@@ -1,67 +1,67 @@
 {
-  "date": "2026-09-03",
+  "date": "2026-09-04",
   "top_accumulating": [
     {
       "symbol": "TAMOR",
-      "total_amount": 53290665.7,
-      "total_quantity": 106397,
-      "broker_count": 6
-    },
-    {
-      "symbol": "GBBL",
-      "total_amount": 26650030.0,
-      "total_quantity": 61787,
-      "broker_count": 4
-    },
-    {
-      "symbol": "RSML",
-      "total_amount": 26223078.6,
-      "total_quantity": 9269,
+      "total_amount": 57128026.1,
+      "total_quantity": 114074,
       "broker_count": 7
     },
     {
-      "symbol": "SHIVM",
-      "total_amount": 24621942.1,
-      "total_quantity": 37233,
-      "broker_count": 6
+      "symbol": "MEN",
+      "total_amount": 47540109.0,
+      "total_quantity": 76201,
+      "broker_count": 7
     },
     {
-      "symbol": "MEN",
-      "total_amount": 21465637.6,
-      "total_quantity": 34125,
-      "broker_count": 6
+      "symbol": "RSML",
+      "total_amount": 35434255.8,
+      "total_quantity": 12616,
+      "broker_count": 5
+    },
+    {
+      "symbol": "SMHL",
+      "total_amount": 33218753.7,
+      "total_quantity": 62155,
+      "broker_count": 5
+    },
+    {
+      "symbol": "GBBL",
+      "total_amount": 30444814.7,
+      "total_quantity": 70505,
+      "broker_count": 4
     }
   ],
   "top_releasing": [
     {
       "symbol": "TAMOR",
-      "total_amount": 56247893.2,
-      "total_quantity": 112456,
+      "total_amount": 114155686.8,
+      "total_quantity": 228215,
       "broker_count": 4
     },
     {
       "symbol": "H8020",
-      "total_amount": 30805016.14,
-      "total_quantity": 2567013,
+      "total_amount": 61788271.28,
+      "total_quantity": 5148304,
       "broker_count": 6
     },
     {
-      "symbol": "UMHL",
-      "total_amount": 30438915.0,
-      "total_quantity": 54330,
-      "broker_count": 2
-    },
-    {
       "symbol": "SHIVM",
-      "total_amount": 24232892.6,
-      "total_quantity": 36588,
+      "total_amount": 56712676.5,
+      "total_quantity": 85628,
       "broker_count": 6
     },
     {
       "symbol": "NGPL",
-      "total_amount": 24003826.6,
-      "total_quantity": 61338,
+      "total_amount": 48381435.7,
+      "total_quantity": 123641,
       "broker_count": 2
+    },
+    {
+      "symbol": "MEN",
+      "total_amount": 44547596.2,
+      "total_quantity": 70746,
+      "broker_count": 5
     }
   ]
 }
