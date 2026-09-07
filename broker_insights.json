@@ -1,5 +1,67 @@
 {
   "date": "2026-09-07",
-  "top_accumulating": [],
-  "top_releasing": []
+  "top_accumulating": [
+    {
+      "symbol": "SOHL",
+      "total_amount": 52374721.1,
+      "total_quantity": 79369,
+      "broker_count": 6
+    },
+    {
+      "symbol": "GBBL",
+      "total_amount": 45915827.7,
+      "total_quantity": 103014,
+      "broker_count": 7
+    },
+    {
+      "symbol": "NRN",
+      "total_amount": 27093708.6,
+      "total_quantity": 19300,
+      "broker_count": 5
+    },
+    {
+      "symbol": "SYPNL",
+      "total_amount": 21867618.5,
+      "total_quantity": 16429,
+      "broker_count": 7
+    },
+    {
+      "symbol": "API",
+      "total_amount": 21384123.0,
+      "total_quantity": 64925,
+      "broker_count": 4
+    }
+  ],
+  "top_releasing": [
+    {
+      "symbol": "API",
+      "total_amount": 66073595.6,
+      "total_quantity": 200522,
+      "broker_count": 6
+    },
+    {
+      "symbol": "GBBL",
+      "total_amount": 45620965.0,
+      "total_quantity": 102232,
+      "broker_count": 4
+    },
+    {
+      "symbol": "SMHL",
+      "total_amount": 36180983.2,
+      "total_quantity": 68056,
+      "broker_count": 5
+    },
+    {
+      "symbol": "KKHC",
+      "total_amount": 35335561.8,
+      "total_quantity": 130994,
+      "broker_count": 6
+    },
+    {
+      "symbol": "SHPC",
+      "total_amount": 35173506.4,
+      "total_quantity": 69432,
+      "broker_count": 9
+    }
+  ]
 }

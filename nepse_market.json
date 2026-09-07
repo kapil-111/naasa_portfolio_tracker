@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-07 09:19",
+  "generated_at": "2026-09-07 15:10",
   "nepse": {
     "close": 2560.84,
     "change": 18.07,
@@ -42,9 +42,9 @@
     {
       "name": "Non-Life Ins.",
       "symbol": "NONLIFEIND",
-      "close": 9484.94,
-      "change": 194.24,
-      "change_pct": 2.09
+      "close": 9481.53,
+      "change": 190.83,
+      "change_pct": 2.05
     },
     {
       "name": "Hydropower",
@@ -63,9 +63,9 @@
     {
       "name": "Trading",
       "symbol": "TRADINGIND",
-      "close": 3241.67,
-      "change": 35.06,
-      "change_pct": 1.09
+      "close": 3238.64,
+      "change": -3.03,
+      "change_pct": -0.09
     },
     {
       "name": "Hotels",
@@ -91,9 +91,9 @@
     {
       "name": "Investment",
       "symbol": "INVIDX",
-      "close": 94.99,
-      "change": 1.18,
-      "change_pct": 1.26
+      "close": 95.03,
+      "change": 0.04,
+      "change_pct": 0.04
     }
   ],
   "breadth": {
