@@ -1,49 +1,49 @@
 {
-    "generated_at": "2026-09-08 19:34 NPT",
+    "generated_at": "2026-09-09 15:14 NPT",
     "context": "premarket",
     "regime": "BEAR",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 586.2,
-            "type": "FULL_EXIT",
+            "price": 587.9,
+            "type": "WEAKNESS",
             "quantity": 20,
-            "reason": "Stop loss: -9.0% <= -9%"
+            "reason": "Weakness: RSI=46.0 < 50 after 45d"
         }
     ],
     "potential": [
         {
             "symbol": "SBL",
-            "price": 421.5,
+            "price": 425.0,
             "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: volume surge"
+            "reason": "Missing: ADX trend strength"
         },
         {
-            "symbol": "GBBL",
-            "price": 447.0,
+            "symbol": "ALBSL",
+            "price": 1114.0,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, RSI sweet spot"
+            "reason": "Missing: volume surge, 7-day breakout"
         },
         {
-            "symbol": "NBL",
-            "price": 279.0,
+            "symbol": "NABIL",
+            "price": 552.0,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, volume surge"
+            "reason": "Missing: EMA stack (9>21>50), 7-day breakout"
         },
         {
             "symbol": "NTC",
-            "price": 884.0,
+            "price": 888.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
             "symbol": "SAHAS",
-            "price": 694.0,
+            "price": 692.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
