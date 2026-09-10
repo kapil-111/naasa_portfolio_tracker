@@ -1,49 +1,49 @@
 {
-    "generated_at": "2026-09-09 19:37 NPT",
+    "generated_at": "2026-09-10 15:13 NPT",
     "context": "premarket",
     "regime": "BEAR",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 587.9,
-            "type": "WEAKNESS",
+            "price": 585.0,
+            "type": "FULL_EXIT",
             "quantity": 20,
-            "reason": "Weakness: RSI=46.0 < 50 after 45d"
+            "reason": "Stop loss: -9.2% <= -9%"
         }
     ],
     "potential": [
         {
-            "symbol": "SBL",
-            "price": 425.0,
+            "symbol": "ALBSL",
+            "price": 1108.8,
             "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength"
+            "reason": "Missing: 7-day breakout"
         },
         {
-            "symbol": "ALBSL",
-            "price": 1114.0,
+            "symbol": "CBBL",
+            "price": 942.0,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength, 7-day breakout"
+        },
+        {
+            "symbol": "LSL",
+            "price": 224.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
-            "symbol": "NABIL",
-            "price": 552.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: EMA stack (9>21>50), 7-day breakout"
-        },
-        {
             "symbol": "NTC",
-            "price": 888.0,
+            "price": 883.1,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
             "symbol": "SAHAS",
-            "price": 692.0,
+            "price": 688.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"

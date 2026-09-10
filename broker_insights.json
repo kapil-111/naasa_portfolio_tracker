@@ -1,67 +1,67 @@
 {
-  "date": "2026-09-09",
+  "date": "2026-09-10",
   "top_accumulating": [
     {
       "symbol": "SOHL",
-      "total_amount": 52374721.1,
-      "total_quantity": 79369,
+      "total_amount": 39989447.2,
+      "total_quantity": 61175,
+      "broker_count": 9
+    },
+    {
+      "symbol": "RSML",
+      "total_amount": 38679228.7,
+      "total_quantity": 13088,
+      "broker_count": 4
+    },
+    {
+      "symbol": "TAMOR",
+      "total_amount": 33183122.0,
+      "total_quantity": 67134,
       "broker_count": 6
     },
     {
-      "symbol": "GBBL",
-      "total_amount": 45915827.7,
-      "total_quantity": 103014,
-      "broker_count": 7
+      "symbol": "MEN",
+      "total_amount": 23361457.5,
+      "total_quantity": 36763,
+      "broker_count": 4
     },
     {
-      "symbol": "NRN",
-      "total_amount": 27093708.6,
-      "total_quantity": 19300,
-      "broker_count": 5
-    },
-    {
-      "symbol": "SYPNL",
-      "total_amount": 21867618.5,
-      "total_quantity": 16429,
-      "broker_count": 7
-    },
-    {
-      "symbol": "API",
-      "total_amount": 21384123.0,
-      "total_quantity": 64925,
+      "symbol": "RIDI",
+      "total_amount": 19667699.4,
+      "total_quantity": 55562,
       "broker_count": 4
     }
   ],
   "top_releasing": [
     {
-      "symbol": "API",
-      "total_amount": 66073595.6,
-      "total_quantity": 200522,
+      "symbol": "ENL",
+      "total_amount": 163192497.3,
+      "total_quantity": 268605,
       "broker_count": 6
     },
     {
-      "symbol": "GBBL",
-      "total_amount": 45620965.0,
-      "total_quantity": 102232,
-      "broker_count": 4
+      "symbol": "TAMOR",
+      "total_amount": 88446445.0,
+      "total_quantity": 179031,
+      "broker_count": 6
     },
     {
-      "symbol": "SMHL",
-      "total_amount": 36180983.2,
-      "total_quantity": 68056,
+      "symbol": "RSML",
+      "total_amount": 52714987.6,
+      "total_quantity": 17549,
       "broker_count": 5
     },
     {
-      "symbol": "KKHC",
-      "total_amount": 35335561.8,
-      "total_quantity": 130994,
-      "broker_count": 6
+      "symbol": "API",
+      "total_amount": 41087256.7,
+      "total_quantity": 125820,
+      "broker_count": 4
     },
     {
-      "symbol": "SHPC",
-      "total_amount": 35173506.4,
-      "total_quantity": 69432,
-      "broker_count": 9
+      "symbol": "NGPL",
+      "total_amount": 40395838.4,
+      "total_quantity": 103201,
+      "broker_count": 6
     }
   ]
 }
