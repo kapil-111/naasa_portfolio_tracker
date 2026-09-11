@@ -1,49 +1,49 @@
 {
-    "generated_at": "2026-09-10 19:32 NPT",
+    "generated_at": "2026-09-11 15:13 NPT",
     "context": "premarket",
     "regime": "BEAR",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 585.0,
-            "type": "FULL_EXIT",
+            "price": 591.8,
+            "type": "WEAKNESS",
             "quantity": 20,
-            "reason": "Stop loss: -9.2% <= -9%"
+            "reason": "Weakness: RSI=45.7 < 50 after 47d"
         }
     ],
     "potential": [
         {
             "symbol": "ALBSL",
-            "price": 1108.8,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: 7-day breakout"
-        },
-        {
-            "symbol": "CBBL",
-            "price": 942.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, 7-day breakout"
-        },
-        {
-            "symbol": "LSL",
-            "price": 224.0,
+            "price": 1156.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
+            "symbol": "ECL",
+            "price": 1342.9,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "GBBL",
+            "price": 443.0,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength, 7-day breakout"
+        },
+        {
             "symbol": "NTC",
-            "price": 883.1,
+            "price": 884.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
             "symbol": "SAHAS",
-            "price": 688.0,
+            "price": 691.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"

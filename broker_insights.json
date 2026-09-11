@@ -1,67 +1,67 @@
 {
-  "date": "2026-09-10",
+  "date": "2026-09-11",
   "top_accumulating": [
     {
-      "symbol": "SOHL",
-      "total_amount": 39989447.2,
-      "total_quantity": 61175,
-      "broker_count": 9
+      "symbol": "LEC",
+      "total_amount": 211827735.2,
+      "total_quantity": 901000,
+      "broker_count": 3
     },
     {
-      "symbol": "RSML",
-      "total_amount": 38679228.7,
-      "total_quantity": 13088,
+      "symbol": "SHL",
+      "total_amount": 36416750.6,
+      "total_quantity": 73585,
       "broker_count": 4
     },
     {
       "symbol": "TAMOR",
-      "total_amount": 33183122.0,
-      "total_quantity": 67134,
-      "broker_count": 6
+      "total_amount": 33131897.1,
+      "total_quantity": 67651,
+      "broker_count": 3
     },
     {
       "symbol": "MEN",
-      "total_amount": 23361457.5,
-      "total_quantity": 36763,
-      "broker_count": 4
+      "total_amount": 32626943.0,
+      "total_quantity": 51527,
+      "broker_count": 3
     },
     {
       "symbol": "RIDI",
-      "total_amount": 19667699.4,
-      "total_quantity": 55562,
-      "broker_count": 4
+      "total_amount": 29272336.5,
+      "total_quantity": 84523,
+      "broker_count": 8
     }
   ],
   "top_releasing": [
     {
-      "symbol": "ENL",
-      "total_amount": 163192497.3,
-      "total_quantity": 268605,
-      "broker_count": 6
+      "symbol": "LEC",
+      "total_amount": 144638050.3,
+      "total_quantity": 610036,
+      "broker_count": 8
     },
     {
-      "symbol": "TAMOR",
-      "total_amount": 88446445.0,
-      "total_quantity": 179031,
-      "broker_count": 6
+      "symbol": "MAKAR",
+      "total_amount": 80402930.0,
+      "total_quantity": 199168,
+      "broker_count": 2
     },
     {
-      "symbol": "RSML",
-      "total_amount": 52714987.6,
-      "total_quantity": 17549,
-      "broker_count": 5
+      "symbol": "RIDI",
+      "total_amount": 79352473.0,
+      "total_quantity": 230509,
+      "broker_count": 2
     },
     {
       "symbol": "API",
-      "total_amount": 41087256.7,
-      "total_quantity": 125820,
-      "broker_count": 4
+      "total_amount": 59973856.8,
+      "total_quantity": 184286,
+      "broker_count": 2
     },
     {
-      "symbol": "NGPL",
-      "total_amount": 40395838.4,
-      "total_quantity": 103201,
-      "broker_count": 6
+      "symbol": "RSML",
+      "total_amount": 55591734.0,
+      "total_quantity": 18846,
+      "broker_count": 10
     }
   ]
 }
