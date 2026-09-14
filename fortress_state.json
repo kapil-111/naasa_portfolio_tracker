@@ -4,7 +4,7 @@
         "entry_date": "2026-07-26",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 39,
+        "ema_cross_days": 40,
         "last_known_qty": 2,
         "peak_price": 289.6,
         "half_sold": true,
@@ -18,7 +18,7 @@
         "entry_date": "2026-08-21",
         "entry_price": 551.0,
         "initial_entry": 551.0,
-        "ema_cross_days": 31,
+        "ema_cross_days": 32,
         "last_known_qty": 3,
         "peak_price": 377.0
     },
@@ -68,7 +68,7 @@
         "entry_date": "2026-08-25",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 56,
+        "ema_cross_days": 57,
         "last_known_qty": 2,
         "peak_price": 749.9
     },
@@ -77,7 +77,7 @@
         "entry_date": "2026-07-01",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 50,
+        "ema_cross_days": 51,
         "last_known_qty": 2,
         "peak_price": 252.0
     },
@@ -125,7 +125,7 @@
         "entry_date": "2026-03-11",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 95,
+        "ema_cross_days": 96,
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
@@ -138,7 +138,7 @@
         "entry_date": "2026-03-11",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 228,
+        "ema_cross_days": 229,
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
@@ -151,7 +151,7 @@
         "entry_date": "2026-03-11",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 25,
+        "ema_cross_days": 26,
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
@@ -164,7 +164,7 @@
         "entry_date": "2026-03-11",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 1,
+        "ema_cross_days": 2,
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
@@ -247,7 +247,7 @@
         "entry_date": "2026-03-22",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 45,
+        "ema_cross_days": 46,
         "last_known_qty": 2,
         "trades": 0,
         "peak_price": 455.0
@@ -323,7 +323,7 @@
         "entry_date": "2026-08-25",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 46,
+        "ema_cross_days": 47,
         "last_known_qty": 9,
         "peak_price": 416.0,
         "half_sold": false,
@@ -411,6 +411,6 @@
         "entry_date": "2026-07-26",
         "position_count": 1,
         "half_sold": false,
-        "ema_cross_days": 10
+        "ema_cross_days": 11
     }
 }
