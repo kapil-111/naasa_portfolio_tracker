@@ -1,52 +1,60 @@
 {
-    "generated_at": "2026-09-11 19:30 NPT",
+    "generated_at": "2026-09-14 15:36 NPT",
     "context": "premarket",
-    "regime": "BEAR",
+    "regime": "BULL",
     "signals": [
+        {
+            "side": "BUY",
+            "symbol": "ALBSL",
+            "price": 1192.1,
+            "type": "INITIAL",
+            "quantity": 10,
+            "reason": "EMA9>1122 EMA21=1111 ADX=40.2 RSI=57.8 vol=64777"
+        },
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 591.8,
+            "price": 593.0,
             "type": "WEAKNESS",
             "quantity": 20,
-            "reason": "Weakness: RSI=45.7 < 50 after 47d"
+            "reason": "Weakness: RSI=48.0 < 50 after 50d"
         }
     ],
     "potential": [
         {
-            "symbol": "ALBSL",
-            "price": 1156.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
-        },
-        {
             "symbol": "ECL",
-            "price": 1342.9,
-            "conditions_met": 6,
+            "price": 1373.0,
+            "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
+            "reason": "Missing: volume surge"
         },
         {
-            "symbol": "GBBL",
-            "price": 443.0,
+            "symbol": "EBL",
+            "price": 724.0,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, 7-day breakout"
+            "reason": "Missing: EMA stack (9>21>50), volume surge"
         },
         {
-            "symbol": "NTC",
-            "price": 884.0,
+            "symbol": "HDL",
+            "price": 1201.0,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
+            "reason": "Missing: ADX trend strength, volume surge"
         },
         {
-            "symbol": "SAHAS",
-            "price": 691.0,
+            "symbol": "HURJA",
+            "price": 252.0,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
+            "reason": "Missing: EMA stack (9>21>50), ADX trend strength"
+        },
+        {
+            "symbol": "JBBL",
+            "price": 340.0,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: EMA stack (9>21>50), volume surge"
         }
     ]
 }
