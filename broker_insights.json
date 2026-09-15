@@ -1,67 +1,67 @@
 {
-  "date": "2026-09-14",
+  "date": "2026-09-15",
   "top_accumulating": [
     {
-      "symbol": "TAMOR",
-      "total_amount": 103973560.7,
-      "total_quantity": 203053,
-      "broker_count": 6
-    },
-    {
-      "symbol": "NRN",
-      "total_amount": 63951530.5,
-      "total_quantity": 43990,
-      "broker_count": 8
-    },
-    {
-      "symbol": "GHL",
-      "total_amount": 42941028.4,
-      "total_quantity": 175775,
-      "broker_count": 6
-    },
-    {
-      "symbol": "GBBL",
-      "total_amount": 42891554.8,
-      "total_quantity": 96121,
-      "broker_count": 7
-    },
-    {
       "symbol": "LSL",
-      "total_amount": 40549341.9,
-      "total_quantity": 177415,
-      "broker_count": 6
+      "total_amount": 93304972.8,
+      "total_quantity": 400332,
+      "broker_count": 4
+    },
+    {
+      "symbol": "API",
+      "total_amount": 63336977.6,
+      "total_quantity": 183851,
+      "broker_count": 5
+    },
+    {
+      "symbol": "SHIVM",
+      "total_amount": 46891074.3,
+      "total_quantity": 68674,
+      "broker_count": 5
+    },
+    {
+      "symbol": "TAMOR",
+      "total_amount": 46572494.2,
+      "total_quantity": 88977,
+      "broker_count": 4
+    },
+    {
+      "symbol": "NGPL",
+      "total_amount": 35459868.5,
+      "total_quantity": 85844,
+      "broker_count": 7
     }
   ],
   "top_releasing": [
     {
-      "symbol": "TAMOR",
-      "total_amount": 154876083.2,
-      "total_quantity": 302432,
-      "broker_count": 6
+      "symbol": "API",
+      "total_amount": 140400315.6,
+      "total_quantity": 408647,
+      "broker_count": 4
     },
     {
-      "symbol": "LSL",
-      "total_amount": 95969919.0,
-      "total_quantity": 420987,
-      "broker_count": 7
+      "symbol": "SHIVM",
+      "total_amount": 68312738.1,
+      "total_quantity": 100201,
+      "broker_count": 5
     },
     {
       "symbol": "LEC",
-      "total_amount": 91348038.3,
-      "total_quantity": 359295,
-      "broker_count": 7
-    },
-    {
-      "symbol": "API",
-      "total_amount": 87654282.7,
-      "total_quantity": 257357,
-      "broker_count": 2
-    },
-    {
-      "symbol": "GBBL",
-      "total_amount": 76568024.0,
-      "total_quantity": 171433,
+      "total_amount": 58684442.2,
+      "total_quantity": 228628,
       "broker_count": 5
+    },
+    {
+      "symbol": "SANIMA",
+      "total_amount": 50325513.2,
+      "total_quantity": 134464,
+      "broker_count": 4
+    },
+    {
+      "symbol": "LSL",
+      "total_amount": 32301994.9,
+      "total_quantity": 138354,
+      "broker_count": 7
     }
   ]
 }
