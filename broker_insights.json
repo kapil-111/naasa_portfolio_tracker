@@ -1,67 +1,67 @@
 {
-  "date": "2026-09-15",
+  "date": "2026-09-16",
   "top_accumulating": [
     {
       "symbol": "LSL",
-      "total_amount": 93304972.8,
-      "total_quantity": 400332,
+      "total_amount": 93617757.8,
+      "total_quantity": 401663,
       "broker_count": 4
     },
     {
       "symbol": "API",
-      "total_amount": 63336977.6,
-      "total_quantity": 183851,
+      "total_amount": 62973807.6,
+      "total_quantity": 182795,
       "broker_count": 5
     },
     {
       "symbol": "SHIVM",
-      "total_amount": 46891074.3,
-      "total_quantity": 68674,
+      "total_amount": 47630096.3,
+      "total_quantity": 69754,
       "broker_count": 5
     },
     {
       "symbol": "TAMOR",
-      "total_amount": 46572494.2,
-      "total_quantity": 88977,
+      "total_amount": 46553899.2,
+      "total_quantity": 88942,
       "broker_count": 4
     },
     {
       "symbol": "NGPL",
-      "total_amount": 35459868.5,
-      "total_quantity": 85844,
+      "total_amount": 37537344.5,
+      "total_quantity": 90854,
       "broker_count": 7
     }
   ],
   "top_releasing": [
     {
       "symbol": "API",
-      "total_amount": 140400315.6,
-      "total_quantity": 408647,
+      "total_amount": 281468016.9,
+      "total_quantity": 819233,
       "broker_count": 4
     },
     {
       "symbol": "SHIVM",
-      "total_amount": 68312738.1,
-      "total_quantity": 100201,
+      "total_amount": 135341246.7,
+      "total_quantity": 198514,
       "broker_count": 5
     },
     {
       "symbol": "LEC",
-      "total_amount": 58684442.2,
-      "total_quantity": 228628,
+      "total_amount": 118613286.1,
+      "total_quantity": 462082,
       "broker_count": 5
     },
     {
       "symbol": "SANIMA",
-      "total_amount": 50325513.2,
-      "total_quantity": 134464,
+      "total_amount": 103252380.0,
+      "total_quantity": 275884,
       "broker_count": 4
     },
     {
-      "symbol": "LSL",
-      "total_amount": 32301994.9,
-      "total_quantity": 138354,
-      "broker_count": 7
+      "symbol": "TAMOR",
+      "total_amount": 66160444.8,
+      "total_quantity": 125899,
+      "broker_count": 4
     }
   ]
 }

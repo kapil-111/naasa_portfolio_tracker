@@ -1,60 +1,43 @@
 {
-    "generated_at": "2026-09-15 20:11 NPT",
+    "generated_at": "2026-09-16 15:33 NPT",
     "context": "premarket",
     "regime": "BULL",
-    "signals": [
-        {
-            "side": "BUY",
-            "symbol": "ALBSL",
-            "price": 1210.0,
-            "type": "INITIAL",
-            "quantity": 10,
-            "reason": "EMA9>1136 EMA21=1119 ADX=41.6 RSI=62.2 vol=50848"
-        },
-        {
-            "side": "SELL",
-            "symbol": "UHEWA",
-            "price": 600.0,
-            "type": "WEAKNESS",
-            "quantity": 20,
-            "reason": "Weakness: RSI=48.4 < 50 after 51d"
-        }
-    ],
+    "signals": [],
     "potential": [
         {
-            "symbol": "CBBL",
-            "price": 959.8,
+            "symbol": "ALBSL",
+            "price": 1201.0,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: 7-day breakout"
+        },
+        {
+            "symbol": "CHDC",
+            "price": 2368.0,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength"
         },
         {
-            "symbol": "LSL",
-            "price": 236.3,
+            "symbol": "NTC",
+            "price": 890.0,
             "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength"
+            "reason": "Missing: 7-day breakout"
         },
         {
-            "symbol": "API",
-            "price": 343.9,
+            "symbol": "ADBL",
+            "price": 305.5,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: EMA stack (9>21>50), ADX trend strength"
+            "reason": "Missing: EMA stack (9>21>50), 7-day breakout"
         },
         {
-            "symbol": "CLI",
-            "price": 436.5,
+            "symbol": "BNT",
+            "price": 11850.0,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: EMA stack (9>21>50), ADX trend strength"
-        },
-        {
-            "symbol": "ECL",
-            "price": 1384.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
+            "reason": "Missing: ADX trend strength, 7-day breakout"
         }
     ]
 }
