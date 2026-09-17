@@ -1,43 +1,52 @@
 {
-    "generated_at": "2026-09-16 20:04 NPT",
+    "generated_at": "2026-09-17 15:12 NPT",
     "context": "premarket",
     "regime": "BULL",
-    "signals": [],
+    "signals": [
+        {
+            "side": "SELL",
+            "symbol": "UHEWA",
+            "price": 607.9,
+            "type": "WEAKNESS",
+            "quantity": 20,
+            "reason": "Weakness: RSI=49.8 < 50 after 53d"
+        }
+    ],
     "potential": [
         {
-            "symbol": "ALBSL",
-            "price": 1201.0,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: 7-day breakout"
-        },
-        {
-            "symbol": "CHDC",
-            "price": 2368.0,
+            "symbol": "HURJA",
+            "price": 266.9,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength"
         },
         {
-            "symbol": "NTC",
-            "price": 890.0,
+            "symbol": "NMFBS",
+            "price": 1179.0,
             "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: 7-day breakout"
+            "reason": "Missing: ADX trend strength"
         },
         {
-            "symbol": "ADBL",
-            "price": 305.5,
-            "conditions_met": 6,
+            "symbol": "SNORL",
+            "price": 930.0,
+            "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: EMA stack (9>21>50), 7-day breakout"
+            "reason": "Missing: ADX trend strength"
         },
         {
-            "symbol": "BNT",
-            "price": 11850.0,
+            "symbol": "UNL",
+            "price": 48500.0,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength"
+        },
+        {
+            "symbol": "ALBSL",
+            "price": 1215.0,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, 7-day breakout"
+            "reason": "Missing: volume surge, 7-day breakout"
         }
     ]
 }
