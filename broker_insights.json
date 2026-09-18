@@ -1,67 +1,67 @@
 {
-  "date": "2026-09-17",
+  "date": "2026-09-18",
   "top_accumulating": [
     {
-      "symbol": "SBL",
-      "total_amount": 69117586.8,
-      "total_quantity": 155606,
-      "broker_count": 7
-    },
-    {
-      "symbol": "SHIVM",
-      "total_amount": 61123554.9,
-      "total_quantity": 88710,
-      "broker_count": 3
+      "symbol": "KBL",
+      "total_amount": 161758261.8,
+      "total_quantity": 715859,
+      "broker_count": 4
     },
     {
       "symbol": "LSL",
-      "total_amount": 35500138.9,
-      "total_quantity": 150300,
+      "total_amount": 90730482.3,
+      "total_quantity": 370599,
       "broker_count": 6
     },
     {
-      "symbol": "MEN",
-      "total_amount": 26217817.3,
-      "total_quantity": 40128,
+      "symbol": "TAMOR",
+      "total_amount": 77340239.0,
+      "total_quantity": 141904,
       "broker_count": 5
     },
     {
-      "symbol": "GBBL",
-      "total_amount": 24062373.8,
-      "total_quantity": 52945,
+      "symbol": "SBL",
+      "total_amount": 59238501.7,
+      "total_quantity": 131696,
       "broker_count": 7
+    },
+    {
+      "symbol": "GBIME",
+      "total_amount": 50495214.2,
+      "total_quantity": 195204,
+      "broker_count": 5
     }
   ],
   "top_releasing": [
     {
-      "symbol": "LICN",
-      "total_amount": 89023212.9,
-      "total_quantity": 112808,
-      "broker_count": 6
-    },
-    {
       "symbol": "SBL",
-      "total_amount": 64316781.6,
-      "total_quantity": 144608,
-      "broker_count": 4
+      "total_amount": 95099127.8,
+      "total_quantity": 211481,
+      "broker_count": 2
     },
     {
-      "symbol": "API",
-      "total_amount": 52614820.9,
-      "total_quantity": 156331,
-      "broker_count": 4
+      "symbol": "KBL",
+      "total_amount": 80822872.5,
+      "total_quantity": 356772,
+      "broker_count": 8
     },
     {
-      "symbol": "SHIVM",
-      "total_amount": 43878979.4,
-      "total_quantity": 63931,
-      "broker_count": 6
+      "symbol": "LSL",
+      "total_amount": 73027170.5,
+      "total_quantity": 297722,
+      "broker_count": 5
     },
     {
-      "symbol": "PHCL",
-      "total_amount": 32958338.5,
-      "total_quantity": 103132,
-      "broker_count": 9
+      "symbol": "TAMOR",
+      "total_amount": 47163174.2,
+      "total_quantity": 86641,
+      "broker_count": 8
+    },
+    {
+      "symbol": "LEC",
+      "total_amount": 45718809.9,
+      "total_quantity": 176372,
+      "broker_count": 8
     }
   ]
 }

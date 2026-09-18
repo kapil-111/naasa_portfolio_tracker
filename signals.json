@@ -1,52 +1,43 @@
 {
-    "generated_at": "2026-09-17 20:10 NPT",
+    "generated_at": "2026-09-18 15:16 NPT",
     "context": "premarket",
     "regime": "BULL",
-    "signals": [
-        {
-            "side": "SELL",
-            "symbol": "UHEWA",
-            "price": 607.9,
-            "type": "WEAKNESS",
-            "quantity": 20,
-            "reason": "Weakness: RSI=49.8 < 50 after 53d"
-        }
-    ],
+    "signals": [],
     "potential": [
         {
-            "symbol": "HURJA",
-            "price": 266.9,
-            "conditions_met": 7,
+            "symbol": "ADBL",
+            "price": 314.0,
+            "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength"
-        },
-        {
-            "symbol": "NMFBS",
-            "price": 1179.0,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: ADX trend strength"
-        },
-        {
-            "symbol": "SNORL",
-            "price": 930.0,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: ADX trend strength"
-        },
-        {
-            "symbol": "UNL",
-            "price": 48500.0,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: ADX trend strength"
+            "reason": "Missing: EMA stack (9>21>50), 7-day breakout"
         },
         {
             "symbol": "ALBSL",
-            "price": 1215.0,
+            "price": 1190.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "BNT",
+            "price": 12450.0,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength, volume surge"
+        },
+        {
+            "symbol": "CBBL",
+            "price": 960.0,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "CZBIL",
+            "price": 212.9,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength, 7-day breakout"
         }
     ]
 }
