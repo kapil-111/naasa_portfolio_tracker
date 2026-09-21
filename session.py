@@ -8,6 +8,24 @@ class SessionExpiredError(RuntimeError):
     """Broker session lost: login form visible or auth URL, not an authenticated app view."""
 
 
+LOGIN_URL_MARKERS = (
+    "/login",
+    "openid",
+    "keycloak",
+    "signin",
+    "/protocol/",
+    "/auth/realms",
+    "/oauth/",
+    "identity.",
+)
+
+
+def is_login_url(url: str) -> bool:
+    """True if the URL is a login / SSO endpoint (by marker substring)."""
+    url = (url or "").lower()
+    return any(m in url for m in LOGIN_URL_MARKERS)
+
+
 def is_login_page(page: Page) -> bool:
     """
     True if the current page looks like a login / SSO screen (session expired or never logged in).
@@ -16,17 +34,7 @@ def is_login_page(page: Page) -> bool:
     if not url or url == "about:blank":
         return False
 
-    url_markers = (
-        "/login",
-        "openid",
-        "keycloak",
-        "signin",
-        "/protocol/",
-        "/auth/realms",
-        "/oauth/",
-        "identity.",
-    )
-    if any(m in url for m in url_markers):
+    if is_login_url(url):
         return True
 
     try:

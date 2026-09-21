@@ -11,7 +11,14 @@ from scraper import scrape_portfolio, scrape_available_fund
 from storage import save_to_csv, save_to_json
 from trader import Trader
 from signals_mr import load_and_prepare_data, generate_signals as generate_mr_signals, save_avg_price, get_nepse_regime
-from state_manager import load_states, save_states, update_state_for_trade
+from state_manager import (
+    load_states,
+    save_states,
+    update_state_for_trade,
+    load_placed_orders,
+    save_placed_order,
+    remove_placed_order,
+)
 from fetch_live_data import fetch_live_data
 from fetch_chukul_history import update_chukul_data
 from fetch_chukul_fundamental import update_fundamental_data
@@ -62,27 +69,6 @@ def is_market_open():
     return False, f"Market Closed (Time: {now.strftime('%H:%M')})"
 
 
-def load_placed_orders():
-    """Loads today's placed orders to prevent duplicates and limit buys."""
-    filename  = "placed_orders_today.json"
-    today_str = datetime.now().strftime("%Y-%m-%d")
-
-    if os.path.exists(filename):
-        try:
-            with open(filename, 'r') as f:
-                data = json.load(f)
-                if data.get("date") != today_str:
-                    return {"date": today_str, "orders": []}
-                if "symbols" in data and "orders" not in data:
-                    migrated = [{"symbol": s, "side": "BUY"} for s in data["symbols"]]
-                    return {"date": today_str, "orders": migrated}
-                return data
-        except json.JSONDecodeError:
-            pass
-
-    return {"date": today_str, "orders": []}
-
-
 def _get_live_ltp(symbol):
     """Return live LTP for symbol from live_market_data.csv, or None if unavailable."""
     try:
@@ -120,43 +106,6 @@ def save_signals(signals, regime="UNKNOWN", context="premarket", potential=None)
     }
     with open("signals.json", "w") as f:
         json.dump(data, f, indent=4)
-
-
-def save_placed_order(symbol, side, signal_type, quantity=0):
-    """Saves a symbol, side, type, and quantity to the placed orders list."""
-    filename = "placed_orders_today.json"
-    data     = load_placed_orders()
-
-    # Dedup check excludes quantity so the same order isn't placed twice
-    new_order = {"symbol": symbol, "side": side, "type": signal_type, "quantity": quantity}
-    if not any(
-        o.get("symbol") == symbol and o.get("side") == side and o.get("type") == signal_type
-        for o in data["orders"]
-    ):
-        data["orders"].append(new_order)
-
-    with open(filename, 'w') as f:
-        json.dump(data, f, indent=4)
-        f.flush()
-        os.fsync(f.fileno())
-    print(f"Recorded order for {side} {symbol} ({signal_type}) qty={quantity} in state file.")
-
-
-def remove_placed_order(symbol, side, signal_type):
-    """Removes a previously recorded order — used when order definitively failed (not unconfirmed)."""
-    filename = "placed_orders_today.json"
-    data = load_placed_orders()
-    before = len(data["orders"])
-    data["orders"] = [
-        o for o in data["orders"]
-        if not (o.get("symbol") == symbol and o.get("side") == side and o.get("type") == signal_type)
-    ]
-    if len(data["orders"]) < before:
-        with open(filename, 'w') as f:
-            json.dump(data, f, indent=4)
-            f.flush()
-            os.fsync(f.fileno())
-        print(f"Removed failed order for {side} {symbol} ({signal_type}) — will retry next cycle.")
 
 
 def _clear_avg_price(symbol, path="avg_prices.json"):
@@ -767,7 +716,7 @@ def main():
                             ltp = _get_live_ltp(t_sym) or 100.0
                             test_signal = {"symbol": t_sym, "side": t_side, "quantity": t_qty, "price": ltp, "type": "TEST"}
                             print(f"[TEST MODE] Forcing order: {t_side} {t_sym} x{t_qty} @ {ltp}")
-                            trader_test = Trader(page, dry_run=False)
+                            trader_test = Trader(page, dry_run=DRY_RUN)
                             trader_test.place_order(test_signal)
 
                     # Poll Telegram for manual commands before closing browser

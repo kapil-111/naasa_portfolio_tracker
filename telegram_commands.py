@@ -5,10 +5,13 @@ Polls Telegram for incoming messages and handles manual trading commands.
 Called once per main loop cycle — processes any new messages since last check.
 
 Supported commands (send to your bot on Telegram):
-  /sell SYMBOL QTY PRICE   — place a manual sell order
-  /buy  SYMBOL QTY PRICE   — place a manual buy order
+  /sell SYMBOL QTY PRICE   — place a manual MARKET sell order
+  /buy  SYMBOL QTY PRICE   — place a manual MARKET buy order
   /status                  — portfolio + fund summary
   /help                    — list available commands
+
+Orders are always MARKET (Trader clicks MKT). PRICE is NOT a limit: it is only the
+reference price used for the fund check and avg-cost bookkeeping.
 """
 
 import os
@@ -73,6 +76,37 @@ def _get_updates(offset):
     return []
 
 
+# Same commission allowance main.py applies to its own fund check.
+_COMMISSION_FACTOR = 1.005
+
+
+def _place_recorded(trader, signal):
+    """
+    Place a manual order with the same bookkeeping the bot uses: record it in
+    placed_orders_today.json BEFORE submitting (so a crash can't lose track of an order
+    that may have executed), and drop the record only on a definite failure.
+
+    Returns "ok", "unconfirmed" or "failed".
+    """
+    from state_manager import load_placed_orders, remove_placed_order, save_placed_order
+
+    symbol, side, qty = signal["symbol"], signal["side"], signal["quantity"]
+    signal_type = signal["type"]
+    already_recorded = any(
+        o.get("symbol") == symbol and o.get("side") == side and o.get("type") == signal_type
+        for o in load_placed_orders().get("orders", [])
+    )
+    save_placed_order(symbol, side, signal_type, quantity=qty)
+
+    if trader.place_order(signal):
+        return "ok"
+    if trader.last_outcome == "unconfirmed":
+        return "unconfirmed"  # may have executed — keep the record, verify manually
+    if not already_recorded:  # don't erase an earlier real order with the same key
+        remove_placed_order(symbol, side, signal_type)
+    return "failed"
+
+
 def _handle_sell(parts, page, trader, states, portfolio_data, dry_run):
     """Handle /sell SYMBOL QTY PRICE"""
     if len(parts) < 4:
@@ -100,10 +134,15 @@ def _handle_sell(parts, page, trader, states, portfolio_data, dry_run):
         "reason":   f"Manual sell via Telegram @ {price}",
     }
 
-    _reply(f"⏳ Placing SELL {symbol} x{qty} @ {price:.2f}...")
-    success = trader.place_order(signal)
+    _reply(f"⏳ Placing SELL {symbol} x{qty} — MARKET order (price {price:.2f} is a reference, not a limit)...")
+    result = _place_recorded(trader, signal)
 
-    if success:
+    if result == "unconfirmed":
+        _reply(
+            f"⚠️ SELL {symbol} x{qty} UNCONFIRMED — the broker showed no result.\n"
+            f"It may have executed. Check the order book before retrying."
+        )
+    elif result == "ok":
         # Update state
         from state_manager import save_states
         from signals_mr import save_avg_price
@@ -120,8 +159,8 @@ def _handle_sell(parts, page, trader, states, portfolio_data, dry_run):
         _clear_avg_price_local(symbol)
 
         _reply(
-            f"✅ SELL order placed\n"
-            f"{symbol} x{qty} @ {price:.2f}\n"
+            f"✅ SELL MARKET order placed\n"
+            f"{symbol} x{qty} (ref {price:.2f})\n"
             f"{'[DRY RUN]' if dry_run else '[LIVE]'}"
         )
     else:
@@ -156,10 +195,24 @@ def _handle_buy(parts, page, trader, states, portfolio_data, available_fund, dry
         "reason":   f"Manual buy via Telegram @ {price}",
     }
 
-    _reply(f"⏳ Placing BUY {symbol} x{qty} @ {price:.2f}...")
-    success = trader.place_order(signal)
+    if available_fund is not None:
+        order_cost = price * qty * _COMMISSION_FACTOR
+        if order_cost > available_fund:
+            _reply(
+                f"❌ BUY {symbol} x{qty} rejected: est. cost NPR {order_cost:,.0f} "
+                f"(incl. commission) > available fund NPR {available_fund:,.0f}."
+            )
+            return
 
-    if success:
+    _reply(f"⏳ Placing BUY {symbol} x{qty} — MARKET order (price {price:.2f} is a reference, not a limit)...")
+    result = _place_recorded(trader, signal)
+
+    if result == "unconfirmed":
+        _reply(
+            f"⚠️ BUY {symbol} x{qty} UNCONFIRMED — the broker showed no result.\n"
+            f"It may have executed. Check the order book before retrying."
+        )
+    elif result == "ok":
         from state_manager import save_states
         from signals_mr import save_avg_price
         sym_state = states.get(symbol, {})
@@ -182,8 +235,8 @@ def _handle_buy(parts, page, trader, states, portfolio_data, available_fund, dry
         save_states(states)
 
         _reply(
-            f"✅ BUY order placed\n"
-            f"{symbol} x{qty} @ {price:.2f}\n"
+            f"✅ BUY MARKET order placed\n"
+            f"{symbol} x{qty} (ref {price:.2f})\n"
             f"{'[DRY RUN]' if dry_run else '[LIVE]'}"
         )
     else:
@@ -267,11 +320,12 @@ def _now_npt():
 HELP_TEXT = (
     "🤖 <b>NAASA Bot Commands</b>\n\n"
     "/sell SYMBOL QTY PRICE\n"
-    "  → Place a sell order\n"
+    "  → Place a MARKET sell order\n"
     "  Example: /sell HFIN 10 750\n\n"
     "/buy SYMBOL QTY PRICE\n"
-    "  → Place a buy order\n"
+    "  → Place a MARKET buy order\n"
     "  Example: /buy NABIL 10 500\n\n"
+    "⚠️ Orders are always MARKET. PRICE is only a reference (fund check, avg cost), NOT a limit.\n\n"
     "/status\n"
     "  → Show portfolio & fund\n\n"
     "/tradelog\n"

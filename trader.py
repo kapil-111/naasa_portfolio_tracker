@@ -6,11 +6,14 @@ from naasa_locators import (
     dismiss_any_confirmation,
     goto_broker_page,
     naasa_order,
+    new_order_errors,
+    order_mkt_label,
     order_quantity_input,
     order_side_buy,
     order_side_sell,
     order_submit_button,
     order_symbol_input,
+    visible_order_errors,
     wait_for_order_page,
 )
 from notifications import notify_order_screenshot
@@ -68,7 +71,7 @@ class Trader:
 
             # Step 4: Click MKT label
             print("Step 4: Click MKT")
-            self.page.locator("label[for='chkOrderTypeMKT']").click()
+            order_mkt_label(self.page).click()
             self.page.wait_for_timeout(500)
 
             # Step 5: Click submit button
@@ -82,6 +85,7 @@ class Trader:
                 return True
 
             self.page.on("dialog", lambda d: d.accept())
+            errors_before = visible_order_errors(self.page)
             self.page.screenshot(path="order_before.png")
             notify_order_screenshot("order_before.png", "📋 Before Submit", symbol, side)
 
@@ -93,16 +97,15 @@ class Trader:
             self.page.wait_for_timeout(800)
             self.page.screenshot(path="order_result.png")
 
-            # Detect outcome
+            # Detect outcome. Only errors that appeared *after* the click count: the page
+            # can already show red labels (e.g. a down-move %) or hold hidden validation
+            # placeholders, neither of which is a broker rejection.
             outcome = "unconfirmed"
             detail  = ""
-            err_loc = self.page.locator(".alert-danger, .toast-error, .toast-danger, .invalid-feedback, .text-danger")
-            try:
-                if err_loc.count() > 0 and err_loc.first.is_visible():
-                    outcome = "failure"
-                    detail  = err_loc.first.inner_text(timeout=500).strip()
-            except Exception:
-                pass
+            fresh_errors = new_order_errors(errors_before, visible_order_errors(self.page))
+            if fresh_errors:
+                outcome = "failure"
+                detail  = "; ".join(fresh_errors)
             if outcome == "unconfirmed":
                 try:
                     if qty.input_value(timeout=300).strip() == "":

@@ -1,0 +1,43 @@
+<!doctype html>
+<!--
+  Synthetic NAASA order form for contract tests. Built from the selectors in
+  naasa_locators.py; it is NOT a capture of the real site. Behaviour is chosen by query string:
+    mode=success      submit clears the quantity field (how the real site signals acceptance)
+    mode=failure      submit shows a visible .alert-danger
+    mode=unconfirmed  submit does nothing visible
+    label=red         a visible red down-move label (.text-danger) is always on screen
+    hidden=1          hidden .invalid-feedback / .text-danger placeholders precede the alert in the DOM
+    stale=1           an identical error is already visible before submit
+-->
+<html><body>
+<div class="sl_by"><a href="#" id="by">BUY</a> <a href="#" id="sl">SELL</a></div>
+<input id="searchStock">
+<span id="hidden1" class="invalid-feedback" style="display:none">Required</span>
+<span id="hidden2" class="text-danger" style="display:none">-0.0%</span>
+<span id="chg" class="text-danger" style="display:none">-1.2%</span>
+<div id="form" style="display:none">
+  <input id="OrdertxtQty">
+  <input type="radio" id="chkOrderTypeMKT" name="t"><label for="chkOrderTypeMKT">MKT</label>
+  <button id="btnBuy">Submit</button>
+</div>
+<div id="err" class="alert-danger" style="display:none">Insufficient collateral</div>
+<script>
+const q = new URLSearchParams(location.search);
+const mode = q.get('mode') || 'success';
+const show = (id, on) => document.getElementById(id).style.display = on ? 'inline' : 'none';
+if (q.get('label') === 'red') show('chg', true);
+if (q.get('hidden') !== '1') { document.getElementById('hidden1').remove(); document.getElementById('hidden2').remove(); }
+if (q.get('stale') === '1') document.getElementById('err').style.display = 'block';
+window.__submits = 0; window.__side = null; window.__sym = null; window.__mkt = false;
+document.getElementById('by').onclick = e => { e.preventDefault(); window.__side = 'BUY'; };
+document.getElementById('sl').onclick = e => { e.preventDefault(); window.__side = 'SELL'; };
+document.getElementById('chkOrderTypeMKT').onchange = () => { window.__mkt = true; };
+document.getElementById('searchStock').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { window.__sym = e.target.value; document.getElementById('form').style.display = 'block'; }
+});
+document.getElementById('btnBuy').onclick = () => {
+  window.__submits++;
+  if (mode === 'success') document.getElementById('OrdertxtQty').value = '';
+  else if (mode === 'failure') document.getElementById('err').style.display = 'block';
+};
+</script></body></html>

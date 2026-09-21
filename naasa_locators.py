@@ -6,7 +6,7 @@ Update fallbacks here when the broker changes markup. UI last verified in-repo: 
 from __future__ import annotations
 
 import time
-from typing import Literal, Optional, Tuple
+from collections import Counter
 
 from playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError
 
@@ -53,10 +53,6 @@ def login_submit(page: Page) -> Locator:
     return page.locator("#kc-login").or_(page.locator("input[type='submit'][value*='Log']"))
 
 
-def dashboard_url_glob() -> str:
-    return "**/Home/Dashboard"
-
-
 # --- Order form ---
 # Prefer .sl_by (original NAASA order form) first so .first never grabs another "BUY"/"SELL" on the page.
 def order_side_buy(page: Page) -> Locator:
@@ -74,6 +70,10 @@ def order_symbol_input(page: Page) -> Locator:
 def order_type_mkt(page: Page) -> Locator:
     # Keep label first (original behavior); generic "MKT" text is fallback only.
     return page.locator("label:has-text('MKT')").or_(page.get_by_text("MKT", exact=True))
+
+
+def order_mkt_label(page: Page) -> Locator:
+    return page.locator("label[for='chkOrderTypeMKT']")
 
 
 def order_quantity_input(page: Page) -> Locator:
@@ -132,66 +132,52 @@ def dismiss_any_confirmation(page: Page, timeout_ms: int = 3_000) -> bool:
 
 
 def order_error_indicators(page: Page) -> Locator:
-    """Visible broker error / rejection UI after submit (toasts, alerts, validation)."""
+    """Every element that *may* be a broker error: toasts, alerts, validation, red text."""
     return page.locator(
         ".alert-danger, .toast-error, .toast-danger, .invalid-feedback, .text-danger"
     )
 
 
-def poll_order_submission_outcome(
-    page: Page, timeout_ms: float = 8_000
-) -> Tuple[Literal["success", "failure", "timeout"], Optional[str]]:
+def visible_order_errors(page: Page) -> list[str]:
     """
-    NAASA X shows no UI on success — the qty field silently resets to empty.
-    Strategy:
-      1. Snapshot qty value before polling (must be non-empty — we just filled it).
-      2. Watch for a visible error indicator → failure.
-      3. Watch for qty field to clear from a non-empty value → success.
-      4. If neither happens within timeout → unconfirmed.
+    Text of every currently *visible*, non-empty error indicator.
 
-    NOTE: price field is NOT used for success detection — it is disabled/empty
-    in MKT mode before submit, so checking it would give a false positive.
+    Looks at all matches, not just the first: the page can hold hidden validation
+    placeholders (.invalid-feedback) and always-visible red labels (.text-danger on a
+    down-move price) ahead of the real error toast in DOM order.
     """
-    qty_loc = order_quantity_input(page)
-    error_loc = order_error_indicators(page)
-
-    # Snapshot qty before we start polling — must be non-empty after our fill
+    loc = order_error_indicators(page)
     try:
-        qty_before = qty_loc.first.input_value(timeout=500).strip() if qty_loc.count() > 0 else ""
+        count = loc.count()
     except Exception:
-        qty_before = ""
-
-    def _safe_visible_first(loc: Locator) -> bool:
+        return []
+    texts: list[str] = []
+    for i in range(count):
+        el = loc.nth(i)
         try:
-            return loc.count() > 0 and loc.first.is_visible()
+            if not el.is_visible():
+                continue
+            text = el.inner_text(timeout=500).strip()
         except Exception:
-            return False
+            continue
+        if text:
+            texts.append(text)
+    return texts
 
-    def _safe_inner(loc: Locator) -> str:
-        try:
-            return loc.first.inner_text(timeout=800).strip() if loc.count() > 0 else ""
-        except Exception:
-            return ""
 
-    def _qty_cleared() -> bool:
-        """Qty went from non-empty → empty after submit = broker accepted."""
-        if not qty_before:
-            return False  # never had a value — can't trust a clear
-        try:
-            current = qty_loc.first.input_value(timeout=500).strip() if qty_loc.count() > 0 else ""
-            return current == ""
-        except Exception:
-            return False
-
-    deadline = time.time() + timeout_ms / 1000.0
-    while time.time() < deadline:
-        if _safe_visible_first(error_loc):
-            return ("failure", _safe_inner(error_loc) or "Broker reported an error.")
-        if _qty_cleared():
-            return ("success", None)
-        page.wait_for_timeout(150)
-
-    return ("timeout", None)
+def new_order_errors(before: list[str], after: list[str]) -> list[str]:
+    """
+    Errors in `after` not already present in `before` (multiset difference), so a red
+    label that was on screen before submit is not mistaken for a broker rejection.
+    """
+    seen = Counter(before)
+    fresh: list[str] = []
+    for text in after:
+        if seen[text] > 0:
+            seen[text] -= 1
+        else:
+            fresh.append(text)
+    return fresh
 
 
 # --- Wallet / collateral ---

@@ -24,6 +24,66 @@ def save_states(states):
         os.fsync(f.fileno())
     print(f"Strategy state saved to {STATE_FILE}.")
 
+PLACED_ORDERS_FILE = "placed_orders_today.json"
+
+
+def load_placed_orders():
+    """Loads today's placed orders to prevent duplicates and limit buys."""
+    filename  = PLACED_ORDERS_FILE
+    today_str = datetime.now().strftime("%Y-%m-%d")
+
+    if os.path.exists(filename):
+        try:
+            with open(filename, 'r') as f:
+                data = json.load(f)
+                if data.get("date") != today_str:
+                    return {"date": today_str, "orders": []}
+                if "symbols" in data and "orders" not in data:
+                    migrated = [{"symbol": s, "side": "BUY"} for s in data["symbols"]]
+                    return {"date": today_str, "orders": migrated}
+                return data
+        except json.JSONDecodeError:
+            pass
+
+    return {"date": today_str, "orders": []}
+
+
+def _write_placed_orders(data):
+    with open(PLACED_ORDERS_FILE, 'w') as f:
+        json.dump(data, f, indent=4)
+        f.flush()
+        os.fsync(f.fileno())
+
+
+def save_placed_order(symbol, side, signal_type, quantity=0):
+    """Saves a symbol, side, type, and quantity to the placed orders list."""
+    data = load_placed_orders()
+
+    # Dedup check excludes quantity so the same order isn't placed twice
+    new_order = {"symbol": symbol, "side": side, "type": signal_type, "quantity": quantity}
+    if not any(
+        o.get("symbol") == symbol and o.get("side") == side and o.get("type") == signal_type
+        for o in data["orders"]
+    ):
+        data["orders"].append(new_order)
+
+    _write_placed_orders(data)
+    print(f"Recorded order for {side} {symbol} ({signal_type}) qty={quantity} in state file.")
+
+
+def remove_placed_order(symbol, side, signal_type):
+    """Removes a previously recorded order — used when order definitively failed (not unconfirmed)."""
+    data = load_placed_orders()
+    before = len(data["orders"])
+    data["orders"] = [
+        o for o in data["orders"]
+        if not (o.get("symbol") == symbol and o.get("side") == side and o.get("type") == signal_type)
+    ]
+    if len(data["orders"]) < before:
+        _write_placed_orders(data)
+        print(f"Removed failed order for {side} {symbol} ({signal_type}) — will retry next cycle.")
+
+
 def update_state_for_trade(state, signal, current_price, quantity=None):
     """
     Calculates the new state for a symbol after a successful trade.
