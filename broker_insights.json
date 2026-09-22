@@ -1,66 +1,66 @@
 {
-  "date": "2026-09-21",
+  "date": "2026-09-22",
   "top_accumulating": [
     {
-      "symbol": "KBL",
-      "total_amount": 171213359.6,
-      "total_quantity": 757516,
+      "symbol": "GHL",
+      "total_amount": 95979099.3,
+      "total_quantity": 376926,
       "broker_count": 4
     },
     {
+      "symbol": "HATHY",
+      "total_amount": 83207462.7,
+      "total_quantity": 181469,
+      "broker_count": 8
+    },
+    {
+      "symbol": "KBL",
+      "total_amount": 67970584.8,
+      "total_quantity": 295788,
+      "broker_count": 3
+    },
+    {
       "symbol": "LSL",
-      "total_amount": 92629955.5,
-      "total_quantity": 378307,
-      "broker_count": 6
-    },
-    {
-      "symbol": "TAMOR",
-      "total_amount": 77340239.0,
-      "total_quantity": 141904,
+      "total_amount": 64636081.6,
+      "total_quantity": 257915,
       "broker_count": 5
     },
     {
-      "symbol": "GBIME",
-      "total_amount": 76330981.1,
-      "total_quantity": 294525,
+      "symbol": "LEC",
+      "total_amount": 51847724.4,
+      "total_quantity": 194280,
       "broker_count": 5
-    },
-    {
-      "symbol": "SBL",
-      "total_amount": 59734467.2,
-      "total_quantity": 132799,
-      "broker_count": 7
     }
   ],
   "top_releasing": [
     {
-      "symbol": "SBL",
-      "total_amount": 190220755.6,
-      "total_quantity": 423012,
+      "symbol": "HATHY",
+      "total_amount": 475307716.5,
+      "total_quantity": 1007126,
       "broker_count": 2
     },
     {
-      "symbol": "KBL",
-      "total_amount": 164936715.6,
-      "total_quantity": 728033,
-      "broker_count": 8
-    },
-    {
-      "symbol": "LSL",
-      "total_amount": 147387377.0,
-      "total_quantity": 600819,
-      "broker_count": 5
-    },
-    {
-      "symbol": "GBIME",
-      "total_amount": 103891691.5,
-      "total_quantity": 401131,
-      "broker_count": 6
+      "symbol": "HDL",
+      "total_amount": 208312105.0,
+      "total_quantity": 164398,
+      "broker_count": 9
     },
     {
       "symbol": "TAMOR",
-      "total_amount": 94354092.4,
-      "total_quantity": 173333,
+      "total_amount": 106977556.4,
+      "total_quantity": 196816,
+      "broker_count": 8
+    },
+    {
+      "symbol": "GHL",
+      "total_amount": 90954994.4,
+      "total_quantity": 355628,
+      "broker_count": 6
+    },
+    {
+      "symbol": "LSL",
+      "total_amount": 73401344.4,
+      "total_quantity": 292475,
       "broker_count": 8
     }
   ]

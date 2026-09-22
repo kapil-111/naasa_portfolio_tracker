@@ -18,7 +18,7 @@
         "entry_date": "2026-08-21",
         "entry_price": 551.0,
         "initial_entry": 551.0,
-        "ema_cross_days": 43,
+        "ema_cross_days": 45,
         "last_known_qty": 3,
         "peak_price": 377.0
     },
@@ -43,7 +43,7 @@
         "sideways_half_sold": true,
         "sideways_sold_qty": 30,
         "last_known_qty": 5,
-        "peak_price": 652.7,
+        "peak_price": 657.0,
         "half_sold": false,
         "last_exit_price": 578.1,
         "last_exit_date": "2026-05-04",
@@ -70,7 +70,7 @@
         "initial_entry": 100.0,
         "ema_cross_days": 0,
         "last_known_qty": 2,
-        "peak_price": 749.9
+        "peak_price": 755.0
     },
     "NMB": {
         "in_position": true,
@@ -79,7 +79,7 @@
         "initial_entry": 100.0,
         "ema_cross_days": 0,
         "last_known_qty": 2,
-        "peak_price": 257.9
+        "peak_price": 259.0
     },
     "SAHAS": {
         "in_position": false,
@@ -125,7 +125,7 @@
         "entry_date": "2026-03-11",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 107,
+        "ema_cross_days": 109,
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
@@ -138,7 +138,7 @@
         "entry_date": "2026-03-11",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 240,
+        "ema_cross_days": 242,
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
@@ -151,7 +151,7 @@
         "entry_date": "2026-03-11",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 37,
+        "ema_cross_days": 39,
         "half_sold": false,
         "position_count": 1,
         "trades": 0,
@@ -323,7 +323,7 @@
         "entry_date": "2026-08-25",
         "entry_price": 100.0,
         "initial_entry": 100.0,
-        "ema_cross_days": 58,
+        "ema_cross_days": 60,
         "last_known_qty": 9,
         "peak_price": 416.0,
         "half_sold": false,
@@ -411,6 +411,6 @@
         "entry_date": "2026-07-26",
         "position_count": 1,
         "half_sold": false,
-        "ema_cross_days": 22
+        "ema_cross_days": 24
     }
 }

@@ -1,43 +1,43 @@
 {
-    "generated_at": "2026-09-21 21:48 NPT",
+    "generated_at": "2026-09-22 15:34 NPT",
     "context": "premarket",
     "regime": "BULL",
     "signals": [],
     "potential": [
         {
-            "symbol": "ADBL",
-            "price": 314.0,
-            "conditions_met": 6,
+            "symbol": "KBL",
+            "price": 228.0,
+            "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: EMA stack (9>21>50), 7-day breakout"
+            "reason": "Missing: ADX trend strength"
         },
         {
-            "symbol": "ALBSL",
-            "price": 1190.0,
-            "conditions_met": 6,
+            "symbol": "MBL",
+            "price": 264.3,
+            "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
+            "reason": "Missing: ADX trend strength"
         },
         {
-            "symbol": "BNT",
-            "price": 12450.0,
-            "conditions_met": 6,
+            "symbol": "NTC",
+            "price": 920.0,
+            "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, volume surge"
+            "reason": "Missing: volume surge"
         },
         {
-            "symbol": "CBBL",
-            "price": 960.0,
-            "conditions_met": 6,
+            "symbol": "SBL",
+            "price": 458.0,
+            "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
+            "reason": "Missing: RSI sweet spot"
         },
         {
-            "symbol": "CZBIL",
-            "price": 212.9,
-            "conditions_met": 6,
+            "symbol": "SNLI",
+            "price": 427.5,
+            "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, 7-day breakout"
+            "reason": "Missing: EMA stack (9>21>50)"
         }
     ]
 }
