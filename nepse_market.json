@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-22 09:48",
+  "generated_at": "2026-09-22 14:09",
   "nepse": {
     "close": 2654.28,
     "change": 7.06,
@@ -63,9 +63,9 @@
     {
       "name": "Trading",
       "symbol": "TRADINGIND",
-      "close": 3310.87,
-      "change": 28.13,
-      "change_pct": 0.86
+      "close": 3279.97,
+      "change": -30.9,
+      "change_pct": -0.93
     },
     {
       "name": "Hotels",
@@ -91,15 +91,15 @@
     {
       "name": "Investment",
       "symbol": "INVIDX",
-      "close": 97.54,
-      "change": 0.1,
-      "change_pct": 0.1
+      "close": 98.01,
+      "change": 0.47,
+      "change_pct": 0.48
     }
   ],
   "breadth": {
     "increased": 144,
     "decreased": 128,
-    "unchanged": 11,
+    "unchanged": 12,
     "date": "2026-09-22"
   }
 }
