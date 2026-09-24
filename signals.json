@@ -1,49 +1,57 @@
 {
-    "generated_at": "2026-09-23 20:06 NPT",
+    "generated_at": "2026-09-24 15:33 NPT",
     "context": "premarket",
     "regime": "BULL",
     "signals": [
         {
+            "side": "BUY",
+            "symbol": "SHIVM",
+            "price": 702.0,
+            "type": "INITIAL",
+            "quantity": 15,
+            "reason": "EMA9>678 EMA21=665 ADX=35.7 RSI=67.3 vol=555271"
+        },
+        {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 592.0,
+            "price": 587.0,
             "type": "WEAKNESS",
             "quantity": 20,
-            "reason": "Weakness: RSI=49.5 < 50 after 59d"
+            "reason": "Weakness: RSI=47.5 < 50 after 60d"
         }
     ],
     "potential": [
         {
-            "symbol": "CBBL",
-            "price": 949.0,
+            "symbol": "HDL",
+            "price": 1312.0,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: RSI sweet spot"
+        },
+        {
+            "symbol": "PCBL",
+            "price": 257.0,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: 7-day breakout"
         },
         {
-            "symbol": "ADBL",
-            "price": 311.0,
-            "conditions_met": 6,
+            "symbol": "STC",
+            "price": 5563.0,
+            "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: EMA stack (9>21>50), 7-day breakout"
+            "reason": "Missing: 7-day breakout"
         },
         {
             "symbol": "ALBSL",
-            "price": 1194.0,
+            "price": 1174.4,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
-            "symbol": "CZBIL",
-            "price": 212.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, 7-day breakout"
-        },
-        {
-            "symbol": "GVL",
-            "price": 490.0,
+            "symbol": "BHCL",
+            "price": 574.8,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength, 7-day breakout"
