@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-09-24 15:33 NPT",
+    "generated_at": "2026-09-25 15:22 NPT",
     "context": "premarket",
     "regime": "BULL",
     "signals": [
@@ -17,7 +17,7 @@
             "price": 587.0,
             "type": "WEAKNESS",
             "quantity": 20,
-            "reason": "Weakness: RSI=47.5 < 50 after 60d"
+            "reason": "Weakness: RSI=47.5 < 50 after 61d"
         }
     ],
     "potential": [

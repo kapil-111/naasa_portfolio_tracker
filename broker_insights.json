@@ -1,36 +1,67 @@
 {
-  "date": "2026-09-24",
+  "date": "2026-09-25",
   "top_accumulating": [
     {
-      "symbol": "SHIVM",
-      "total_amount": 142290483.4,
-      "total_quantity": 205927,
-      "broker_count": 5
+      "symbol": "NABILP",
+      "total_amount": 134319280.0,
+      "total_quantity": 433288,
+      "broker_count": 1
     },
     {
-      "symbol": "LSL",
-      "total_amount": 56476904.8,
-      "total_quantity": 228677,
+      "symbol": "SONA",
+      "total_amount": 76895439.8,
+      "total_quantity": 183112,
+      "broker_count": 3
+    },
+    {
+      "symbol": "HDL",
+      "total_amount": 73679179.2,
+      "total_quantity": 56635,
       "broker_count": 4
     },
     {
-      "symbol": "PBD93",
-      "total_amount": 51277676.5,
-      "total_quantity": 46000,
+      "symbol": "TAMOR",
+      "total_amount": 57976613.8,
+      "total_quantity": 110795,
+      "broker_count": 6
+    },
+    {
+      "symbol": "GCIL",
+      "total_amount": 38253313.7,
+      "total_quantity": 96163,
+      "broker_count": 4
+    }
+  ],
+  "top_releasing": [
+    {
+      "symbol": "NABILP",
+      "total_amount": 268638560.0,
+      "total_quantity": 866576,
       "broker_count": 1
     },
     {
-      "symbol": "KBL",
-      "total_amount": 45679978.2,
-      "total_quantity": 201806,
-      "broker_count": 1
+      "symbol": "HDL",
+      "total_amount": 247162801.8,
+      "total_quantity": 189152,
+      "broker_count": 7
     },
     {
       "symbol": "TAMOR",
-      "total_amount": 43016876.5,
-      "total_quantity": 80767,
+      "total_amount": 105103859.2,
+      "total_quantity": 200832,
+      "broker_count": 6
+    },
+    {
+      "symbol": "SHIVM",
+      "total_amount": 91963684.1,
+      "total_quantity": 131707,
+      "broker_count": 5
+    },
+    {
+      "symbol": "MEN",
+      "total_amount": 62173016.3,
+      "total_quantity": 96089,
       "broker_count": 5
     }
-  ],
-  "top_releasing": []
+  ]
 }
