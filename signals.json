@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-09-25 15:22 NPT",
+    "generated_at": "2026-09-25 20:29 NPT",
     "context": "premarket",
     "regime": "BULL",
     "signals": [
@@ -8,7 +8,7 @@
             "symbol": "SHIVM",
             "price": 702.0,
             "type": "INITIAL",
-            "quantity": 15,
+            "quantity": 20,
             "reason": "EMA9>678 EMA21=665 ADX=35.7 RSI=67.3 vol=555271"
         },
         {
