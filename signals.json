@@ -1,57 +1,49 @@
 {
-    "generated_at": "2026-09-25 20:29 NPT",
+    "generated_at": "2026-09-28 16:38 NPT",
     "context": "premarket",
     "regime": "BULL",
     "signals": [
         {
-            "side": "BUY",
-            "symbol": "SHIVM",
-            "price": 702.0,
-            "type": "INITIAL",
-            "quantity": 20,
-            "reason": "EMA9>678 EMA21=665 ADX=35.7 RSI=67.3 vol=555271"
-        },
-        {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 587.0,
+            "price": 590.0,
             "type": "WEAKNESS",
             "quantity": 20,
-            "reason": "Weakness: RSI=47.5 < 50 after 61d"
+            "reason": "Weakness: RSI=45.6 < 50 after 64d"
         }
     ],
     "potential": [
         {
             "symbol": "HDL",
-            "price": 1312.0,
+            "price": 1323.0,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: RSI sweet spot"
         },
         {
-            "symbol": "PCBL",
-            "price": 257.0,
+            "symbol": "SARBTM",
+            "price": 819.9,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: 7-day breakout"
         },
         {
-            "symbol": "STC",
-            "price": 5563.0,
+            "symbol": "SHINE",
+            "price": 428.9,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: 7-day breakout"
         },
         {
             "symbol": "ALBSL",
-            "price": 1174.4,
+            "price": 1188.5,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
             "symbol": "BHCL",
-            "price": 574.8,
+            "price": 575.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength, 7-day breakout"

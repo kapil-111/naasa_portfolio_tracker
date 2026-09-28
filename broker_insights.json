@@ -1,67 +1,67 @@
 {
-  "date": "2026-09-25",
+  "date": "2026-09-28",
   "top_accumulating": [
     {
-      "symbol": "NABILP",
-      "total_amount": 134319280.0,
-      "total_quantity": 433288,
-      "broker_count": 1
-    },
-    {
-      "symbol": "SONA",
-      "total_amount": 76895439.8,
-      "total_quantity": 183112,
-      "broker_count": 3
-    },
-    {
       "symbol": "HDL",
-      "total_amount": 73679179.2,
-      "total_quantity": 56635,
-      "broker_count": 4
-    },
-    {
-      "symbol": "TAMOR",
-      "total_amount": 57976613.8,
-      "total_quantity": 110795,
+      "total_amount": 87901711.6,
+      "total_quantity": 66146,
       "broker_count": 6
     },
     {
-      "symbol": "GCIL",
-      "total_amount": 38253313.7,
-      "total_quantity": 96163,
-      "broker_count": 4
-    }
-  ],
-  "top_releasing": [
-    {
-      "symbol": "NABILP",
-      "total_amount": 268638560.0,
-      "total_quantity": 866576,
+      "symbol": "SBLPO",
+      "total_amount": 68184250.0,
+      "total_quantity": 272737,
       "broker_count": 1
     },
     {
-      "symbol": "HDL",
-      "total_amount": 247162801.8,
-      "total_quantity": 189152,
-      "broker_count": 7
+      "symbol": "PCBL",
+      "total_amount": 66489517.7,
+      "total_quantity": 255010,
+      "broker_count": 5
     },
     {
-      "symbol": "TAMOR",
-      "total_amount": 105103859.2,
-      "total_quantity": 200832,
+      "symbol": "SBL",
+      "total_amount": 46588288.8,
+      "total_quantity": 101729,
       "broker_count": 6
     },
     {
       "symbol": "SHIVM",
-      "total_amount": 91963684.1,
-      "total_quantity": 131707,
-      "broker_count": 5
+      "total_amount": 43858098.2,
+      "total_quantity": 62327,
+      "broker_count": 7
+    }
+  ],
+  "top_releasing": [
+    {
+      "symbol": "HDL",
+      "total_amount": 163370604.3,
+      "total_quantity": 122367,
+      "broker_count": 7
     },
     {
-      "symbol": "MEN",
-      "total_amount": 62173016.3,
-      "total_quantity": 96089,
-      "broker_count": 5
+      "symbol": "SBLPO",
+      "total_amount": 136368500.0,
+      "total_quantity": 545474,
+      "broker_count": 1
+    },
+    {
+      "symbol": "SHIVM",
+      "total_amount": 135654341.5,
+      "total_quantity": 192890,
+      "broker_count": 8
+    },
+    {
+      "symbol": "HATHY",
+      "total_amount": 107912438.5,
+      "total_quantity": 260390,
+      "broker_count": 3
+    },
+    {
+      "symbol": "ENL",
+      "total_amount": 85008242.9,
+      "total_quantity": 164379,
+      "broker_count": 2
     }
   ]
 }
