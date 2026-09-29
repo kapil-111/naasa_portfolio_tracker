@@ -1,66 +1,66 @@
 {
-  "date": "2026-09-28",
+  "date": "2026-09-29",
   "top_accumulating": [
     {
-      "symbol": "HDL",
-      "total_amount": 87901711.6,
-      "total_quantity": 66146,
-      "broker_count": 6
-    },
-    {
-      "symbol": "SBLPO",
-      "total_amount": 68184250.0,
-      "total_quantity": 272737,
+      "symbol": "MFILPO",
+      "total_amount": 120089925.0,
+      "total_quantity": 299850,
       "broker_count": 1
     },
     {
-      "symbol": "PCBL",
-      "total_amount": 66489517.7,
-      "total_quantity": 255010,
-      "broker_count": 5
+      "symbol": "PBD93",
+      "total_amount": 88959253.7,
+      "total_quantity": 77538,
+      "broker_count": 2
+    },
+    {
+      "symbol": "LSD92",
+      "total_amount": 53613355.1,
+      "total_quantity": 47431,
+      "broker_count": 3
     },
     {
       "symbol": "SBL",
-      "total_amount": 46588288.8,
-      "total_quantity": 101729,
-      "broker_count": 6
+      "total_amount": 44913481.2,
+      "total_quantity": 98562,
+      "broker_count": 9
     },
     {
-      "symbol": "SHIVM",
-      "total_amount": 43858098.2,
-      "total_quantity": 62327,
-      "broker_count": 7
+      "symbol": "MEN",
+      "total_amount": 40106444.2,
+      "total_quantity": 62904,
+      "broker_count": 8
     }
   ],
   "top_releasing": [
     {
-      "symbol": "HDL",
-      "total_amount": 163370604.3,
-      "total_quantity": 122367,
-      "broker_count": 7
-    },
-    {
-      "symbol": "SBLPO",
-      "total_amount": 136368500.0,
-      "total_quantity": 545474,
+      "symbol": "MFILPO",
+      "total_amount": 221389250.0,
+      "total_quantity": 549725,
       "broker_count": 1
     },
     {
-      "symbol": "SHIVM",
-      "total_amount": 135654341.5,
-      "total_quantity": 192890,
+      "symbol": "PBD93",
+      "total_amount": 134119332.0,
+      "total_quantity": 116261,
       "broker_count": 8
     },
     {
+      "symbol": "GBBL",
+      "total_amount": 120302605.6,
+      "total_quantity": 264381,
+      "broker_count": 6
+    },
+    {
       "symbol": "HATHY",
-      "total_amount": 107912438.5,
-      "total_quantity": 260390,
+      "total_amount": 89529071.2,
+      "total_quantity": 218354,
       "broker_count": 3
     },
     {
       "symbol": "ENL",
-      "total_amount": 85008242.9,
-      "total_quantity": 164379,
+      "total_amount": 83271095.4,
+      "total_quantity": 174450,
       "broker_count": 2
     }
   ]
