@@ -1,28 +1,28 @@
 {
-    "generated_at": "2026-09-29 21:51 NPT",
+    "generated_at": "2026-09-30 16:15 NPT",
     "context": "premarket",
     "regime": "BEAR",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 583.0,
+            "price": 584.0,
             "type": "FULL_EXIT",
             "quantity": 20,
-            "reason": "Stop loss: -9.5% <= -9%"
+            "reason": "Stop loss: -9.3% <= -9%"
         }
     ],
     "potential": [
         {
             "symbol": "PCBL",
-            "price": 260.0,
+            "price": 258.2,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: 7-day breakout"
         },
         {
-            "symbol": "SLBBL",
-            "price": 813.0,
+            "symbol": "SKBBL",
+            "price": 766.0,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: 7-day breakout"
@@ -36,17 +36,17 @@
         },
         {
             "symbol": "HDL",
-            "price": 1297.0,
+            "price": 1292.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: RSI sweet spot, 7-day breakout"
         },
         {
-            "symbol": "NBL",
-            "price": 295.0,
+            "symbol": "NTC",
+            "price": 910.0,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, 7-day breakout"
+            "reason": "Missing: volume surge, 7-day breakout"
         }
     ]
 }

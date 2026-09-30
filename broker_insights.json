@@ -1,67 +1,67 @@
 {
-  "date": "2026-09-29",
+  "date": "2026-09-30",
   "top_accumulating": [
     {
       "symbol": "MFILPO",
-      "total_amount": 120089925.0,
-      "total_quantity": 299850,
+      "total_amount": 187207365.0,
+      "total_quantity": 539733,
       "broker_count": 1
     },
     {
-      "symbol": "PBD93",
-      "total_amount": 88959253.7,
-      "total_quantity": 77538,
-      "broker_count": 2
-    },
-    {
-      "symbol": "LSD92",
-      "total_amount": 53613355.1,
-      "total_quantity": 47431,
+      "symbol": "GHL",
+      "total_amount": 157450631.4,
+      "total_quantity": 589628,
       "broker_count": 3
     },
     {
-      "symbol": "SBL",
-      "total_amount": 44913481.2,
-      "total_quantity": 98562,
-      "broker_count": 9
+      "symbol": "SHPC",
+      "total_amount": 74698797.2,
+      "total_quantity": 143463,
+      "broker_count": 7
     },
     {
-      "symbol": "MEN",
-      "total_amount": 40106444.2,
-      "total_quantity": 62904,
-      "broker_count": 8
+      "symbol": "SHIVM",
+      "total_amount": 37014138.9,
+      "total_quantity": 53917,
+      "broker_count": 7
+    },
+    {
+      "symbol": "HDL",
+      "total_amount": 24148866.7,
+      "total_quantity": 18741,
+      "broker_count": 7
     }
   ],
   "top_releasing": [
     {
       "symbol": "MFILPO",
-      "total_amount": 221389250.0,
-      "total_quantity": 549725,
+      "total_amount": 374414730.0,
+      "total_quantity": 1079466,
       "broker_count": 1
     },
     {
-      "symbol": "PBD93",
-      "total_amount": 134119332.0,
-      "total_quantity": 116261,
-      "broker_count": 8
-    },
-    {
-      "symbol": "GBBL",
-      "total_amount": 120302605.6,
-      "total_quantity": 264381,
-      "broker_count": 6
-    },
-    {
-      "symbol": "HATHY",
-      "total_amount": 89529071.2,
-      "total_quantity": 218354,
-      "broker_count": 3
-    },
-    {
-      "symbol": "ENL",
-      "total_amount": 83271095.4,
-      "total_quantity": 174450,
+      "symbol": "SHPC",
+      "total_amount": 189056536.0,
+      "total_quantity": 362106,
       "broker_count": 2
+    },
+    {
+      "symbol": "SONA",
+      "total_amount": 89418094.2,
+      "total_quantity": 213937,
+      "broker_count": 7
+    },
+    {
+      "symbol": "GHL",
+      "total_amount": 84426778.2,
+      "total_quantity": 313715,
+      "broker_count": 7
+    },
+    {
+      "symbol": "PHCL",
+      "total_amount": 78642915.2,
+      "total_quantity": 236679,
+      "broker_count": 6
     }
   ]
 }
