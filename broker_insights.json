@@ -1,66 +1,66 @@
 {
-  "date": "2026-09-30",
+  "date": "2026-10-01",
   "top_accumulating": [
     {
-      "symbol": "MFILPO",
-      "total_amount": 187207365.0,
-      "total_quantity": 539733,
-      "broker_count": 1
-    },
-    {
-      "symbol": "GHL",
-      "total_amount": 157450631.4,
-      "total_quantity": 589628,
-      "broker_count": 3
-    },
-    {
-      "symbol": "SHPC",
-      "total_amount": 74698797.2,
-      "total_quantity": 143463,
-      "broker_count": 7
-    },
-    {
-      "symbol": "SHIVM",
-      "total_amount": 37014138.9,
-      "total_quantity": 53917,
-      "broker_count": 7
-    },
-    {
-      "symbol": "HDL",
-      "total_amount": 24148866.7,
-      "total_quantity": 18741,
-      "broker_count": 7
-    }
-  ],
-  "top_releasing": [
-    {
-      "symbol": "MFILPO",
-      "total_amount": 374414730.0,
-      "total_quantity": 1079466,
-      "broker_count": 1
-    },
-    {
-      "symbol": "SHPC",
-      "total_amount": 189056536.0,
-      "total_quantity": 362106,
+      "symbol": "LSD92",
+      "total_amount": 57111194.9,
+      "total_quantity": 49706,
       "broker_count": 2
     },
     {
-      "symbol": "SONA",
-      "total_amount": 89418094.2,
-      "total_quantity": 213937,
-      "broker_count": 7
-    },
-    {
-      "symbol": "GHL",
-      "total_amount": 84426778.2,
-      "total_quantity": 313715,
+      "symbol": "API",
+      "total_amount": 49962145.8,
+      "total_quantity": 146984,
       "broker_count": 7
     },
     {
       "symbol": "PHCL",
-      "total_amount": 78642915.2,
-      "total_quantity": 236679,
+      "total_amount": 48833632.7,
+      "total_quantity": 143207,
+      "broker_count": 1
+    },
+    {
+      "symbol": "LSL",
+      "total_amount": 38516671.8,
+      "total_quantity": 149618,
+      "broker_count": 5
+    },
+    {
+      "symbol": "HATHY",
+      "total_amount": 37976154.5,
+      "total_quantity": 84219,
+      "broker_count": 6
+    }
+  ],
+  "top_releasing": [
+    {
+      "symbol": "API",
+      "total_amount": 103893121.0,
+      "total_quantity": 307333,
+      "broker_count": 5
+    },
+    {
+      "symbol": "SONA",
+      "total_amount": 61695742.2,
+      "total_quantity": 146420,
+      "broker_count": 6
+    },
+    {
+      "symbol": "BPCL",
+      "total_amount": 60085777.8,
+      "total_quantity": 92374,
+      "broker_count": 3
+    },
+    {
+      "symbol": "PHCL",
+      "total_amount": 58992047.2,
+      "total_quantity": 173720,
+      "broker_count": 8
+    },
+    {
+      "symbol": "LEC",
+      "total_amount": 57002180.8,
+      "total_quantity": 223550,
       "broker_count": 6
     }
   ]
