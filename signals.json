@@ -1,49 +1,49 @@
 {
-    "generated_at": "2026-10-01 22:33 NPT",
+    "generated_at": "2026-10-02 16:16 NPT",
     "context": "premarket",
     "regime": "BEAR",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 586.0,
+            "price": 582.0,
             "type": "FULL_EXIT",
             "quantity": 20,
-            "reason": "Stop loss: -9.0% <= -9%"
+            "reason": "Stop loss: -9.6% <= -9%"
         }
     ],
     "potential": [
         {
-            "symbol": "SHPC",
-            "price": 531.0,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: 7-day breakout"
-        },
-        {
             "symbol": "ADBL",
-            "price": 310.0,
+            "price": 309.0,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: EMA stack (9>21>50), 7-day breakout"
+            "reason": "Missing: volume surge, 7-day breakout"
         },
         {
             "symbol": "ALBSL",
-            "price": 1186.0,
+            "price": 1189.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
             "symbol": "API",
-            "price": 341.0,
+            "price": 338.8,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, volume surge"
+            "reason": "Missing: ADX trend strength, 7-day breakout"
         },
         {
-            "symbol": "BHCL",
-            "price": 569.8,
+            "symbol": "HDL",
+            "price": 1293.0,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "HURJA",
+            "price": 257.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength, 7-day breakout"

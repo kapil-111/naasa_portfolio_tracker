@@ -1,66 +1,66 @@
 {
-  "date": "2026-10-01",
+  "date": "2026-10-02",
   "top_accumulating": [
     {
-      "symbol": "LSD92",
-      "total_amount": 57111194.9,
-      "total_quantity": 49706,
-      "broker_count": 2
-    },
-    {
-      "symbol": "API",
-      "total_amount": 49962145.8,
-      "total_quantity": 146984,
-      "broker_count": 7
-    },
-    {
-      "symbol": "PHCL",
-      "total_amount": 48833632.7,
-      "total_quantity": 143207,
+      "symbol": "SBLD89",
+      "total_amount": 140194913.0,
+      "total_quantity": 100145,
       "broker_count": 1
     },
     {
-      "symbol": "LSL",
-      "total_amount": 38516671.8,
-      "total_quantity": 149618,
+      "symbol": "KBL",
+      "total_amount": 48811941.1,
+      "total_quantity": 216295,
+      "broker_count": 3
+    },
+    {
+      "symbol": "NMBD89/90",
+      "total_amount": 39256916.0,
+      "total_quantity": 28043,
+      "broker_count": 1
+    },
+    {
+      "symbol": "GHL",
+      "total_amount": 37428437.4,
+      "total_quantity": 138684,
       "broker_count": 5
     },
     {
-      "symbol": "HATHY",
-      "total_amount": 37976154.5,
-      "total_quantity": 84219,
-      "broker_count": 6
+      "symbol": "PHCL",
+      "total_amount": 33867851.4,
+      "total_quantity": 101251,
+      "broker_count": 3
     }
   ],
   "top_releasing": [
     {
-      "symbol": "API",
-      "total_amount": 103893121.0,
-      "total_quantity": 307333,
-      "broker_count": 5
-    },
-    {
-      "symbol": "SONA",
-      "total_amount": 61695742.2,
-      "total_quantity": 146420,
-      "broker_count": 6
-    },
-    {
-      "symbol": "BPCL",
-      "total_amount": 60085777.8,
-      "total_quantity": 92374,
+      "symbol": "SBLD89",
+      "total_amount": 530400416.0,
+      "total_quantity": 378872,
       "broker_count": 3
     },
     {
-      "symbol": "PHCL",
-      "total_amount": 58992047.2,
-      "total_quantity": 173720,
-      "broker_count": 8
+      "symbol": "NMBD89/90",
+      "total_amount": 78214232.0,
+      "total_quantity": 55872,
+      "broker_count": 2
     },
     {
-      "symbol": "LEC",
-      "total_amount": 57002180.8,
-      "total_quantity": 223550,
+      "symbol": "API",
+      "total_amount": 55318143.7,
+      "total_quantity": 162882,
+      "broker_count": 4
+    },
+    {
+      "symbol": "KBL",
+      "total_amount": 52527817.0,
+      "total_quantity": 232694,
+      "broker_count": 9
+    },
+    {
+      "symbol": "GHL",
+      "total_amount": 45650055.9,
+      "total_quantity": 169378,
       "broker_count": 6
     }
   ]
