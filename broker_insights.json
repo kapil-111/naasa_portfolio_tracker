@@ -1,67 +1,67 @@
 {
-  "date": "2026-10-02",
+  "date": "2026-10-05",
   "top_accumulating": [
     {
-      "symbol": "SBLD89",
-      "total_amount": 140194913.0,
-      "total_quantity": 100145,
-      "broker_count": 1
-    },
-    {
-      "symbol": "KBL",
-      "total_amount": 48811941.1,
-      "total_quantity": 216295,
-      "broker_count": 3
-    },
-    {
-      "symbol": "NMBD89/90",
-      "total_amount": 39256916.0,
-      "total_quantity": 28043,
-      "broker_count": 1
-    },
-    {
       "symbol": "GHL",
-      "total_amount": 37428437.4,
-      "total_quantity": 138684,
+      "total_amount": 38505402.7,
+      "total_quantity": 140089,
+      "broker_count": 4
+    },
+    {
+      "symbol": "LSD92",
+      "total_amount": 34146669.6,
+      "total_quantity": 29468,
+      "broker_count": 2
+    },
+    {
+      "symbol": "PCBL",
+      "total_amount": 25682754.7,
+      "total_quantity": 99431,
       "broker_count": 5
     },
     {
-      "symbol": "PHCL",
-      "total_amount": 33867851.4,
-      "total_quantity": 101251,
-      "broker_count": 3
+      "symbol": "RIDI",
+      "total_amount": 20000546.8,
+      "total_quantity": 60208,
+      "broker_count": 6
+    },
+    {
+      "symbol": "AKJCL",
+      "total_amount": 19968449.1,
+      "total_quantity": 56395,
+      "broker_count": 5
     }
   ],
   "top_releasing": [
     {
-      "symbol": "SBLD89",
-      "total_amount": 530400416.0,
-      "total_quantity": 378872,
-      "broker_count": 3
+      "symbol": "GHL",
+      "total_amount": 69451310.3,
+      "total_quantity": 253282,
+      "broker_count": 8
     },
     {
-      "symbol": "NMBD89/90",
-      "total_amount": 78214232.0,
-      "total_quantity": 55872,
-      "broker_count": 2
+      "symbol": "SHIVM",
+      "total_amount": 55771947.3,
+      "total_quantity": 82967,
+      "broker_count": 7
     },
     {
-      "symbol": "API",
-      "total_amount": 55318143.7,
-      "total_quantity": 162882,
+      "symbol": "NIMBPO",
+      "total_amount": 41039800.0,
+      "total_quantity": 283000,
       "broker_count": 4
     },
     {
-      "symbol": "KBL",
-      "total_amount": 52527817.0,
-      "total_quantity": 232694,
-      "broker_count": 9
+      "symbol": "SHPC",
+      "total_amount": 40132624.5,
+      "total_quantity": 76603,
+      "broker_count": 6
     },
     {
-      "symbol": "GHL",
-      "total_amount": 45650055.9,
-      "total_quantity": 169378,
-      "broker_count": 6
+      "symbol": "RIDI",
+      "total_amount": 34613641.3,
+      "total_quantity": 104212,
+      "broker_count": 7
     }
   ]
 }

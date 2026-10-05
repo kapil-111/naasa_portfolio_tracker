@@ -1,52 +1,52 @@
 {
-    "generated_at": "2026-10-02 21:43 NPT",
+    "generated_at": "2026-10-05 17:12 NPT",
     "context": "premarket",
     "regime": "BEAR",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 582.0,
+            "price": 577.0,
             "type": "FULL_EXIT",
             "quantity": 20,
-            "reason": "Stop loss: -9.6% <= -9%"
+            "reason": "Stop loss: -10.4% <= -9%"
         }
     ],
     "potential": [
         {
             "symbol": "ADBL",
-            "price": 309.0,
+            "price": 308.4,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
             "symbol": "ALBSL",
-            "price": 1189.0,
+            "price": 1181.4,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
-            "symbol": "API",
-            "price": 338.8,
+            "symbol": "HPPL",
+            "price": 380.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength, 7-day breakout"
         },
         {
-            "symbol": "HDL",
-            "price": 1293.0,
+            "symbol": "NTC",
+            "price": 903.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
-            "symbol": "HURJA",
-            "price": 257.0,
+            "symbol": "PCBL",
+            "price": 257.9,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, 7-day breakout"
+            "reason": "Missing: volume surge, 7-day breakout"
         }
     ]
 }
