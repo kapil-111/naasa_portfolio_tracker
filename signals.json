@@ -1,38 +1,38 @@
 {
-    "generated_at": "2026-10-06 21:56 NPT",
+    "generated_at": "2026-10-07 16:51 NPT",
     "context": "premarket",
-    "regime": "BEAR",
+    "regime": "SIDEWAYS",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 577.5,
-            "type": "FULL_EXIT",
-            "quantity": 20,
-            "reason": "Stop loss: -10.3% <= -9%"
+            "price": 581.0,
+            "type": "SL_HALF",
+            "quantity": 10,
+            "reason": "Stop loss half: SIDEWAYS regime, profit=-9.8%"
         }
     ],
     "potential": [
         {
-            "symbol": "SLBBL",
-            "price": 828.0,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge"
-        },
-        {
             "symbol": "ALBSL",
-            "price": 1187.9,
+            "price": 1180.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
             "symbol": "HDL",
-            "price": 1271.0,
+            "price": 1261.2,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "MBL",
+            "price": 255.5,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength, volume surge"
         },
         {
             "symbol": "NTC",
@@ -43,7 +43,7 @@
         },
         {
             "symbol": "PCBL",
-            "price": 260.8,
+            "price": 260.9,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
