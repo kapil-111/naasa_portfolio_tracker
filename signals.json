@@ -1,49 +1,49 @@
 {
-    "generated_at": "2026-10-07 22:35 NPT",
+    "generated_at": "2026-10-08 17:07 NPT",
     "context": "premarket",
     "regime": "SIDEWAYS",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 581.0,
+            "price": 579.1,
             "type": "SL_HALF",
             "quantity": 10,
-            "reason": "Stop loss half: SIDEWAYS regime, profit=-9.8%"
+            "reason": "Stop loss half: SIDEWAYS regime, profit=-10.1%"
         }
     ],
     "potential": [
         {
+            "symbol": "HPPL",
+            "price": 400.0,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength"
+        },
+        {
+            "symbol": "SIKLES",
+            "price": 593.5,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength"
+        },
+        {
+            "symbol": "ADBL",
+            "price": 311.9,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength, volume surge"
+        },
+        {
             "symbol": "ALBSL",
-            "price": 1180.0,
+            "price": 1182.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
             "symbol": "HDL",
-            "price": 1261.2,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
-        },
-        {
-            "symbol": "NTC",
-            "price": 902.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
-        },
-        {
-            "symbol": "PCBL",
-            "price": 260.9,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
-        },
-        {
-            "symbol": "SHPC",
-            "price": 527.0,
+            "price": 1274.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"

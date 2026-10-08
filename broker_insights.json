@@ -1,66 +1,66 @@
 {
-  "date": "2026-10-07",
+  "date": "2026-10-08",
   "top_accumulating": [
     {
-      "symbol": "GHL",
-      "total_amount": 122142871.4,
-      "total_quantity": 423575,
-      "broker_count": 2
+      "symbol": "KBL",
+      "total_amount": 39745430.5,
+      "total_quantity": 174646,
+      "broker_count": 5
     },
     {
-      "symbol": "TAMOR",
-      "total_amount": 33690757.4,
-      "total_quantity": 61963,
-      "broker_count": 7
-    },
-    {
-      "symbol": "SYPNL",
-      "total_amount": 33017135.1,
-      "total_quantity": 24768,
+      "symbol": "HDHPC",
+      "total_amount": 37976660.2,
+      "total_quantity": 166637,
       "broker_count": 6
     },
     {
-      "symbol": "SHIVM",
-      "total_amount": 22124093.2,
-      "total_quantity": 32824,
-      "broker_count": 8
+      "symbol": "GHL",
+      "total_amount": 35112170.83,
+      "total_quantity": 118524,
+      "broker_count": 5
     },
     {
-      "symbol": "KBL",
-      "total_amount": 19291150.9,
-      "total_quantity": 85440,
-      "broker_count": 4
+      "symbol": "UMHL",
+      "total_amount": 32574052.8,
+      "total_quantity": 60028,
+      "broker_count": 3
+    },
+    {
+      "symbol": "NHPC",
+      "total_amount": 31679798.0,
+      "total_quantity": 119071,
+      "broker_count": 6
     }
   ],
   "top_releasing": [
     {
-      "symbol": "GHL",
-      "total_amount": 108539449.2,
-      "total_quantity": 375766,
-      "broker_count": 8
+      "symbol": "GLH",
+      "total_amount": 93100993.0,
+      "total_quantity": 333444,
+      "broker_count": 1
     },
     {
-      "symbol": "PHCL",
-      "total_amount": 64951464.2,
-      "total_quantity": 189900,
-      "broker_count": 6
-    },
-    {
-      "symbol": "SYPNL",
-      "total_amount": 58116093.8,
-      "total_quantity": 43589,
-      "broker_count": 6
-    },
-    {
-      "symbol": "LEC",
-      "total_amount": 51236854.2,
-      "total_quantity": 200940,
+      "symbol": "HDHPC",
+      "total_amount": 64632303.5,
+      "total_quantity": 283245,
       "broker_count": 5
     },
     {
-      "symbol": "SBL",
-      "total_amount": 40775083.6,
-      "total_quantity": 102387,
+      "symbol": "SKBBL",
+      "total_amount": 64204024.4,
+      "total_quantity": 86706,
+      "broker_count": 4
+    },
+    {
+      "symbol": "GHL",
+      "total_amount": 53077293.6,
+      "total_quantity": 181771,
+      "broker_count": 4
+    },
+    {
+      "symbol": "LSL",
+      "total_amount": 49831153.0,
+      "total_quantity": 195063,
       "broker_count": 4
     }
   ]
