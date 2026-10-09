@@ -1,67 +1,67 @@
 {
-  "date": "2026-10-08",
+  "date": "2026-10-09",
   "top_accumulating": [
     {
       "symbol": "KBL",
-      "total_amount": 39745430.5,
-      "total_quantity": 174646,
-      "broker_count": 5
-    },
-    {
-      "symbol": "HDHPC",
-      "total_amount": 37976660.2,
-      "total_quantity": 166637,
-      "broker_count": 6
-    },
-    {
-      "symbol": "GHL",
-      "total_amount": 35112170.83,
-      "total_quantity": 118524,
-      "broker_count": 5
-    },
-    {
-      "symbol": "UMHL",
-      "total_amount": 32574052.8,
-      "total_quantity": 60028,
+      "total_amount": 39854777.5,
+      "total_quantity": 172769,
       "broker_count": 3
     },
     {
+      "symbol": "GHL",
+      "total_amount": 35249659.7,
+      "total_quantity": 123181,
+      "broker_count": 3
+    },
+    {
+      "symbol": "SHIVM",
+      "total_amount": 30870553.6,
+      "total_quantity": 44887,
+      "broker_count": 4
+    },
+    {
       "symbol": "NHPC",
-      "total_amount": 31679798.0,
-      "total_quantity": 119071,
-      "broker_count": 6
+      "total_amount": 30498010.5,
+      "total_quantity": 113313,
+      "broker_count": 5
+    },
+    {
+      "symbol": "GBIME",
+      "total_amount": 30485953.9,
+      "total_quantity": 124697,
+      "broker_count": 2
     }
   ],
   "top_releasing": [
     {
-      "symbol": "GLH",
-      "total_amount": 93100993.0,
-      "total_quantity": 333444,
-      "broker_count": 1
-    },
-    {
-      "symbol": "HDHPC",
-      "total_amount": 64632303.5,
-      "total_quantity": 283245,
-      "broker_count": 5
-    },
-    {
-      "symbol": "SKBBL",
-      "total_amount": 64204024.4,
-      "total_quantity": 86706,
-      "broker_count": 4
-    },
-    {
       "symbol": "GHL",
-      "total_amount": 53077293.6,
-      "total_quantity": 181771,
-      "broker_count": 4
+      "total_amount": 156114016.7,
+      "total_quantity": 545514,
+      "broker_count": 8
     },
     {
       "symbol": "LSL",
-      "total_amount": 49831153.0,
-      "total_quantity": 195063,
+      "total_amount": 137998870.5,
+      "total_quantity": 545298,
+      "broker_count": 8
+    },
+    {
+      "symbol": "SYPNL",
+      "total_amount": 77107369.9,
+      "total_quantity": 58964,
       "broker_count": 4
+    },
+    {
+      "symbol": "HDL",
+      "total_amount": 60080455.0,
+      "total_quantity": 46355,
+      "broker_count": 8
+    },
+    {
+      "symbol": "KBL",
+      "total_amount": 59281550.8,
+      "total_quantity": 256514,
+      "broker_count": 6
     }
   ]
 }

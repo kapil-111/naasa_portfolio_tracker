@@ -1,52 +1,52 @@
 {
-    "generated_at": "2026-10-08 22:35 NPT",
+    "generated_at": "2026-10-09 17:05 NPT",
     "context": "premarket",
     "regime": "SIDEWAYS",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 579.1,
+            "price": 580.0,
             "type": "SL_HALF",
             "quantity": 10,
-            "reason": "Stop loss half: SIDEWAYS regime, profit=-10.1%"
+            "reason": "Stop loss half: SIDEWAYS regime, profit=-9.9%"
         }
     ],
     "potential": [
         {
-            "symbol": "HPPL",
-            "price": 400.0,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: ADX trend strength"
-        },
-        {
-            "symbol": "SIKLES",
-            "price": 593.5,
+            "symbol": "BHL",
+            "price": 223.0,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength"
         },
         {
             "symbol": "ADBL",
-            "price": 311.9,
+            "price": 316.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength, volume surge"
         },
         {
             "symbol": "ALBSL",
-            "price": 1182.0,
+            "price": 1180.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
             "symbol": "HDL",
-            "price": 1274.0,
+            "price": 1300.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
+        },
+        {
+            "symbol": "HPPL",
+            "price": 397.9,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength, 7-day breakout"
         }
     ]
 }
