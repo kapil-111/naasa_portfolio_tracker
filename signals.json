@@ -1,49 +1,57 @@
 {
-    "generated_at": "2026-10-09 22:14 NPT",
+    "generated_at": "2026-10-12 17:41 NPT",
     "context": "premarket",
     "regime": "SIDEWAYS",
     "signals": [
         {
+            "side": "BUY",
+            "symbol": "STC",
+            "price": 5585.0,
+            "type": "INITIAL",
+            "quantity": 10,
+            "reason": "EMA9>5503 EMA21=5473 ADX=35.7 RSI=55.6 vol=5008"
+        },
+        {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 580.0,
-            "type": "SL_HALF",
-            "quantity": 10,
-            "reason": "Stop loss half: SIDEWAYS regime, profit=-9.9%"
+            "price": 590.0,
+            "type": "WEAKNESS",
+            "quantity": 20,
+            "reason": "Weakness: RSI=43.9 < 50 after 78d"
         }
     ],
     "potential": [
         {
-            "symbol": "BHL",
-            "price": 223.0,
+            "symbol": "ADBL",
+            "price": 317.8,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength"
         },
         {
-            "symbol": "ADBL",
-            "price": 316.0,
-            "conditions_met": 6,
+            "symbol": "SCB",
+            "price": 669.0,
+            "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, volume surge"
+            "reason": "Missing: ADX trend strength"
+        },
+        {
+            "symbol": "SMH",
+            "price": 548.0,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: EMA stack (9>21>50)"
         },
         {
             "symbol": "ALBSL",
-            "price": 1180.0,
+            "price": 1195.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
-            "symbol": "HDL",
-            "price": 1300.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
-        },
-        {
-            "symbol": "HPPL",
-            "price": 397.9,
+            "symbol": "BHL",
+            "price": 218.9,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength, 7-day breakout"
