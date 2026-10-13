@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-10-13 17:30 NPT",
+    "generated_at": "2026-10-13 22:51 NPT",
     "context": "premarket",
     "regime": "SIDEWAYS",
     "signals": [
@@ -9,7 +9,7 @@
             "price": 590.0,
             "type": "EMA_CROSS_HALF",
             "quantity": 10,
-            "reason": "EMA cross half: SIDEWAYS, EMA9=584 < EMA21=588 for 55d"
+            "reason": "EMA cross half: SIDEWAYS, EMA9=584 < EMA21=588 for 56d"
         }
     ],
     "potential": [
