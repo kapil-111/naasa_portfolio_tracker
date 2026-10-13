@@ -1,60 +1,52 @@
 {
-    "generated_at": "2026-10-13 01:01 NPT",
+    "generated_at": "2026-10-13 17:30 NPT",
     "context": "premarket",
     "regime": "SIDEWAYS",
     "signals": [
         {
-            "side": "BUY",
-            "symbol": "STC",
-            "price": 5585.0,
-            "type": "INITIAL",
-            "quantity": 10,
-            "reason": "EMA9>5503 EMA21=5473 ADX=35.7 RSI=55.6 vol=5008"
-        },
-        {
             "side": "SELL",
             "symbol": "UHEWA",
             "price": 590.0,
-            "type": "WEAKNESS",
-            "quantity": 20,
-            "reason": "Weakness: RSI=43.9 < 50 after 78d"
+            "type": "EMA_CROSS_HALF",
+            "quantity": 10,
+            "reason": "EMA cross half: SIDEWAYS, EMA9=584 < EMA21=588 for 55d"
         }
     ],
     "potential": [
         {
-            "symbol": "ADBL",
-            "price": 317.8,
-            "conditions_met": 7,
+            "symbol": "CBBL",
+            "price": 962.0,
+            "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength"
+            "reason": "Missing: ADX trend strength, volume surge"
         },
         {
-            "symbol": "SCB",
-            "price": 669.0,
-            "conditions_met": 7,
+            "symbol": "CLI",
+            "price": 442.0,
+            "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength"
+            "reason": "Missing: EMA stack (9>21>50), volume surge"
         },
         {
-            "symbol": "SMH",
-            "price": 548.0,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: EMA stack (9>21>50)"
-        },
-        {
-            "symbol": "ALBSL",
-            "price": 1195.0,
+            "symbol": "HDL",
+            "price": 1287.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
-            "symbol": "BHL",
-            "price": 218.9,
+            "symbol": "ILI",
+            "price": 435.0,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, 7-day breakout"
+            "reason": "Missing: ADX trend strength, volume surge"
+        },
+        {
+            "symbol": "KBL",
+            "price": 237.3,
+            "conditions_met": 6,
+            "conditions_total": 8,
+            "reason": "Missing: RSI sweet spot, 7-day breakout"
         }
     ]
 }
