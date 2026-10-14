@@ -1,52 +1,52 @@
 {
-    "generated_at": "2026-10-13 22:51 NPT",
+    "generated_at": "2026-10-14 15:16 NPT",
     "context": "premarket",
     "regime": "SIDEWAYS",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 590.0,
+            "price": 593.0,
             "type": "EMA_CROSS_HALF",
             "quantity": 10,
-            "reason": "EMA cross half: SIDEWAYS, EMA9=584 < EMA21=588 for 56d"
+            "reason": "EMA cross half: SIDEWAYS, EMA9=585 < EMA21=588 for 57d"
         }
     ],
     "potential": [
         {
-            "symbol": "CBBL",
-            "price": 962.0,
-            "conditions_met": 6,
+            "symbol": "KBL",
+            "price": 241.6,
+            "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, volume surge"
+            "reason": "Missing: RSI sweet spot"
         },
         {
-            "symbol": "CLI",
-            "price": 442.0,
-            "conditions_met": 6,
+            "symbol": "UNL",
+            "price": 49955.0,
+            "conditions_met": 7,
             "conditions_total": 8,
-            "reason": "Missing: EMA stack (9>21>50), volume surge"
+            "reason": "Missing: ADX trend strength"
         },
         {
-            "symbol": "HDL",
-            "price": 1287.0,
+            "symbol": "ALBSL",
+            "price": 1185.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
         },
         {
-            "symbol": "ILI",
-            "price": 435.0,
+            "symbol": "CBBL",
+            "price": 967.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength, volume surge"
         },
         {
-            "symbol": "KBL",
-            "price": 237.3,
+            "symbol": "CZBIL",
+            "price": 221.9,
             "conditions_met": 6,
             "conditions_total": 8,
-            "reason": "Missing: RSI sweet spot, 7-day breakout"
+            "reason": "Missing: ADX trend strength, volume surge"
         }
     ]
 }
