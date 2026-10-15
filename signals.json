@@ -1,24 +1,38 @@
 {
-    "generated_at": "2026-10-14 20:24 NPT",
+    "generated_at": "2026-10-15 15:24 NPT",
     "context": "premarket",
     "regime": "SIDEWAYS",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 593.0,
+            "price": 588.0,
             "type": "EMA_CROSS_HALF",
             "quantity": 10,
-            "reason": "EMA cross half: SIDEWAYS, EMA9=585 < EMA21=588 for 58d"
+            "reason": "EMA cross half: SIDEWAYS, EMA9=587 < EMA21=588 for 60d"
         }
     ],
     "potential": [
         {
-            "symbol": "KBL",
-            "price": 241.6,
+            "symbol": "ADBL",
+            "price": 333.8,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: RSI sweet spot"
+        },
+        {
+            "symbol": "MLBL",
+            "price": 373.8,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: ADX trend strength"
+        },
+        {
+            "symbol": "SARBTM",
+            "price": 813.9,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: volume surge"
         },
         {
             "symbol": "UNL",
@@ -29,24 +43,10 @@
         },
         {
             "symbol": "ALBSL",
-            "price": 1185.0,
+            "price": 1187.0,
             "conditions_met": 6,
             "conditions_total": 8,
             "reason": "Missing: volume surge, 7-day breakout"
-        },
-        {
-            "symbol": "CBBL",
-            "price": 967.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, volume surge"
-        },
-        {
-            "symbol": "CZBIL",
-            "price": 221.9,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: ADX trend strength, volume surge"
         }
     ]
 }
