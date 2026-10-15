@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-15 09:38",
+  "generated_at": "2026-10-15 14:22",
   "nepse": {
-    "close": 2625.82,
-    "change": 4.56,
-    "change_pct": 0.17,
+    "close": 2625.93,
+    "change": 4.67,
+    "change_pct": 0.18,
     "date": "2026-10-15"
   },
   "market_status": {
@@ -49,9 +49,9 @@
     {
       "name": "Hydropower",
       "symbol": "HYDROPOWIND",
-      "close": 3542.51,
-      "change": 21.48,
-      "change_pct": 0.61
+      "close": 3543.32,
+      "change": 22.29,
+      "change_pct": 0.63
     },
     {
       "name": "Microfinance",
@@ -63,9 +63,9 @@
     {
       "name": "Trading",
       "symbol": "TRADINGIND",
-      "close": 3223.18,
-      "change": 25.78,
-      "change_pct": 0.81
+      "close": 3205.23,
+      "change": -17.95,
+      "change_pct": -0.56
     },
     {
       "name": "Hotels",
@@ -91,9 +91,9 @@
     {
       "name": "Investment",
       "symbol": "INVIDX",
-      "close": 94.16,
-      "change": 0.49,
-      "change_pct": 0.52
+      "close": 94.9,
+      "change": 0.74,
+      "change_pct": 0.79
     }
   ],
   "breadth": {
