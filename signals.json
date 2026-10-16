@@ -1,38 +1,45 @@
 {
-    "generated_at": "2026-10-15 20:07 NPT",
+    "generated_at": "2026-10-16 15:17 NPT",
     "context": "premarket",
     "regime": "SIDEWAYS",
     "signals": [
         {
             "side": "SELL",
             "symbol": "UHEWA",
-            "price": 588.0,
-            "type": "EMA_CROSS_HALF",
-            "quantity": 10,
-            "reason": "EMA cross half: SIDEWAYS, EMA9=587 < EMA21=588 for 61d"
+            "price": 588.8,
+            "type": "WEAKNESS",
+            "quantity": 20,
+            "reason": "Weakness: RSI=49.1 < 50 after 82d"
         }
     ],
     "potential": [
         {
-            "symbol": "ADBL",
-            "price": 333.8,
-            "conditions_met": 7,
-            "conditions_total": 8,
-            "reason": "Missing: RSI sweet spot"
-        },
-        {
-            "symbol": "MLBL",
-            "price": 373.8,
+            "symbol": "API",
+            "price": 345.0,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength"
         },
         {
-            "symbol": "SARBTM",
-            "price": 813.9,
+            "symbol": "NTC",
+            "price": 920.0,
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: volume surge"
+        },
+        {
+            "symbol": "SHPC",
+            "price": 535.0,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: volume surge"
+        },
+        {
+            "symbol": "UMHL",
+            "price": 563.0,
+            "conditions_met": 7,
+            "conditions_total": 8,
+            "reason": "Missing: EMA stack (9>21>50)"
         },
         {
             "symbol": "UNL",
@@ -40,13 +47,6 @@
             "conditions_met": 7,
             "conditions_total": 8,
             "reason": "Missing: ADX trend strength"
-        },
-        {
-            "symbol": "ALBSL",
-            "price": 1187.0,
-            "conditions_met": 6,
-            "conditions_total": 8,
-            "reason": "Missing: volume surge, 7-day breakout"
         }
     ]
 }
