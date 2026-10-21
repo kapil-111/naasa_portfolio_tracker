@@ -1,5 +1,5 @@
 {
-    "generated_at": "2026-10-20 20:15 NPT",
+    "generated_at": "2026-10-21 15:09 NPT",
     "context": "premarket",
     "regime": "SIDEWAYS",
     "signals": [
@@ -9,7 +9,7 @@
             "price": 588.8,
             "type": "WEAKNESS",
             "quantity": 20,
-            "reason": "Weakness: RSI=49.1 < 50 after 86d"
+            "reason": "Weakness: RSI=49.1 < 50 after 87d"
         }
     ],
     "potential": [
